@@ -11,9 +11,7 @@ import {
 } from "@web3modal/ethereum";
 
 import { Web3Modal } from "@web3modal/react";
-
 import { configureChains, createClient, WagmiConfig } from "wagmi";
-
 import { arbitrum, mainnet, polygon, polygonMumbai } from "wagmi/chains";
 
 // 1. Get projectID at https://cloud.walletconnect.com
@@ -48,6 +46,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
   useEffect(() => {
     setReady(true);
 
+    // Reload page on chain or account change
     if (window.ethereum) {
       window.ethereum.on!("chainChanged", () => {
         window.location.reload();

@@ -1,11 +1,10 @@
 import React from "react";
-import { useState, useEffect } from "react";
-import { ethers } from "ethers";
+import { useEffect } from "react";
 
 import Navbar from "~/components/Navbar";
 import NftUpload from "~/components/NftUpload";
 import useWalletStore, { getWalletAddress } from "~/store/useWalletStore";
-import { Alchemy, Network, AssetTransfersCategory } from "alchemy-sdk";
+import { Alchemy, Network } from "alchemy-sdk";
 
 const settings = {
   apiKey: "7H2-IaYHE7hFfMqYuENjF3tAp-G9BR8Z",
@@ -16,7 +15,7 @@ const create = () => {
   const walletAddress = useWalletStore((state) => state.walletAddress);
   const alchemy = new Alchemy(settings);
 
-  //function that refreshes if the wallet address changes within metamask but dont use intervals
+  //grab the connected wallet from the zustand store if it exists
   useEffect(() => {
     console.log("wallet address changed");
     getWalletAddress();
