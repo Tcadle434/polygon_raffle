@@ -19,6 +19,7 @@
     "@trpc/next": "^10.9.0",
     "@trpc/react-query": "^10.9.0",
     "@trpc/server": "^10.9.0",
+    "@walletconnect/types": "^2.4.6",
     "@web3modal/ethereum": "^2.1.1",
     "@web3modal/react": "^2.1.1",
     "alchemy-sdk": "^2.4.3",
@@ -29,7 +30,8 @@
     "superjson": "1.9.1",
     "ts-node": "^10.9.1",
     "wagmi": "^0.11.7",
-    "zod": "^3.20.2"
+    "zod": "^3.20.2",
+    "zustand": "^4.3.3"
   },
   "devDependencies": {
     "@types/eslint": "^8.21.1",
