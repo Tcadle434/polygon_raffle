@@ -6,6 +6,7 @@ import { z } from "zod";
  */
 const server = z.object({
   DATABASE_URL: z.string().url(),
+  SHADOW_URL: z.string().url(),
   NODE_ENV: z.enum(["development", "test", "production"]),
   NEXT_PUBLIC_PROJECT_ID: z.string().min(1),
 });
@@ -26,6 +27,7 @@ const client = z.object({
  */
 const processEnv = {
   DATABASE_URL: process.env.DATABASE_URL,
+  SHADOW_URL: process.env.SHADOW_URL,
   NODE_ENV: process.env.NODE_ENV,
   NEXT_PUBLIC_PROJECT_ID: process.env.NEXT_PUBLIC_PROJECT_ID,
   // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
