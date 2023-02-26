@@ -1,12 +1,11 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import { NextApiRequest, NextApiResponse } from "next";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { api } from "../utils/api";
 
 import Navbar from "~/components/Navbar";
 import NftUpload from "~/components/NftUpload";
-import NftSelectForm from "~/components/NftSelectForm";
 import useWalletStore, { getWalletAddress } from "~/store/useWalletStore";
 import { Alchemy, Network, OwnedNft, OwnedNftsResponse } from "alchemy-sdk";
 import { XMarkIcon } from "@heroicons/react/24/outline";
@@ -30,11 +29,21 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
   const [ticketPrice, setTicketPrice] = useState(0);
   const [raffleEndDate, setRaffleEndDate] = useState("");
   const [isFormLoading, setIsFormLoading] = useState(false);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   const router = useRouter();
 
   const walletAddress = useWalletStore((state) => state.walletAddress);
   const alchemy = new Alchemy(settings);
+
+  const { mutateAsync: createRaffle } = api.raffle.createRaffle.useMutation({
+    onSuccess: () => {
+      console.log("Success User");
+    },
+    onError: (err) => {
+      console.log("FAILURE User", err);
+    },
+  });
 
   //grab the connected wallet from the zustand store if it exists
   useEffect(() => {
@@ -101,6 +110,23 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
       console.log(ticketSupply);
       console.log(ticketPrice);
       console.log(raffleEndDate);
+      const dateString = "2022-02-28T10:00:00.000Z";
+
+      let response = await createRaffle({
+        ticketSupply: ticketSupply,
+        ticketPrice: ticketPrice,
+        ticketsSold: 0,
+        endDate: new Date(dateString),
+        nftContractAddress: selectedNft?.contract.address!,
+        nftTokenId: selectedNft?.tokenId!,
+        nftTokenURI: selectedNft?.rawMetadata?.image!,
+        nftTokenName: selectedNft?.rawMetadata?.name!,
+        nftCollectionName: selectedNft?.contract.openSea?.collectionName!,
+        winnerWalletAddress: "",
+        creatorWalletAddress: walletAddress!,
+      });
+
+      console.log("here is the response from creating the raffle: ", response);
     } catch (error) {
       console.error(error);
     } finally {
@@ -170,13 +196,27 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                         className="inline-block w-[200px] rounded border-2 border-off hover:border-secondary"
                         onClick={() => handleNftSelect(nft)}
                       >
-                        <Image
-                          src={nft.rawMetadata?.image!}
-                          alt="user NFT"
-                          width={200}
-                          height={200}
-                        />
-                        {/* <p>{nft.rawMetadata?.image}</p> */}
+                        <div className="">
+                          {!isImageLoaded && (
+                            <div className="">
+                              <Image
+                                src="/rings.svg"
+                                alt="loader"
+                                width={200}
+                                height={200}
+                              />
+                            </div>
+                          )}
+                          <Image
+                            src={nft.rawMetadata?.image!}
+                            alt="user NFT"
+                            width={200}
+                            height={200}
+                            onLoad={() => setIsImageLoaded(true)}
+                            loading="lazy"
+                          />
+                        </div>
+
                         <p className="text-md my-2 block truncate pl-2 text-left font-medium text-gray-500">
                           {nft.contract.openSea?.collectionName}
                         </p>

@@ -6,8 +6,10 @@ generator client {
 }
 
 datasource db {
-    provider = "sqlite"
-    url      = env("DATABASE_URL")
+    provider          = "mysql"
+    url               = env("DATABASE_URL")
+    shadowDatabaseUrl = env("SHADOW_URL")
+    relationMode      = "prisma"
 }
 
 model Example {
@@ -17,12 +19,12 @@ model Example {
 }
 
 model User {
-    id            String        @id @default(cuid())
+    id            String        @default(cuid())
     createdAt     DateTime      @default(now())
     updatedAt     DateTime      @updatedAt
-    walletAddress String
+    walletAddress String        @id @unique
     name          String?
-    Raffle        Raffle[]
+    // Raffle        Raffle[]
     Participant   Participant[]
 }
 
@@ -32,25 +34,27 @@ model Participant {
     updatedAt DateTime @updatedAt
     raffle    Raffle   @relation(fields: [raffleId], references: [id])
     raffleId  String
-    user      User     @relation(fields: [userId], references: [id])
+    user      User     @relation(fields: [userId], references: [walletAddress])
     userId    String
 }
 
 model Raffle {
-    id                  String        @id @default(cuid())
-    createdAt           DateTime      @default(now())
-    updatedAt           DateTime      @updatedAt
-    ticketSupply        Int
-    ticketPrice         Int
-    ticketsSold         Int
-    endDate             DateTime
-    nftContractAddress  String
-    nftTokenId          String
-    nftTokenURI         String?
-    nftTokenName        String?
-    nftCollectionName   String?
-    creator             User          @relation(fields: [creatorId], references: [id])
-    creatorId           String
+    id                   String   @id @default(cuid())
+    createdAt            DateTime @default(now())
+    updatedAt            DateTime @updatedAt
+    ticketSupply         Int
+    ticketPrice          Int
+    ticketsSold          Int
+    endDate              DateTime
+    nftContractAddress   String
+    nftTokenId           String
+    nftTokenURI          String?
+    nftTokenName         String?
+    nftCollectionName    String?
+    // creator             User          @relation(fields: [creatorId], references: [walletAddress])
+    // creatorId            String
+    creatorWalletAddress String
+
     winnerWalletAddress String?
     Participant         Participant[]
 }
