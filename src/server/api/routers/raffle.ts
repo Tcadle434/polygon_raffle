@@ -46,11 +46,12 @@ export const raffleRouter = createTRPCRouter({
             nftTokenName: nftTokenName,
             nftCollectionName: nftCollectionName,
             winnerWalletAddress: winnerWalletAddress,
-            creator: {
-              connect: {
-                walletAddress: creatorWalletAddress,
-              },
-            },
+            creatorWalletAddress: creatorWalletAddress,
+            // creator: {
+            //   connect: {
+            //     walletAddress: creatorWalletAddress,
+            //   },
+            // },
           },
         });
         console.log("RESPONSE", response);

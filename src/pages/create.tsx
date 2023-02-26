@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { NextApiRequest, NextApiResponse } from "next";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { api } from "../utils/api";
 
 import Navbar from "~/components/Navbar";
 import NftUpload from "~/components/NftUpload";
@@ -35,6 +36,15 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
 
   const walletAddress = useWalletStore((state) => state.walletAddress);
   const alchemy = new Alchemy(settings);
+
+  const { mutateAsync: createRaffle } = api.raffle.createRaffle.useMutation({
+    onSuccess: () => {
+      console.log("Success User");
+    },
+    onError: (err) => {
+      console.log("FAILURE User", err);
+    },
+  });
 
   //grab the connected wallet from the zustand store if it exists
   useEffect(() => {
@@ -101,6 +111,23 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
       console.log(ticketSupply);
       console.log(ticketPrice);
       console.log(raffleEndDate);
+      const dateString = "2022-02-28T10:00:00.000Z";
+
+      let response = await createRaffle({
+        ticketSupply: ticketSupply,
+        ticketPrice: ticketPrice,
+        ticketsSold: 0,
+        endDate: new Date(dateString),
+        nftContractAddress: selectedNft?.contract.address!,
+        nftTokenId: selectedNft?.tokenId!,
+        nftTokenURI: selectedNft?.rawMetadata?.image!,
+        nftTokenName: selectedNft?.rawMetadata?.name!,
+        nftCollectionName: selectedNft?.contract.openSea?.collectionName!,
+        winnerWalletAddress: "",
+        creatorWalletAddress: walletAddress!,
+      });
+
+      console.log("here is the response from creating the raffle: ", response);
     } catch (error) {
       console.error(error);
     } finally {

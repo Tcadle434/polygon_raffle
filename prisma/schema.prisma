@@ -22,7 +22,7 @@ model User {
     updatedAt     DateTime      @updatedAt
     walletAddress String        @id @unique
     name          String?
-    Raffle        Raffle[]
+    // Raffle        Raffle[]
     Participant   Participant[]
 }
 
@@ -37,20 +37,22 @@ model Participant {
 }
 
 model Raffle {
-    id                  String        @id @default(cuid())
-    createdAt           DateTime      @default(now())
-    updatedAt           DateTime      @updatedAt
-    ticketSupply        Int
-    ticketPrice         Int
-    ticketsSold         Int
-    endDate             DateTime
-    nftContractAddress  String
-    nftTokenId          String
-    nftTokenURI         String?
-    nftTokenName        String?
-    nftCollectionName   String?
-    creator             User          @relation(fields: [creatorId], references: [walletAddress])
-    creatorId           String
+    id                   String   @id @default(cuid())
+    createdAt            DateTime @default(now())
+    updatedAt            DateTime @updatedAt
+    ticketSupply         Int
+    ticketPrice          Int
+    ticketsSold          Int
+    endDate              DateTime
+    nftContractAddress   String
+    nftTokenId           String
+    nftTokenURI          String?
+    nftTokenName         String?
+    nftCollectionName    String?
+    // creator             User          @relation(fields: [creatorId], references: [walletAddress])
+    // creatorId            String
+    creatorWalletAddress String
+
     winnerWalletAddress String?
     Participant         Participant[]
 }
