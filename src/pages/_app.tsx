@@ -65,7 +65,11 @@ const MyApp: AppType = ({ Component, pageProps }) => {
         </WagmiConfig>
       ) : null}
 
-      <Web3Modal projectId={projectId} ethereumClient={ethereumClient} />
+      <Web3Modal
+        projectId={projectId}
+        ethereumClient={ethereumClient}
+        themeColor="purple"
+      />
     </>
   );
 };
