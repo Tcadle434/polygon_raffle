@@ -17,10 +17,10 @@ model Example {
 }
 
 model User {
-    id            String        @id @default(cuid())
+    id            String        @default(cuid())
     createdAt     DateTime      @default(now())
     updatedAt     DateTime      @updatedAt
-    walletAddress String
+    walletAddress String        @id @unique
     name          String?
     Raffle        Raffle[]
     Participant   Participant[]
@@ -32,7 +32,7 @@ model Participant {
     updatedAt DateTime @updatedAt
     raffle    Raffle   @relation(fields: [raffleId], references: [id])
     raffleId  String
-    user      User     @relation(fields: [userId], references: [id])
+    user      User     @relation(fields: [userId], references: [walletAddress])
     userId    String
 }
 
@@ -49,7 +49,7 @@ model Raffle {
     nftTokenURI         String?
     nftTokenName        String?
     nftCollectionName   String?
-    creator             User          @relation(fields: [creatorId], references: [id])
+    creator             User          @relation(fields: [creatorId], references: [walletAddress])
     creatorId           String
     winnerWalletAddress String?
     Participant         Participant[]
