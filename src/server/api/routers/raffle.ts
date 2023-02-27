@@ -12,10 +12,10 @@ export const raffleRouter = createTRPCRouter({
         endDate: z.date(),
         nftContractAddress: z.string(),
         nftTokenId: z.string(),
-        nftTokenURI: z.string(),
-        nftTokenName: z.string(),
-        nftCollectionName: z.string(),
-        winnerWalletAddress: z.string(),
+        nftTokenURI: z.string().nullish(),
+        nftTokenName: z.string().nullish(),
+        nftCollectionName: z.string().nullish(),
+        winnerWalletAddress: z.string().nullish(),
         creatorWalletAddress: z.string(),
       })
     )
@@ -58,5 +58,30 @@ export const raffleRouter = createTRPCRouter({
       } catch (e) {
         console.log("ERROR", e);
       }
+    }),
+
+  getAllRaffles: publicProcedure.query(async ({ ctx }) => {
+    const response = await ctx.prisma.raffle.findMany();
+    return response;
+  }),
+
+  getAllRaffleIds: publicProcedure.query(async ({ ctx }) => {
+    const response = await ctx.prisma.raffle.findMany({
+      select: {
+        id: true,
+      },
+    });
+    return response;
+  }),
+
+  getRaffleById: publicProcedure
+    .input(z.string())
+    .query(async ({ input, ctx }) => {
+      const response = await ctx.prisma.raffle.findUnique({
+        where: {
+          id: input,
+        },
+      });
+      return response;
     }),
 });
