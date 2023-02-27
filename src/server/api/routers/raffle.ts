@@ -59,4 +59,9 @@ export const raffleRouter = createTRPCRouter({
         console.log("ERROR", e);
       }
     }),
+
+  getAllRaffles: publicProcedure.query(async ({ ctx }) => {
+    const response = await ctx.prisma.raffle.findMany();
+    return response;
+  }),
 });

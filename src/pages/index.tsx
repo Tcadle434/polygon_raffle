@@ -3,7 +3,8 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
-
+import { api } from "~/utils/api";
+import { z } from "zod";
 import RaffleCard from "~/components/RaffleCard";
 import Navbar from "~/components/Navbar";
 import useInfiniteScroll from "../hooks/useInfiniteScroll";
@@ -82,17 +83,40 @@ type Props = {
   loadMore: () => Promise<void>;
 };
 
+const raffleSchema = z.object({
+  ticketSupply: z.number(),
+  ticketPrice: z.number(),
+  ticketsSold: z.number(),
+  endDate: z.date(),
+  nftContractAddress: z.string(),
+  nftTokenId: z.string(),
+  nftTokenURI: z.string().nullish(),
+  nftTokenName: z.string().nullish(),
+  nftCollectionName: z.string().nullish(),
+  winnerWalletAddress: z.string().nullish(),
+  creatorWalletAddress: z.string(),
+});
+
+interface RaffleType {
+  ticketSupply: number;
+  ticketPrice: number;
+  ticketsSold: number;
+  endDate: Date;
+  nftContractAddress: string;
+  nftTokenId: string;
+  nftTokenURI: string | null;
+  nftTokenName: string | null;
+  nftCollectionName: string | null;
+  winnerWalletAddress: string | null;
+  creatorWalletAddress: string;
+}
+
 const Home = ({ loadMore }: Props) => {
   // const [images, setImages] = useState(tempImgUrls.slice(0, 50));
   const [images, setImages] = useState<string[] | never[]>([]);
   const [page, setPage] = useState(1);
+  const [raffles, setRaffles] = useState<RaffleType>({} as RaffleType);
 
-  // const { scrollRef, loading } = useInfiniteScroll(loadMore);
-
-  // const handleLoadMore = async () => {
-  //   await loadMore();
-  //   setImages(images.slice(0, images.length + 50));
-  // };
   const fetchImages = async () => {
     // const response = await fetch(`${BASE_URL}?query=tea&page=${page}`, {
     //   headers: {
@@ -104,9 +128,26 @@ const Home = ({ loadMore }: Props) => {
     setImages((prev) => [...prev, ...results]);
   };
 
+  const getRaffleObjects = async () => {
+    const raffleObjets = api.raffle.getAllRaffles.useQuery();
+    console.log("raffleObjects: ", raffleObjets);
+    // setRaffles(...raffles, raffleObjets);
+  };
+
   useEffect(() => {
+    // const raffleObjets = api.raffle.getAllRaffles.useQuery();
+    // console.log("raffleObjects: ", raffleObjets);
+    // console.log(raffleResults.data);
     fetchImages();
   }, [page]);
+
+  const allRaffles = api.raffle.getAllRaffles.useQuery();
+  if (!allRaffles.data)
+    return (
+      <div className="flex h-screen items-center justify-center bg-gradient-to-b from-[#d5bdf5] to-[#fff]">
+        <img src="/bars.svg" alt="loading" />
+      </div>
+    );
 
   return (
     <>
@@ -116,13 +157,28 @@ const Home = ({ loadMore }: Props) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navbar />
-      <main className="flex min-h-screen flex-col  bg-gradient-to-b from-[#d5bdf5] to-[#fff]">
+      <main className="flex min-h-screen flex-col items-center justify-center  bg-gradient-to-b from-[#d5bdf5] to-[#fff]">
         <div className=" gap-12 px-4 py-16 ">
           <ul
             role="list"
             className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
           >
-            {images.map((image, index) => (
+            {allRaffles.data.map((raffle, index) => (
+              <li key={raffle.id} className="relative">
+                <RaffleCard
+                  imageUrl={raffle.nftTokenURI!}
+                  nftName={raffle.nftTokenName!}
+                  nftCollectionName={raffle.nftCollectionName!}
+                  raffleTimeRemaining={raffle.endDate.toString()}
+                  ticketPrice={raffle.ticketPrice}
+                  ticketsRemaining={raffle.ticketSupply - raffle.ticketsSold}
+                  totalTickets={raffle.ticketSupply}
+                  isLast={index === images.length - 1}
+                  newLimit={() => setPage(page + 1)}
+                />
+              </li>
+            ))}
+            {/* {images.map((image, index) => (
               <li key={image} className="relative">
                 <RaffleCard
                   imageUrl={image}
@@ -135,30 +191,8 @@ const Home = ({ loadMore }: Props) => {
                   isLast={index === images.length - 1}
                   newLimit={() => setPage(page + 1)}
                 />
-
-                {/* <div className="group aspect-w-8 aspect-h-8 block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
-                  <Image
-                    src={image}
-                    height={150}
-                    width={150}
-                    alt=""
-                    className="pointer-events-none object-cover group-hover:opacity-75"
-                  />
-                  <button
-                    type="button"
-                    className="absolute inset-0 focus:outline-none"
-                  >
-                    <span className="sr-only">View details for {file.title}</span>
-                  </button>
-                </div>
-                <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">
-                  tmp
-                </p>
-                <p className="pointer-events-none block text-sm font-medium text-gray-500">
-                  tmp
-                </p> */}
               </li>
-            ))}
+            ))} */}
           </ul>
         </div>
       </main>

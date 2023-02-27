@@ -54,37 +54,47 @@ const RaffleCard = ({
               <Image src="/rings.svg" alt="loader" width={200} height={200} />
             </div>
           )}
-          <img
+          <Image
             src={imageUrl}
             alt="user NFT"
             className="rounded-t-lg"
             onLoad={() => setIsImageLoaded(true)}
             loading="lazy"
+            width={400}
+            height={300}
           />
         </div>
       </a>
       <div className="p-5">
         <a href="#">
-          <h5 className=" text-2xl font-bold tracking-tight text-light">
+          <h5 className=" text-2xl font-bold tracking-tight text-light line-clamp-1">
             {nftCollectionName}
           </h5>
         </a>
-        <p className="mt mb-3 font-normal text-white">{nftName}</p>
+        <p className="mt mb-3 font-normal text-white line-clamp-1">{nftName}</p>
         <div className="mt-4 flex flex-row justify-between">
           <div className="flex flex-col ">
-            <label className="text-md text-light">Tickets Remaining</label>
+            <label className="text-md text-light line-clamp-1">
+              Tickets Remaining
+            </label>
             <p className="mb-3 font-normal text-white">
               {ticketsRemaining} / {totalTickets}
             </p>
           </div>
           <div className="flex flex-col">
-            <label className="text-md text-light">Ticket Price</label>
+            <label className="text-md text-light line-clamp-1">
+              Ticket Price
+            </label>
             <p className="mb-3 font-normal text-white">{ticketPrice} $MATIC</p>
           </div>
         </div>
         <div className="flex flex-col">
-          <label className="text-md text-light">Time Remaining</label>
-          <p className="mb-3 font-normal text-white">{raffleTimeRemaining}</p>
+          <label className="text-md text-light line-clamp-1">
+            Time Remaining
+          </label>
+          <p className="mb-3 font-normal text-white line-clamp-1">
+            {raffleTimeRemaining}
+          </p>
         </div>
 
         <button className="inline-flex w-full items-center justify-center rounded-lg bg-[#E58247] px-3 py-2 text-center text-sm font-medium text-white hover:bg-purple-800 focus:outline-none focus:ring-4 focus:ring-purple-300">
