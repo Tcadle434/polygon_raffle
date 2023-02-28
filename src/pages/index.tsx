@@ -94,6 +94,7 @@ const raffleSchema = z.object({
   nftCollectionName: z.string().nullish(),
   winnerWalletAddress: z.string().nullish(),
   creatorWalletAddress: z.string(),
+  createdAt: z.date(),
 });
 
 type RaffleType = z.infer<typeof raffleSchema>;
@@ -117,7 +118,7 @@ const Home = ({ initialData }: RaffleProps) => {
     );
   }
 
-  if (!allRaffles.data)
+  if (!allRaffles.data || allRaffles.data.length === 0)
     return (
       <div>
         <Navbar />
