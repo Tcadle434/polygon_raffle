@@ -156,12 +156,12 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                       }}
                     />
                   ) : (
-                    <div className=" flex flex-col items-center rounded border">
+                    <div className=" flex w-full flex-col items-center rounded ">
                       <Image
                         src={selectedNft.rawMetadata?.image!}
                         alt="user NFT"
-                        width={200}
-                        height={200}
+                        width={300}
+                        height={300}
                         className="items-center"
                       />
                       <p className="text-md my-2 block truncate pl-2 text-left font-medium text-gray-500">

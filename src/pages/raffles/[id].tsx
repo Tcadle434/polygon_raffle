@@ -28,10 +28,22 @@ const raffle = () => {
   }
 
   return (
-    <div>
+    <div className="bg-gradient-to-b from-[#d5bdf5] to-[#fff]">
       <Navbar />
-      {data.nftTokenName}
-      <ExpandedRaffle />
+      <ExpandedRaffle
+        ticketSupply={data.ticketSupply}
+        ticketPrice={data.ticketPrice}
+        ticketsSold={data.ticketsSold}
+        endDate={data.endDate}
+        nftContractAddress={data.nftContractAddress}
+        nftTokenId={data.nftTokenId}
+        nftTokenURI={data.nftTokenURI}
+        nftTokenName={data.nftTokenName}
+        nftCollectionName={data.nftCollectionName}
+        winnerWalletAddress={data.winnerWalletAddress}
+        creatorWalletAddress={data.creatorWalletAddress}
+        createdAt={data.createdAt}
+      />
     </div>
   );
 };
