@@ -84,4 +84,114 @@ export const raffleRouter = createTRPCRouter({
       });
       return response;
     }),
+
+  updateRaffleTicketsSoldById: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        ticketsSold: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { id, ticketsSold } = input;
+      try {
+        const response = await ctx.prisma.raffle.update({
+          where: {
+            id: id,
+          },
+          data: {
+            ticketsSold: ticketsSold,
+          },
+        });
+        console.log("RESPONSE", response);
+      } catch (e) {
+        console.log("ERROR", e);
+      }
+    }),
+
+  //   updateOrCreateParticipants: publicProcedure
+  //     .input(
+  //       z.object({
+  //         numTickets: z.number(),
+  //         buyerWalletAddress: z.string(),
+  //         raffleId: z.string(),
+  //       })
+  //     )
+  //     .mutation(async ({ input, ctx }) => {
+  //       const { numTickets, buyerWalletAddress, raffleId } = input;
+  //       try {
+  //         const response = await ctx.prisma.raffle.upsert({
+  //           where: {
+  //             id: raffleId,
+  //           },
+
+  //           create: {
+  //             Participant: {
+  //               create: {
+  //                 numTickets: numTickets,
+  //                 walletAddress: buyerWalletAddress,
+  //                 raffle: {
+  //                   connect: {
+  //                     id: raffleId,
+  //                   },
+  //                 },
+  //               },
+  //             },
+  //           },
+  //           update: {
+  //             Participant: {
+  //               update: {
+  //                 where: {
+  //                   walletAddress: buyerWalletAddress,
+  //                 },
+  //                 data: {
+  //                   numTickets: {
+  //                     increment: numTickets,
+  //                   },
+  //                 },
+  //               },
+  //             },
+  //           },
+  //         });
+  //         console.log("RESPONSE", response);
+  //       } catch (e) {
+  //         console.log("ERROR", e);
+  //       }
+  //     }),
+
+  //   updateParticipants: publicProcedure
+  //     .input(
+  //       z.object({
+  //         numTickets: z.number(),
+  //         buyerWalletAddress: z.string(),
+  //         raffleId: z.string(),
+  //       })
+  //     )
+  //     .mutation(async ({ input, ctx }) => {
+  //       const { numTickets, buyerWalletAddress, raffleId } = input;
+  //       try {
+  //         const response = await ctx.prisma.raffle.update({
+  //           where: {
+  //             id: raffleId,
+  //           },
+  //           data: {
+  //             Participant: {
+  //               update: {
+  //                 where: {
+  //                   walletAddress: buyerWalletAddress,
+  //                 },
+  //                 data: {
+  //                   numTickets: {
+  //                     increment: numTickets,
+  //                   },
+  //                 },
+  //               },
+  //             },
+  //           },
+  //         });
+  //         console.log("RESPONSE", response);
+  //       } catch (e) {
+  //         console.log("ERROR", e);
+  //       }
+  //     }),
 });

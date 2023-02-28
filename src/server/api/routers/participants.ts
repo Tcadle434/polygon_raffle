@@ -31,6 +31,81 @@ export const participantRouter = createTRPCRouter({
       }
     }),
 
+  //   buyTicketsTwo: publicProcedure
+  //     .input(
+  //       z.object({
+  //         numTickets: z.number(),
+  //         buyerWalletAddress: z.string(),
+  //         raffleId: z.string(),
+  //       })
+  //     )
+  //     .mutation(async ({ input, ctx }) => {
+  //       const { numTickets, buyerWalletAddress, raffleId } = input;
+  //       try {
+  //         const response = await ctx.prisma.participant.upsert({
+  //           where: {
+  //             walletAddress: buyerWalletAddress,
+  //           },
+  //           update: {
+  //             numTickets: {
+  //               increment: numTickets,
+  //             },
+  //           },
+  //           create: {
+  //             numTickets: numTickets,
+  //             walletAddress: buyerWalletAddress,
+  //             raffle: {
+  //               connect: {
+  //                 id: raffleId,
+  //               },
+  //             },
+  //           },
+  //         });
+  //         console.log("RESPONSE", response);
+  //       } catch (e) {
+  //         console.log("ERROR", e);
+  //       }
+  //     }),
+
+  buyTicketsThree: publicProcedure
+    .input(
+      z.object({
+        numTickets: z.number(),
+        buyerWalletAddress: z.string(),
+        raffleId: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { numTickets, buyerWalletAddress, raffleId } = input;
+      try {
+        const response = await ctx.prisma.participant.upsert({
+          where: {
+            raffleId_walletAddress: {
+              raffleId: raffleId,
+              walletAddress: buyerWalletAddress,
+            },
+          },
+          update: {
+            numTickets: {
+              increment: numTickets,
+            },
+          },
+          create: {
+            numTickets: numTickets,
+            walletAddress: buyerWalletAddress,
+            raffle: {
+              connect: {
+                id: raffleId,
+              },
+            },
+          },
+        });
+        console.log("RESPONSE", response);
+      } catch (e) {
+        console.log("ERROR", e);
+      }
+    }),
+
   getAllParticipants: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.participant.findMany();
   }),

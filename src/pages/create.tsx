@@ -11,8 +11,10 @@ import { Alchemy, Network, OwnedNft, OwnedNftsResponse } from "alchemy-sdk";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
 const settings = {
-  apiKey: "7H2-IaYHE7hFfMqYuENjF3tAp-G9BR8Z",
-  network: Network.ETH_MAINNET,
+  // apiKey: "7H2-IaYHE7hFfMqYuENjF3tAp-G9BR8Z",
+  // network: Network.ETH_MAINNET,
+  apiKey: "HRtcdn0En4LLGdjYcniYYIOqT00PAxA9",
+  network: Network.MATIC_MUMBAI,
 };
 
 interface Props {
