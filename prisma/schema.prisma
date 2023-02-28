@@ -33,6 +33,7 @@ model Participant {
     createdAt     DateTime @default(now())
     updatedAt     DateTime @updatedAt
     walletAddress String
+    numTickets    Int
     raffle        Raffle   @relation(fields: [raffleId], references: [id])
     raffleId      String
 }

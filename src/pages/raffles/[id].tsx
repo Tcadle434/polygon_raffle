@@ -43,6 +43,7 @@ const raffle = () => {
         winnerWalletAddress={data.winnerWalletAddress}
         creatorWalletAddress={data.creatorWalletAddress}
         createdAt={data.createdAt}
+        raffleID={data.id}
       />
     </div>
   );

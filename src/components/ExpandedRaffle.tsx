@@ -1,9 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import { NextPage } from "next";
 import z from "zod";
+import { useRouter } from "next/router";
 
+import { api } from "~/utils/api";
 import Divider from "./Divider";
+import useWalletStore, { getWalletAddress } from "~/store/useWalletStore";
+
 import ParticipantList from "./ParticipantList";
 
 const raffleSchema = z.object({
@@ -19,6 +23,7 @@ const raffleSchema = z.object({
   winnerWalletAddress: z.string().nullish(),
   creatorWalletAddress: z.string(),
   createdAt: z.date(),
+  raffleID: z.string(),
 });
 
 type RaffleProps = z.infer<typeof raffleSchema>;
@@ -45,7 +50,47 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
   winnerWalletAddress,
   creatorWalletAddress,
   createdAt,
+  raffleID,
 }) => {
+  const [ticketNum, setTicketNum] = React.useState(1);
+  const walletAddress = useWalletStore((state) => state.walletAddress);
+
+  const router = useRouter();
+
+  const { mutateAsync: buyTickets } = api.participant.buyTickets.useMutation({
+    onSuccess: () => {
+      console.log("Success User");
+    },
+    onError: (err) => {
+      console.log("FAILURE User", err);
+    },
+  });
+
+  const handleBuyTickets = async () => {
+    console.log(`Buying ${ticketNum} tickets...`);
+    try {
+      let response = await buyTickets({
+        numTickets: ticketNum,
+        buyerWalletAddress: walletAddress!,
+        raffleId: raffleID,
+      });
+      console.log("here is the response from buying the tickets: ", response);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setTimeout(() => {
+        // setIsFormLoading(false);
+        router.push("/");
+      }, 3000);
+    }
+  };
+
+  //grab the connected wallet from the zustand store if it exists
+  useEffect(() => {
+    console.log("wallet address changed");
+    getWalletAddress();
+  }, []);
+
   return (
     <div className="">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
@@ -66,6 +111,27 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                       className="items-center"
                     />
                   </div>
+                </div>
+              </div>
+              <div className="mt-4 flex flex-col items-center">
+                <div className="flex w-full flex-row justify-between">
+                  <div>
+                    <input
+                      type="number"
+                      name="tickets"
+                      id="tickets"
+                      className="block h-16 w-16 rounded-md border-2 border-secondary text-center text-xl shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                      defaultValue={1}
+                      min={1}
+                      onChange={(e) => setTicketNum(parseInt(e.target.value))}
+                    />
+                  </div>
+                  <button
+                    className="ml-8 inline-flex w-full items-center justify-center rounded-lg bg-third px-3 py-3 text-center text-white hover:bg-purple-800 focus:outline-none focus:ring-4 focus:ring-green-300"
+                    onClick={() => handleBuyTickets()}
+                  >
+                    <h3 className="text-xl font-bold">Buy Tickets</h3>
+                  </button>
                 </div>
               </div>
             </section>
@@ -130,7 +196,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                         <label className="text-md text-secondary line-clamp-1">
                           Raffler Address
                         </label>
-                        <p className="mb-3 font-normal text-gray-500">
+                        <p className="mb-3 block truncate font-normal text-gray-500 sm:inline-block sm:overflow-visible ">
                           {creatorWalletAddress}
                         </p>
                       </div>
