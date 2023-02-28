@@ -57,14 +57,15 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
 
   const router = useRouter();
 
-  const { mutateAsync: buyTickets } = api.participant.buyTickets.useMutation({
-    onSuccess: () => {
-      console.log("Success User");
-    },
-    onError: (err) => {
-      console.log("FAILURE User", err);
-    },
-  });
+  const { mutateAsync: buyTickets } =
+    api.participant.buyTicketsThree.useMutation({
+      onSuccess: () => {
+        console.log("Success User");
+      },
+      onError: (err) => {
+        console.log("FAILURE User", err);
+      },
+    });
 
   const { mutateAsync: updateTicketsSold } =
     api.raffle.updateRaffleTicketsSoldById.useMutation({

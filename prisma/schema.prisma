@@ -36,6 +36,8 @@ model Participant {
     numTickets    Int
     raffle        Raffle   @relation(fields: [raffleId], references: [id])
     raffleId      String
+
+    @@unique([raffleId, walletAddress])
 }
 
 model Raffle {
