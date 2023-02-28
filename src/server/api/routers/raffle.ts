@@ -84,4 +84,28 @@ export const raffleRouter = createTRPCRouter({
       });
       return response;
     }),
+
+  updateRaffleTicketsSoldById: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        ticketsSold: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { id, ticketsSold } = input;
+      try {
+        const response = await ctx.prisma.raffle.update({
+          where: {
+            id: id,
+          },
+          data: {
+            ticketsSold: ticketsSold,
+          },
+        });
+        console.log("RESPONSE", response);
+      } catch (e) {
+        console.log("ERROR", e);
+      }
+    }),
 });

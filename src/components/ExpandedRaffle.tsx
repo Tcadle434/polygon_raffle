@@ -66,6 +66,16 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
     },
   });
 
+  const { mutateAsync: updateTicketsSold } =
+    api.raffle.updateRaffleTicketsSoldById.useMutation({
+      onSuccess: () => {
+        console.log("Success User");
+      },
+      onError: (err) => {
+        console.log("FAILURE User", err);
+      },
+    });
+
   const handleBuyTickets = async () => {
     console.log(`Buying ${ticketNum} tickets...`);
     try {
@@ -74,6 +84,10 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
         buyerWalletAddress: walletAddress!,
         raffleId: raffleID,
       });
+      //   let response2 = await updateTicketsSold({
+      //     id: raffleID,
+      //     ticketsSold: ticketNum,
+      //   });
       console.log("here is the response from buying the tickets: ", response);
     } catch (error) {
       console.error(error);
