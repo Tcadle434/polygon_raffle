@@ -31,7 +31,7 @@ const config = {
         hostname: "**",
       },
     ],
-    domains: ["gateway.ipfs.io"],
+    domains: ["gateway.ipfs.io", ""],
   },
 };
 export default config;
