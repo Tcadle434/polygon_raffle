@@ -27,7 +27,15 @@ export const getWalletAddress = async () => {
   } else {
     // User doesn't have a wallet connected
     useWalletStore.setState({ walletAddress: null });
-    useWalletStore.setState({ chainId: null });
+    // useWalletStore.setState({ chainId: null });
+  }
+};
+
+export const disconnectWallet = async () => {
+  if (typeof window.ethereum !== "undefined") {
+    // Disconnect from the user's wallet
+    useWalletStore.setState({ walletAddress: null });
+    // useWalletStore.setState({ chainId: null });
   }
 };
 

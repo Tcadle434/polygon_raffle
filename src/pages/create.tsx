@@ -190,11 +190,13 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                     />
                   </div>
                 )}
+
                 {!nftDataLoading && nfts.length === 0 && (
                   <div className="flex items-center justify-center">
                     <p className="text-2xl">No NFTs found</p>
                   </div>
                 )}
+
                 <ul
                   role="list"
                   className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
@@ -310,15 +312,6 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                         </label>
 
                         <div className="mt-1">
-                          {/* <input
-                            type="text"
-                            name="company-website"
-                            id="company-website"
-                            className="block rounded-md border-2 border-light shadow-sm hover:border-secondary focus:border-secondary"
-                            onChange={(e) => {
-                              setRaffleEndDate(e.target.value);
-                            }}
-                         /> */}
                           <DatePicker
                             selected={raffleEndDate}
                             onChange={(date: Date | null) =>

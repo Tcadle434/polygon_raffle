@@ -5,7 +5,10 @@ import { PlusIcon } from "@heroicons/react/20/solid";
 import Link from "next/link";
 import { Web3Button, Web3NetworkSwitch } from "@web3modal/react";
 import { providers } from "ethers";
-import useWalletStore, { getWalletAddress } from "~/store/useWalletStore";
+import useWalletStore, {
+  getWalletAddress,
+  disconnectWallet,
+} from "~/store/useWalletStore";
 
 function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(" ");
