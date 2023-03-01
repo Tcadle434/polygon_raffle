@@ -20,6 +20,7 @@ const raffleSchema = z.object({
   nftTokenName: z.string().nullish(),
   nftCollectionName: z.string().nullish(),
   winnerWalletAddress: z.string().nullish(),
+  winnerPicked: z.boolean(),
   creatorWalletAddress: z.string(),
   createdAt: z.date(),
   raffleID: z.string(),
@@ -47,6 +48,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
   nftTokenName,
   nftCollectionName,
   winnerWalletAddress,
+  winnerPicked,
   creatorWalletAddress,
   createdAt,
   raffleID,
@@ -128,27 +130,51 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                   </div>
                 </div>
               </div>
-              <div className="mt-4 flex flex-col items-center">
-                <div className="flex w-full flex-row justify-between">
-                  <div>
-                    <input
-                      type="number"
-                      name="tickets"
-                      id="tickets"
-                      className="block h-16 w-16 rounded-md border-2 border-secondary text-center text-xl shadow-sm focus:border-purple-500 focus:ring-purple-500"
-                      defaultValue={1}
-                      min={1}
-                      onChange={(e) => setTicketNum(parseInt(e.target.value))}
-                    />
+              {!winnerPicked && endDate! > new Date() && (
+                <div className="mt-4 flex flex-col items-center">
+                  <div className="flex w-full flex-row justify-between">
+                    <div>
+                      <input
+                        type="number"
+                        name="tickets"
+                        id="tickets"
+                        className="block h-16 w-16 rounded-md border-2 border-secondary text-center text-xl shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                        defaultValue={1}
+                        min={1}
+                        onChange={(e) => setTicketNum(parseInt(e.target.value))}
+                      />
+                    </div>
+                    <button
+                      className="ml-8 inline-flex w-full items-center justify-center rounded-lg bg-third px-3 py-3 text-center text-white hover:bg-purple-800 focus:outline-none focus:ring-4 focus:ring-green-300"
+                      onClick={() => handleBuyTickets()}
+                    >
+                      <h3 className="text-xl font-bold">Buy Tickets</h3>
+                    </button>
                   </div>
-                  <button
-                    className="ml-8 inline-flex w-full items-center justify-center rounded-lg bg-third px-3 py-3 text-center text-white hover:bg-purple-800 focus:outline-none focus:ring-4 focus:ring-green-300"
-                    onClick={() => handleBuyTickets()}
-                  >
-                    <h3 className="text-xl font-bold">Buy Tickets</h3>
-                  </button>
                 </div>
-              </div>
+              )}
+
+              {!winnerPicked && endDate! < new Date() && (
+                <div className="mt-4 flex flex-col items-center">
+                  <div className="items-center">
+                    <div>
+                      <button className="relative mr-8 -ml-px inline-flex items-center  rounded bg-secondary px-4 py-2 text-sm font-medium text-white hover:bg-purple-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 ">
+                        <h3 className="text-xl font-bold">Pick Winner</h3>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {winnerPicked && (
+                <div className="mt-4 flex flex-col items-center">
+                  <div className="items-center">
+                    <h3 className="text-xl font-bold">
+                      Winner: {winnerWalletAddress}
+                    </h3>
+                  </div>
+                </div>
+              )}
             </section>
           </div>
 

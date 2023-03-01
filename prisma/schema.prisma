@@ -41,9 +41,9 @@ model Participant {
 }
 
 model Raffle {
-    id                   String   @id @default(cuid())
-    createdAt            DateTime @default(now())
-    updatedAt            DateTime @updatedAt
+    id                   String        @id @default(cuid())
+    createdAt            DateTime      @default(now())
+    updatedAt            DateTime      @updatedAt
     ticketSupply         Int
     ticketPrice          Int
     ticketsSold          Int
@@ -56,7 +56,7 @@ model Raffle {
     // creator             User          @relation(fields: [creatorId], references: [walletAddress])
     // creatorId            String
     creatorWalletAddress String
-
-    winnerWalletAddress String?
-    Participant         Participant[]
+    winnerPicked         Boolean       @default(false)
+    winnerWalletAddress  String?
+    Participant          Participant[]
 }
