@@ -54,6 +54,8 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
   raffleID,
 }) => {
   const [ticketNum, setTicketNum] = useState(1);
+  const [winnerSelectLoading, setWinnerSelectLoading] = useState(false);
+  const [buyTicketsLoading, setBuyTicketsLoading] = useState(false);
   const [remainingTime, setRemainingTime] = useState({
     days: 0,
     hours: 0,
@@ -78,25 +80,48 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
     },
   });
 
+  const { mutateAsync: updateRaffleWinnerPicked } =
+    api.raffle.updateRaffleWinnerPicked.useMutation({
+      onSuccess: () => {
+        console.log("Success User");
+      },
+      onError: (err) => {
+        console.log("FAILURE User", err);
+      },
+    });
+
   const handleBuyTickets = async () => {
     console.log(`Buying ${ticketNum} tickets...`);
+    setBuyTicketsLoading(true);
     try {
       let response = await buyTickets({
         numTickets: ticketNum,
         buyerWalletAddress: walletAddress!,
         raffleId: raffleID,
       });
-      //   let response2 = await updateTicketsSold({
-      //     id: raffleID,
-      //     ticketsSold: ticketNum,
-      //   });
+
       console.log("here is the response from buying the tickets: ", response);
     } catch (error) {
       console.error(error);
     } finally {
       setTimeout(() => {
-        // setIsFormLoading(false);
-        router.push("/");
+        setBuyTicketsLoading(false);
+        router.reload();
+      }, 3000);
+    }
+  };
+
+  const handleWinnerPicked = async () => {
+    console.log(`Picking winner...`);
+    setWinnerSelectLoading(true);
+    try {
+      let response = await updateRaffleWinnerPicked({ raffleId: raffleID });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setTimeout(() => {
+        setWinnerSelectLoading(false);
+        router.reload();
       }, 3000);
     }
   };
@@ -158,7 +183,13 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                 <div className="mt-4 flex flex-col items-center">
                   <div className="items-center">
                     <div>
-                      <button className="relative mr-8 -ml-px inline-flex items-center  rounded bg-secondary px-4 py-2 text-sm font-medium text-white hover:bg-purple-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 ">
+                      <h3 className="mb-4 text-lg font-bold">
+                        Raffle Pending...
+                      </h3>
+                      <button
+                        className="relative mr-8 -ml-px inline-flex items-center  rounded bg-secondary px-4 py-2 text-sm font-medium text-white hover:bg-purple-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 "
+                        onClick={() => handleWinnerPicked()}
+                      >
                         <h3 className="text-xl font-bold">Pick Winner</h3>
                       </button>
                     </div>
@@ -193,90 +224,120 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                     {nftTokenName}
                   </h2>
                   <div className="mt-8" />
-                  <Divider labelText="Details" />
 
-                  <div className="mt-8">
-                    <div className="mb-8 grid grid-cols-1 gap-3 gap-y-6 font-bold md:grid-cols-2">
-                      <div className="flex flex-col ">
-                        <label className="text-md text-secondary line-clamp-1">
-                          Ticket Price
-                        </label>
-                        <p className="mb-3 font-normal text-gray-500">
-                          {ticketPrice} MATIC
-                        </p>
-                      </div>
-
-                      <div className="flex flex-col ">
-                        <label className="text-md text-secondary line-clamp-1">
-                          Tickets Remaining
-                        </label>
-                        <p className="mb-3 font-normal text-gray-500">
-                          {totalTicketsSold.isLoading && <div>Loading...</div>}
-                          {totalTicketsSold.data && (
-                            <div>
-                              {ticketSupply -
-                                totalTicketsSold.data._sum.numTickets!}{" "}
-                              / {ticketSupply}
-                            </div>
-                          )}
-                        </p>
-                      </div>
-
-                      <div className="flex flex-col ">
-                        <label className="text-md text-secondary line-clamp-1">
-                          Raffle Start Date
-                        </label>
-                        <p className="mb-3 font-normal text-gray-500">
-                          {createdAt.toLocaleDateString()}
-                        </p>
-                      </div>
-
-                      <div className="flex flex-col ">
-                        <label className="text-md text-secondary line-clamp-1">
-                          Time Remaining
-                        </label>
-                        <p className="mb-3 font-normal text-gray-500">
-                          <CountdownTimer futureDate={endDate} />
-                        </p>
-                      </div>
-
-                      <div className="flex flex-col ">
-                        <label className="text-md text-secondary line-clamp-1">
-                          Raffler Address
-                        </label>
-                        <p className="mb-3 block truncate font-normal text-gray-500 sm:inline-block sm:overflow-visible ">
-                          {creatorWalletAddress}
-                        </p>
-                      </div>
+                  {winnerSelectLoading && (
+                    <div className="mt-8 flex items-center justify-center">
+                      <Image
+                        src="/bars.svg"
+                        alt="form loader"
+                        height={50}
+                        width={50}
+                      />
                     </div>
-                    <Divider labelText="Participants" />
-                    <div className="mt-8">
-                      <div className="mb-4 flex flex-row justify-between">
-                        <label className="text-md font-bold text-secondary line-clamp-1">
-                          Address
-                        </label>
-                        <label className="text-md font-bold text-secondary line-clamp-1">
-                          Tickets Purchased
-                        </label>
-                      </div>
-                      {/* map through allParticipantsForRaffle and list out some data */}
-                      {allParticipantsForRaffle.isLoading && (
-                        <div>Loading...</div>
-                      )}
-                      {allParticipantsForRaffle.data &&
-                        allParticipantsForRaffle.data!.map((participant) => (
-                          <div className="mb-4 flex flex-row justify-between">
-                            <p className="mb-3 block truncate font-normal text-gray-500 sm:inline-block sm:overflow-visible ">
-                              {participant.walletAddress}
-                            </p>
+                  )}
+
+                  {buyTicketsLoading && (
+                    <div className="mt-8 flex items-center justify-center">
+                      <Image
+                        src="/bars.svg"
+                        alt="form loader"
+                        height={50}
+                        width={50}
+                      />
+                    </div>
+                  )}
+
+                  {!winnerSelectLoading && !buyTicketsLoading && (
+                    <>
+                      <Divider labelText="Details" />
+                      <div className="mt-8">
+                        <div className="mb-8 grid grid-cols-1 gap-3 gap-y-6 font-bold md:grid-cols-2">
+                          <div className="flex flex-col ">
+                            <label className="text-md text-secondary line-clamp-1">
+                              Ticket Price
+                            </label>
                             <p className="mb-3 font-normal text-gray-500">
-                              {participant.numTickets}
+                              {ticketPrice} MATIC
                             </p>
                           </div>
-                        ))}
-                      {/* <ParticipantList /> */}
-                    </div>
-                  </div>
+
+                          <div className="flex flex-col ">
+                            <label className="text-md text-secondary line-clamp-1">
+                              Tickets Remaining
+                            </label>
+                            <p className="mb-3 font-normal text-gray-500">
+                              {totalTicketsSold.isLoading && (
+                                <div>Loading...</div>
+                              )}
+                              {totalTicketsSold.data && (
+                                <div>
+                                  {ticketSupply -
+                                    totalTicketsSold.data._sum.numTickets!}{" "}
+                                  / {ticketSupply}
+                                </div>
+                              )}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-col ">
+                            <label className="text-md text-secondary line-clamp-1">
+                              Raffle Start Date
+                            </label>
+                            <p className="mb-3 font-normal text-gray-500">
+                              {createdAt.toLocaleDateString()}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-col ">
+                            <label className="text-md text-secondary line-clamp-1">
+                              Time Remaining
+                            </label>
+                            <p className="mb-3 font-normal text-gray-500">
+                              <CountdownTimer futureDate={endDate} />
+                            </p>
+                          </div>
+
+                          <div className="flex flex-col ">
+                            <label className="text-md text-secondary line-clamp-1">
+                              Raffler Address
+                            </label>
+                            <p className="mb-3 block truncate font-normal text-gray-500 sm:inline-block sm:overflow-visible ">
+                              {creatorWalletAddress}
+                            </p>
+                          </div>
+                        </div>
+                        <Divider labelText="Participants" />
+                        <div className="mt-8">
+                          <div className="mb-4 flex flex-row justify-between">
+                            <label className="text-md font-bold text-secondary line-clamp-1">
+                              Address
+                            </label>
+                            <label className="text-md font-bold text-secondary line-clamp-1">
+                              Tickets Purchased
+                            </label>
+                          </div>
+                          {/* map through allParticipantsForRaffle and list out some data */}
+                          {allParticipantsForRaffle.isLoading && (
+                            <div>Loading...</div>
+                          )}
+                          {allParticipantsForRaffle.data &&
+                            allParticipantsForRaffle.data!.map(
+                              (participant) => (
+                                <div className="mb-4 flex flex-row justify-between">
+                                  <p className="mb-3 block truncate font-normal text-gray-500 sm:inline-block sm:overflow-visible ">
+                                    {participant.walletAddress}
+                                  </p>
+                                  <p className="mb-3 font-normal text-gray-500">
+                                    {participant.numTickets}
+                                  </p>
+                                </div>
+                              )
+                            )}
+                          {/* <ParticipantList /> */}
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </section>
