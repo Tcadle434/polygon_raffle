@@ -146,6 +146,7 @@ const Home = ({ initialData }: RaffleProps) => {
               <li key={raffle.id} className="relative">
                 <Link href={`/raffles/${raffle.id}`}>
                   <RaffleCard
+                    raffleId={raffle.id!}
                     imageUrl={raffle.nftTokenURI!}
                     nftName={raffle.nftTokenName!}
                     nftCollectionName={raffle.nftCollectionName!}

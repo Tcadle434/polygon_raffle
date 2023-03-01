@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { api } from "~/utils/api";
 
 interface CardProps {
+  raffleId: string;
   imageUrl: string;
   nftName: string;
   nftCollectionName: string;
@@ -18,6 +20,7 @@ function classNames(...classes: any[]) {
 }
 
 const RaffleCard = ({
+  raffleId,
   imageUrl,
   nftName,
   nftCollectionName,
@@ -30,8 +33,11 @@ const RaffleCard = ({
 }: CardProps) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const cardRef = useRef();
+  const totalTicketsSold =
+    api.participant.getTotalNumTicketsByRaffleId.useQuery(raffleId);
 
   useEffect(() => {
+    console.log(raffleId);
     if (!cardRef?.current) return;
 
     const observer = new IntersectionObserver(([entry]) => {
@@ -78,7 +84,13 @@ const RaffleCard = ({
               Tickets Remaining
             </label>
             <p className="mb-3 font-normal text-white">
-              {ticketsRemaining} / {totalTickets}
+              {totalTicketsSold.isLoading && <div>Loading...</div>}
+              {totalTicketsSold.data && (
+                <div>
+                  {totalTickets - totalTicketsSold.data._sum.numTickets!} /{" "}
+                  {totalTickets}
+                </div>
+              )}
             </p>
           </div>
           <div className="flex flex-col">
