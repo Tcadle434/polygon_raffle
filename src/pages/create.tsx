@@ -8,9 +8,9 @@ import "react-datepicker/dist/react-datepicker.css";
 
 import Navbar from "~/components/Navbar";
 import NftUpload from "~/components/NftUpload";
-import useWalletStore, { getWalletAddress } from "~/store/useWalletStore";
 import { Alchemy, Network, OwnedNft, OwnedNftsResponse } from "alchemy-sdk";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
 
 const settings = {
   // apiKey: "7H2-IaYHE7hFfMqYuENjF3tAp-G9BR8Z",
@@ -38,7 +38,8 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
 
   const router = useRouter();
 
-  const walletAddress = useWalletStore((state) => state.walletAddress);
+  const { address, isConnected } = useAccount();
+
   const alchemy = new Alchemy(settings);
 
   const { mutateAsync: createRaffle } = api.raffle.createRaffle.useMutation({
@@ -50,12 +51,6 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
     },
   });
 
-  //grab the connected wallet from the zustand store if it exists
-  useEffect(() => {
-    console.log("wallet address changed");
-    getWalletAddress();
-  }, []);
-
   //allow for scrolling on the modal if necessary
   useEffect(() => {
     if (isOpen) {
@@ -66,7 +61,7 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
   }, [isOpen, setIsOpen]);
 
   async function getOwnerNfts(): Promise<OwnedNftsResponse> {
-    return alchemy.nft.getNftsForOwner(walletAddress!);
+    return alchemy.nft.getNftsForOwner(address!);
   }
 
   async function getNftDetails() {
@@ -116,7 +111,7 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
         nftTokenName: selectedNft?.rawMetadata?.name!,
         nftCollectionName: selectedNft?.contract.openSea?.collectionName!,
         winnerWalletAddress: "",
-        creatorWalletAddress: walletAddress!,
+        creatorWalletAddress: address!,
       });
 
       console.log("here is the response from creating the raffle: ", response);

@@ -1,26 +1,17 @@
-import { Fragment, useEffect } from "react";
+import { Fragment } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
-import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import Link from "next/link";
 import { Web3Button, Web3NetworkSwitch } from "@web3modal/react";
-import { providers } from "ethers";
-import useWalletStore, {
-  getWalletAddress,
-  disconnectWallet,
-} from "~/store/useWalletStore";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
 
 function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(" ");
 }
 
 export default function Navbar() {
-  const walletAddress = useWalletStore((state) => state.walletAddress);
-
-  useEffect(() => {
-    console.log("wallet update in the navbar");
-    getWalletAddress();
-  }, []);
+  const { address, isConnected } = useAccount();
 
   return (
     <Disclosure as="nav" className="bg-white shadow">
@@ -107,7 +98,7 @@ export default function Navbar() {
                         <Menu.Item>
                           {({ active }) => (
                             <Link
-                              href={`/profile/${walletAddress}`}
+                              href={`/profile/${address}`}
                               className={classNames(
                                 active ? "bg-gray-100" : "",
                                 "block px-4 py-2 text-sm text-gray-700"

@@ -7,7 +7,7 @@ import CountdownTimer from "./CountdownTimer";
 
 import { api } from "~/utils/api";
 import Divider from "./Divider";
-import useWalletStore, { getWalletAddress } from "~/store/useWalletStore";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
 
 const raffleSchema = z.object({
   ticketSupply: z.number(),
@@ -56,14 +56,9 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
   const [ticketNum, setTicketNum] = useState(1);
   const [winnerSelectLoading, setWinnerSelectLoading] = useState(false);
   const [buyTicketsLoading, setBuyTicketsLoading] = useState(false);
-  const [remainingTime, setRemainingTime] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
 
-  const walletAddress = useWalletStore((state) => state.walletAddress);
+  const { address, isConnected } = useAccount();
+
   const allParticipantsForRaffle =
     api.participant.getParticipantsByRaffleId.useQuery(raffleID);
   const totalTicketsSold =
@@ -96,7 +91,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
     try {
       let response = await buyTickets({
         numTickets: ticketNum,
-        buyerWalletAddress: walletAddress!,
+        buyerWalletAddress: address!,
         raffleId: raffleID,
       });
 
@@ -125,13 +120,6 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
       }, 3000);
     }
   };
-
-  //grab the connected wallet from the zustand store if it exists
-  useEffect(() => {
-    console.log("wallet address changed");
-    console.log();
-    getWalletAddress();
-  }, []);
 
   return (
     <div className="">
