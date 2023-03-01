@@ -107,4 +107,15 @@ export const raffleRouter = createTRPCRouter({
         console.log("ERROR", e);
       }
     }),
+
+  getRaffleByWinnerWalletAddress: publicProcedure
+    .input(z.string())
+    .query(async ({ input, ctx }) => {
+      const response = await ctx.prisma.raffle.findMany({
+        where: {
+          winnerWalletAddress: input,
+        },
+      });
+      return response;
+    }),
 });

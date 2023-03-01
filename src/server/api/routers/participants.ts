@@ -70,4 +70,35 @@ export const participantRouter = createTRPCRouter({
       });
       return response;
     }),
+
+  getParticipantByRaffleIdAndWalletAddress: publicProcedure
+    .input(
+      z.object({
+        raffleId: z.string(),
+        walletAddress: z.string(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const { raffleId, walletAddress } = input;
+      const response = await ctx.prisma.participant.findUnique({
+        where: {
+          raffleId_walletAddress: {
+            raffleId: raffleId,
+            walletAddress: walletAddress,
+          },
+        },
+      });
+      return response;
+    }),
+
+  getParticipantByWalletAddress: publicProcedure
+    .input(z.string())
+    .query(async ({ input, ctx }) => {
+      const response = await ctx.prisma.participant.findMany({
+        where: {
+          walletAddress: input,
+        },
+      });
+      return response;
+    }),
 });
