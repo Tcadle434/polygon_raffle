@@ -41,6 +41,7 @@ const raffle = () => {
         nftTokenName={data.nftTokenName}
         nftCollectionName={data.nftCollectionName}
         winnerWalletAddress={data.winnerWalletAddress}
+        winnerPicked={data.winnerPicked}
         creatorWalletAddress={data.creatorWalletAddress}
         createdAt={data.createdAt}
         raffleID={data.id}
