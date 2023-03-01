@@ -31,9 +31,9 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
   const [selectedNft, setSelectedNft] = useState<OwnedNft>();
   const [ticketSupply, setTicketSupply] = useState(0);
   const [ticketPrice, setTicketPrice] = useState(0);
-  // const [raffleEndDate, setRaffleEndDate] = useState("");
   const [isFormLoading, setIsFormLoading] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [nftDataLoading, setNftDataLoading] = useState(false);
   const [raffleEndDate, setRaffleEndDate] = useState<Date | null>(null);
 
   const router = useRouter();
@@ -71,18 +71,13 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
 
   async function getNftDetails() {
     try {
+      setNftDataLoading(true);
       const nfts = await getOwnerNfts();
-      const mappedNfts = nfts.ownedNfts.map((nft) => {
-        // Perform mapping operation on each NFT object
-        const contractAddress = nft.contract.address;
-        const id = nft.tokenId;
-
-        return { id, contractAddress };
-      });
       setNfts(nfts.ownedNfts);
-      console.log(nfts.ownedNfts);
     } catch (error) {
       console.log(error);
+    } finally {
+      setNftDataLoading(false);
     }
   }
 
@@ -101,21 +96,14 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
     e.preventDefault();
     setIsFormLoading(true);
     const formData = new FormData(e.currentTarget);
-    // console.log("submitting form");
-    // console.log(selectedNft);
-    // console.log(ticketSupply);
-    // console.log(ticketPrice);
-    // console.log(raffleEndDate);
 
     try {
       // Call the onSubmit function with the form data
-      // await onSubmit(formData);
       console.log("submitting form");
       console.log(selectedNft);
       console.log(ticketSupply);
       console.log(ticketPrice);
       console.log(raffleEndDate);
-      // const dateString = "2022-02-28T10:00:00.000Z";
 
       let response = await createRaffle({
         ticketSupply: ticketSupply,
@@ -191,6 +179,22 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                 >
                   <XMarkIcon className=" h-8 w-8" />
                 </button>
+
+                {nftDataLoading && (
+                  <div className="flex items-center justify-center">
+                    <Image
+                      src="/rings.svg"
+                      alt="loader"
+                      width={100}
+                      height={100}
+                    />
+                  </div>
+                )}
+                {!nftDataLoading && nfts.length === 0 && (
+                  <div className="flex items-center justify-center">
+                    <p className="text-2xl">No NFTs found</p>
+                  </div>
+                )}
                 <ul
                   role="list"
                   className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"

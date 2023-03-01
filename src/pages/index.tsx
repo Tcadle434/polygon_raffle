@@ -40,6 +40,18 @@ const Home = () => {
     raffle.nftTokenName!.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const activeRaffles = filteredRaffles.filter(
+    (raffle) => raffle.endDate! > new Date()
+  );
+
+  const pendingRaffles = filteredRaffles.filter(
+    (raffle) => raffle.endDate! < new Date() && !raffle.winnerPicked
+  );
+
+  const completedRaffles = filteredRaffles.filter(
+    (raffle) => raffle.endDate! < new Date() && raffle.winnerPicked
+  );
+
   return (
     <>
       <Head>
@@ -49,7 +61,7 @@ const Home = () => {
       </Head>
       <Navbar />
       <main className="flex min-h-screen flex-col items-center  bg-gradient-to-b from-[#d5bdf5] to-[#fff]">
-        <div className=" gap-12 px-4 py-16 ">
+        <div className=" w-full gap-12 px-4 py-16 ">
           <div className="  z-50 mb-1 flex w-full flex-col justify-between py-3 pl-8 md:flex-row">
             <div className="mb-4 md:mb-0">
               <button
@@ -101,93 +113,101 @@ const Home = () => {
               </div>
             </div>
           </div>
+
           <ul
             role="list"
             className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
           >
             {selectedButton === "button1" && (
               <>
-                {filteredRaffles.map(
-                  (raffle: any, index: any) =>
-                    raffle.endDate! > new Date() && (
-                      <li key={raffle.id} className="relative">
-                        <Link href={`/raffles/${raffle.id}`}>
-                          <RaffleCard
-                            raffleId={raffle.id!}
-                            imageUrl={raffle.nftTokenURI!}
-                            nftName={raffle.nftTokenName!}
-                            nftCollectionName={raffle.nftCollectionName!}
-                            raffleEndDate={raffle.endDate!}
-                            ticketPrice={raffle.ticketPrice}
-                            ticketsRemaining={
-                              raffle.ticketSupply - raffle.ticketsSold
-                            }
-                            totalTickets={raffle.ticketSupply}
-                            isLast={index === allRaffles.data.length - 1}
-                            newLimit={() => setPage(page + 1)}
-                          />
-                        </Link>
-                      </li>
-                    )
-                )}
+                {!activeRaffles ||
+                  (activeRaffles.length === 0 && (
+                    <div className="ml-2 pl-8 text-xl text-secondary">
+                      No Active Raffles Found
+                    </div>
+                  ))}
+                {activeRaffles.map((raffle: any, index: any) => (
+                  <li key={raffle.id} className="relative">
+                    <Link href={`/raffles/${raffle.id}`}>
+                      <RaffleCard
+                        raffleId={raffle.id!}
+                        imageUrl={raffle.nftTokenURI!}
+                        nftName={raffle.nftTokenName!}
+                        nftCollectionName={raffle.nftCollectionName!}
+                        raffleEndDate={raffle.endDate!}
+                        ticketPrice={raffle.ticketPrice}
+                        ticketsRemaining={
+                          raffle.ticketSupply - raffle.ticketsSold
+                        }
+                        totalTickets={raffle.ticketSupply}
+                        isLast={index === allRaffles.data.length - 1}
+                        newLimit={() => setPage(page + 1)}
+                      />
+                    </Link>
+                  </li>
+                ))}
               </>
             )}
 
             {selectedButton === "button2" && (
               <>
-                {filteredRaffles.map(
-                  (raffle: any, index: any) =>
-                    raffle.endDate! < new Date() &&
-                    !raffle.winnerPicked && (
-                      <li key={raffle.id} className="relative">
-                        <Link href={`/raffles/${raffle.id}`}>
-                          <RaffleCard
-                            raffleId={raffle.id!}
-                            imageUrl={raffle.nftTokenURI!}
-                            nftName={raffle.nftTokenName!}
-                            nftCollectionName={raffle.nftCollectionName!}
-                            raffleEndDate={raffle.endDate!}
-                            ticketPrice={raffle.ticketPrice}
-                            ticketsRemaining={
-                              raffle.ticketSupply - raffle.ticketsSold
-                            }
-                            totalTickets={raffle.ticketSupply}
-                            isLast={index === allRaffles.data.length - 1}
-                            newLimit={() => setPage(page + 1)}
-                          />
-                        </Link>
-                      </li>
-                    )
-                )}
+                {!pendingRaffles ||
+                  (pendingRaffles.length === 0 && (
+                    <div className="ml-2 pl-8 text-xl text-secondary">
+                      No Pending Raffles Found
+                    </div>
+                  ))}
+                {pendingRaffles.map((raffle: any, index: any) => (
+                  <li key={raffle.id} className="relative">
+                    <Link href={`/raffles/${raffle.id}`}>
+                      <RaffleCard
+                        raffleId={raffle.id!}
+                        imageUrl={raffle.nftTokenURI!}
+                        nftName={raffle.nftTokenName!}
+                        nftCollectionName={raffle.nftCollectionName!}
+                        raffleEndDate={raffle.endDate!}
+                        ticketPrice={raffle.ticketPrice}
+                        ticketsRemaining={
+                          raffle.ticketSupply - raffle.ticketsSold
+                        }
+                        totalTickets={raffle.ticketSupply}
+                        isLast={index === allRaffles.data.length - 1}
+                        newLimit={() => setPage(page + 1)}
+                      />
+                    </Link>
+                  </li>
+                ))}
               </>
             )}
 
             {selectedButton === "button3" && (
               <>
-                {filteredRaffles.map(
-                  (raffle: any, index: any) =>
-                    raffle.endDate! < new Date() &&
-                    raffle.winnerPicked && (
-                      <li key={raffle.id} className="relative">
-                        <Link href={`/raffles/${raffle.id}`}>
-                          <RaffleCard
-                            raffleId={raffle.id!}
-                            imageUrl={raffle.nftTokenURI!}
-                            nftName={raffle.nftTokenName!}
-                            nftCollectionName={raffle.nftCollectionName!}
-                            raffleEndDate={raffle.endDate!}
-                            ticketPrice={raffle.ticketPrice}
-                            ticketsRemaining={
-                              raffle.ticketSupply - raffle.ticketsSold
-                            }
-                            totalTickets={raffle.ticketSupply}
-                            isLast={index === allRaffles.data.length - 1}
-                            newLimit={() => setPage(page + 1)}
-                          />
-                        </Link>
-                      </li>
-                    )
-                )}
+                {!completedRaffles ||
+                  (completedRaffles.length === 0 && (
+                    <div className="ml-2 pl-8 text-xl text-secondary">
+                      No Past Raffles Found
+                    </div>
+                  ))}
+                {completedRaffles.map((raffle: any, index: any) => (
+                  <li key={raffle.id} className="relative">
+                    <Link href={`/raffles/${raffle.id}`}>
+                      <RaffleCard
+                        raffleId={raffle.id!}
+                        imageUrl={raffle.nftTokenURI!}
+                        nftName={raffle.nftTokenName!}
+                        nftCollectionName={raffle.nftCollectionName!}
+                        raffleEndDate={raffle.endDate!}
+                        ticketPrice={raffle.ticketPrice}
+                        ticketsRemaining={
+                          raffle.ticketSupply - raffle.ticketsSold
+                        }
+                        totalTickets={raffle.ticketSupply}
+                        isLast={index === allRaffles.data.length - 1}
+                        newLimit={() => setPage(page + 1)}
+                      />
+                    </Link>
+                  </li>
+                ))}
               </>
             )}
           </ul>
