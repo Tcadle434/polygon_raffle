@@ -8,9 +8,9 @@ import "react-datepicker/dist/react-datepicker.css";
 
 import Navbar from "~/components/Navbar";
 import NftUpload from "~/components/NftUpload";
-import useWalletStore, { getWalletAddress } from "~/store/useWalletStore";
 import { Alchemy, Network, OwnedNft, OwnedNftsResponse } from "alchemy-sdk";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
 
 const settings = {
   // apiKey: "7H2-IaYHE7hFfMqYuENjF3tAp-G9BR8Z",
@@ -38,7 +38,8 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
 
   const router = useRouter();
 
-  const walletAddress = useWalletStore((state) => state.walletAddress);
+  const { address, isConnected } = useAccount();
+
   const alchemy = new Alchemy(settings);
 
   const { mutateAsync: createRaffle } = api.raffle.createRaffle.useMutation({
@@ -50,12 +51,6 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
     },
   });
 
-  //grab the connected wallet from the zustand store if it exists
-  useEffect(() => {
-    console.log("wallet address changed");
-    getWalletAddress();
-  }, []);
-
   //allow for scrolling on the modal if necessary
   useEffect(() => {
     if (isOpen) {
@@ -66,7 +61,7 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
   }, [isOpen, setIsOpen]);
 
   async function getOwnerNfts(): Promise<OwnedNftsResponse> {
-    return alchemy.nft.getNftsForOwner(walletAddress!);
+    return alchemy.nft.getNftsForOwner(address!);
   }
 
   async function getNftDetails() {
@@ -116,7 +111,7 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
         nftTokenName: selectedNft?.rawMetadata?.name!,
         nftCollectionName: selectedNft?.contract.openSea?.collectionName!,
         winnerWalletAddress: "",
-        creatorWalletAddress: walletAddress!,
+        creatorWalletAddress: address!,
       });
 
       console.log("here is the response from creating the raffle: ", response);
@@ -190,11 +185,13 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                     />
                   </div>
                 )}
+
                 {!nftDataLoading && nfts.length === 0 && (
                   <div className="flex items-center justify-center">
                     <p className="text-2xl">No NFTs found</p>
                   </div>
                 )}
+
                 <ul
                   role="list"
                   className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
@@ -310,15 +307,6 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                         </label>
 
                         <div className="mt-1">
-                          {/* <input
-                            type="text"
-                            name="company-website"
-                            id="company-website"
-                            className="block rounded-md border-2 border-light shadow-sm hover:border-secondary focus:border-secondary"
-                            onChange={(e) => {
-                              setRaffleEndDate(e.target.value);
-                            }}
-                         /> */}
                           <DatePicker
                             selected={raffleEndDate}
                             onChange={(date: Date | null) =>

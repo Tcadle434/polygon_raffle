@@ -54,6 +54,9 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       window.ethereum.on!("accountsChanged", () => {
         window.location.reload();
       });
+      window.ethereum.on!("wallet_disconnect", () => {
+        window.location.reload();
+      });
     }
   }, []);
 
