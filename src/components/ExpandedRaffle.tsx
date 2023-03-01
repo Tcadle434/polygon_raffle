@@ -1,14 +1,19 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { NextPage } from "next";
 import z from "zod";
 import { useRouter } from "next/router";
+import Timer from "countdown";
+import Countdown from "react-countdown";
+import moment from "moment";
+import CountdownTimer from "./CountdownTimer";
 
 import { api } from "~/utils/api";
 import Divider from "./Divider";
 import useWalletStore, { getWalletAddress } from "~/store/useWalletStore";
 
 import ParticipantList from "./ParticipantList";
+import { end } from "cheerio/lib/api/traversing";
 
 const raffleSchema = z.object({
   ticketSupply: z.number(),
@@ -52,7 +57,14 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
   createdAt,
   raffleID,
 }) => {
-  const [ticketNum, setTicketNum] = React.useState(1);
+  const [ticketNum, setTicketNum] = useState(1);
+  const [remainingTime, setRemainingTime] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
+
   const walletAddress = useWalletStore((state) => state.walletAddress);
   const allParticipantsForRaffle =
     api.participant.getParticipantsByRaffleId.useQuery(raffleID);
@@ -204,7 +216,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                           Time Remaining
                         </label>
                         <p className="mb-3 font-normal text-gray-500">
-                          {endDate.toLocaleDateString()}
+                          <CountdownTimer futureDate={endDate} />
                         </p>
                       </div>
 

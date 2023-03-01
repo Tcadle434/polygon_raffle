@@ -150,7 +150,7 @@ const Home = ({ initialData }: RaffleProps) => {
                     imageUrl={raffle.nftTokenURI!}
                     nftName={raffle.nftTokenName!}
                     nftCollectionName={raffle.nftCollectionName!}
-                    raffleTimeRemaining={raffle.endDate.toString()}
+                    raffleEndDate={raffle.endDate!}
                     ticketPrice={raffle.ticketPrice}
                     ticketsRemaining={raffle.ticketSupply - raffle.ticketsSold}
                     totalTickets={raffle.ticketSupply}

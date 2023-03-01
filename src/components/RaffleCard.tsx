@@ -1,13 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { api } from "~/utils/api";
+import CountdownTimer from "./CountdownTimer";
 
 interface CardProps {
   raffleId: string;
   imageUrl: string;
   nftName: string;
   nftCollectionName: string;
-  raffleTimeRemaining: string;
+  raffleEndDate: Date;
   ticketPrice: number;
   ticketsRemaining: number;
   totalTickets: number;
@@ -24,7 +25,7 @@ const RaffleCard = ({
   imageUrl,
   nftName,
   nftCollectionName,
-  raffleTimeRemaining,
+  raffleEndDate,
   ticketPrice,
   ticketsRemaining,
   totalTickets,
@@ -105,7 +106,7 @@ const RaffleCard = ({
             Time Remaining
           </label>
           <p className="mb-3 font-normal text-white line-clamp-1">
-            {raffleTimeRemaining}
+            <CountdownTimer futureDate={raffleEndDate!} />
           </p>
         </div>
 
