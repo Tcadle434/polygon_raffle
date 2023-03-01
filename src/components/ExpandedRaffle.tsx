@@ -3,17 +3,11 @@ import Image from "next/image";
 import { NextPage } from "next";
 import z from "zod";
 import { useRouter } from "next/router";
-import Timer from "countdown";
-import Countdown from "react-countdown";
-import moment from "moment";
 import CountdownTimer from "./CountdownTimer";
 
 import { api } from "~/utils/api";
 import Divider from "./Divider";
 import useWalletStore, { getWalletAddress } from "~/store/useWalletStore";
-
-import ParticipantList from "./ParticipantList";
-import { end } from "cheerio/lib/api/traversing";
 
 const raffleSchema = z.object({
   ticketSupply: z.number(),
