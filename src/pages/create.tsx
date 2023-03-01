@@ -186,7 +186,13 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                   </div>
                 )}
 
-                {!nftDataLoading && nfts.length === 0 && (
+                {!isConnected && !nftDataLoading && (
+                  <div className="flex items-center justify-center">
+                    <p className="text-2xl">Please connect your wallet!</p>
+                  </div>
+                )}
+
+                {isConnected && !nftDataLoading && nfts.length === 0 && (
                   <div className="flex items-center justify-center">
                     <p className="text-2xl">No NFTs found</p>
                   </div>
