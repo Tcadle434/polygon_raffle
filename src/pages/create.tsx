@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { api } from "../utils/api";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 import Navbar from "~/components/Navbar";
 import NftUpload from "~/components/NftUpload";
@@ -29,9 +31,10 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
   const [selectedNft, setSelectedNft] = useState<OwnedNft>();
   const [ticketSupply, setTicketSupply] = useState(0);
   const [ticketPrice, setTicketPrice] = useState(0);
-  const [raffleEndDate, setRaffleEndDate] = useState("");
+  // const [raffleEndDate, setRaffleEndDate] = useState("");
   const [isFormLoading, setIsFormLoading] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [raffleEndDate, setRaffleEndDate] = useState<Date | null>(null);
 
   const router = useRouter();
 
@@ -112,13 +115,13 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
       console.log(ticketSupply);
       console.log(ticketPrice);
       console.log(raffleEndDate);
-      const dateString = "2022-02-28T10:00:00.000Z";
+      // const dateString = "2022-02-28T10:00:00.000Z";
 
       let response = await createRaffle({
         ticketSupply: ticketSupply,
         ticketPrice: ticketPrice,
         ticketsSold: 0,
-        endDate: new Date(dateString),
+        endDate: raffleEndDate!,
         nftContractAddress: selectedNft?.contract.address!,
         nftTokenId: selectedNft?.tokenId!,
         nftTokenURI: selectedNft?.rawMetadata?.image!,
@@ -301,8 +304,9 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                         <label className="block text-sm font-medium text-gray-700">
                           Raffle End Date
                         </label>
+
                         <div className="mt-1">
-                          <input
+                          {/* <input
                             type="text"
                             name="company-website"
                             id="company-website"
@@ -310,6 +314,17 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                             onChange={(e) => {
                               setRaffleEndDate(e.target.value);
                             }}
+                         /> */}
+                          <DatePicker
+                            selected={raffleEndDate}
+                            onChange={(date: Date | null) =>
+                              setRaffleEndDate(date)
+                            }
+                            showTimeSelect
+                            timeFormat="HH:mm"
+                            timeIntervals={15}
+                            dateFormat="MMMM d, yyyy h:mm aa"
+                            className="block rounded-md border-2 border-light shadow-sm hover:border-secondary focus:border-secondary"
                           />
                         </div>
                       </div>

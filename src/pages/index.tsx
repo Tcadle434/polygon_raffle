@@ -146,10 +146,11 @@ const Home = ({ initialData }: RaffleProps) => {
               <li key={raffle.id} className="relative">
                 <Link href={`/raffles/${raffle.id}`}>
                   <RaffleCard
+                    raffleId={raffle.id!}
                     imageUrl={raffle.nftTokenURI!}
                     nftName={raffle.nftTokenName!}
                     nftCollectionName={raffle.nftCollectionName!}
-                    raffleTimeRemaining={raffle.endDate.toString()}
+                    raffleEndDate={raffle.endDate!}
                     ticketPrice={raffle.ticketPrice}
                     ticketsRemaining={raffle.ticketSupply - raffle.ticketsSold}
                     totalTickets={raffle.ticketSupply}

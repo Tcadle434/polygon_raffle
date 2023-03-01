@@ -14,70 +14,6 @@ export const participantRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const { numTickets, buyerWalletAddress, raffleId } = input;
       try {
-        const response = await ctx.prisma.participant.create({
-          data: {
-            numTickets: numTickets,
-            walletAddress: buyerWalletAddress,
-            raffle: {
-              connect: {
-                id: raffleId,
-              },
-            },
-          },
-        });
-        console.log("RESPONSE", response);
-      } catch (e) {
-        console.log("ERROR", e);
-      }
-    }),
-
-  //   buyTicketsTwo: publicProcedure
-  //     .input(
-  //       z.object({
-  //         numTickets: z.number(),
-  //         buyerWalletAddress: z.string(),
-  //         raffleId: z.string(),
-  //       })
-  //     )
-  //     .mutation(async ({ input, ctx }) => {
-  //       const { numTickets, buyerWalletAddress, raffleId } = input;
-  //       try {
-  //         const response = await ctx.prisma.participant.upsert({
-  //           where: {
-  //             walletAddress: buyerWalletAddress,
-  //           },
-  //           update: {
-  //             numTickets: {
-  //               increment: numTickets,
-  //             },
-  //           },
-  //           create: {
-  //             numTickets: numTickets,
-  //             walletAddress: buyerWalletAddress,
-  //             raffle: {
-  //               connect: {
-  //                 id: raffleId,
-  //               },
-  //             },
-  //           },
-  //         });
-  //         console.log("RESPONSE", response);
-  //       } catch (e) {
-  //         console.log("ERROR", e);
-  //       }
-  //     }),
-
-  buyTicketsThree: publicProcedure
-    .input(
-      z.object({
-        numTickets: z.number(),
-        buyerWalletAddress: z.string(),
-        raffleId: z.string(),
-      })
-    )
-    .mutation(async ({ input, ctx }) => {
-      const { numTickets, buyerWalletAddress, raffleId } = input;
-      try {
         const response = await ctx.prisma.participant.upsert({
           where: {
             raffleId_walletAddress: {
@@ -110,11 +46,28 @@ export const participantRouter = createTRPCRouter({
     return ctx.prisma.participant.findMany();
   }),
 
-  getPaticipantsByRaffleId: publicProcedure.query(({ ctx, input }) => {
-    return ctx.prisma.participant.findMany({
-      where: {
-        raffleId: input,
-      },
-    });
-  }),
+  getParticipantsByRaffleId: publicProcedure
+    .input(z.string())
+    .query(async ({ input, ctx }) => {
+      const response = await ctx.prisma.participant.findMany({
+        where: {
+          raffleId: input,
+        },
+      });
+      return response;
+    }),
+
+  getTotalNumTicketsByRaffleId: publicProcedure
+    .input(z.string())
+    .query(async ({ input, ctx }) => {
+      const response = await ctx.prisma.participant.aggregate({
+        where: {
+          raffleId: input,
+        },
+        _sum: {
+          numTickets: true,
+        },
+      });
+      return response;
+    }),
 });

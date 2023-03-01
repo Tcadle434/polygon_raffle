@@ -21,7 +21,7 @@ if (!process.env.NEXT_PUBLIC_PROJECT_ID) {
 const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
 
 // 2. Configure wagmi client
-const chains = [mainnet, polygon, arbitrum, polygonMumbai];
+const chains = [polygonMumbai];
 
 const { provider } = configureChains(chains, [
   walletConnectProvider({ projectId }),

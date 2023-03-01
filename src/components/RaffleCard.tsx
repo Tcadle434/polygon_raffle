@@ -1,11 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { api } from "~/utils/api";
+import CountdownTimer from "./CountdownTimer";
 
 interface CardProps {
+  raffleId: string;
   imageUrl: string;
   nftName: string;
   nftCollectionName: string;
-  raffleTimeRemaining: string;
+  raffleEndDate: Date;
   ticketPrice: number;
   ticketsRemaining: number;
   totalTickets: number;
@@ -18,10 +21,11 @@ function classNames(...classes: any[]) {
 }
 
 const RaffleCard = ({
+  raffleId,
   imageUrl,
   nftName,
   nftCollectionName,
-  raffleTimeRemaining,
+  raffleEndDate,
   ticketPrice,
   ticketsRemaining,
   totalTickets,
@@ -30,8 +34,11 @@ const RaffleCard = ({
 }: CardProps) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const cardRef = useRef();
+  const totalTicketsSold =
+    api.participant.getTotalNumTicketsByRaffleId.useQuery(raffleId);
 
   useEffect(() => {
+    console.log(raffleId);
     if (!cardRef?.current) return;
 
     const observer = new IntersectionObserver(([entry]) => {
@@ -78,7 +85,13 @@ const RaffleCard = ({
               Tickets Remaining
             </label>
             <p className="mb-3 font-normal text-white">
-              {ticketsRemaining} / {totalTickets}
+              {totalTicketsSold.isLoading && <div>Loading...</div>}
+              {totalTicketsSold.data && (
+                <div>
+                  {totalTickets - totalTicketsSold.data._sum.numTickets!} /{" "}
+                  {totalTickets}
+                </div>
+              )}
             </p>
           </div>
           <div className="flex flex-col">
@@ -93,7 +106,7 @@ const RaffleCard = ({
             Time Remaining
           </label>
           <p className="mb-3 font-normal text-white line-clamp-1">
-            {raffleTimeRemaining}
+            <CountdownTimer futureDate={raffleEndDate!} />
           </p>
         </div>
 

@@ -1,14 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { NextPage } from "next";
 import z from "zod";
 import { useRouter } from "next/router";
+import CountdownTimer from "./CountdownTimer";
 
 import { api } from "~/utils/api";
 import Divider from "./Divider";
 import useWalletStore, { getWalletAddress } from "~/store/useWalletStore";
-
-import ParticipantList from "./ParticipantList";
 
 const raffleSchema = z.object({
   ticketSupply: z.number(),
@@ -52,30 +51,30 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
   createdAt,
   raffleID,
 }) => {
-  const [ticketNum, setTicketNum] = React.useState(1);
+  const [ticketNum, setTicketNum] = useState(1);
+  const [remainingTime, setRemainingTime] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
+
   const walletAddress = useWalletStore((state) => state.walletAddress);
+  const allParticipantsForRaffle =
+    api.participant.getParticipantsByRaffleId.useQuery(raffleID);
+  const totalTicketsSold =
+    api.participant.getTotalNumTicketsByRaffleId.useQuery(raffleID);
 
   const router = useRouter();
 
-  const { mutateAsync: buyTickets } =
-    api.participant.buyTicketsThree.useMutation({
-      onSuccess: () => {
-        console.log("Success User");
-      },
-      onError: (err) => {
-        console.log("FAILURE User", err);
-      },
-    });
-
-  const { mutateAsync: updateTicketsSold } =
-    api.raffle.updateRaffleTicketsSoldById.useMutation({
-      onSuccess: () => {
-        console.log("Success User");
-      },
-      onError: (err) => {
-        console.log("FAILURE User", err);
-      },
-    });
+  const { mutateAsync: buyTickets } = api.participant.buyTickets.useMutation({
+    onSuccess: () => {
+      console.log("Success User");
+    },
+    onError: (err) => {
+      console.log("FAILURE User", err);
+    },
+  });
 
   const handleBuyTickets = async () => {
     console.log(`Buying ${ticketNum} tickets...`);
@@ -103,6 +102,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
   //grab the connected wallet from the zustand store if it exists
   useEffect(() => {
     console.log("wallet address changed");
+    console.log();
     getWalletAddress();
   }, []);
 
@@ -185,7 +185,14 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                           Tickets Remaining
                         </label>
                         <p className="mb-3 font-normal text-gray-500">
-                          {ticketSupply - ticketsSold} / {ticketSupply}
+                          {totalTicketsSold.isLoading && <div>Loading...</div>}
+                          {totalTicketsSold.data && (
+                            <div>
+                              {ticketSupply -
+                                totalTicketsSold.data._sum.numTickets!}{" "}
+                              / {ticketSupply}
+                            </div>
+                          )}
                         </p>
                       </div>
 
@@ -203,7 +210,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                           Time Remaining
                         </label>
                         <p className="mb-3 font-normal text-gray-500">
-                          {endDate.toLocaleDateString()}
+                          <CountdownTimer futureDate={endDate} />
                         </p>
                       </div>
 
@@ -226,6 +233,21 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                           Tickets Purchased
                         </label>
                       </div>
+                      {/* map through allParticipantsForRaffle and list out some data */}
+                      {allParticipantsForRaffle.isLoading && (
+                        <div>Loading...</div>
+                      )}
+                      {allParticipantsForRaffle.data &&
+                        allParticipantsForRaffle.data!.map((participant) => (
+                          <div className="mb-4 flex flex-row justify-between">
+                            <p className="mb-3 block truncate font-normal text-gray-500 sm:inline-block sm:overflow-visible ">
+                              {participant.walletAddress}
+                            </p>
+                            <p className="mb-3 font-normal text-gray-500">
+                              {participant.numTickets}
+                            </p>
+                          </div>
+                        ))}
                       {/* <ParticipantList /> */}
                     </div>
                   </div>
