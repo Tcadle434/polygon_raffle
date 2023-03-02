@@ -52,9 +52,7 @@ const RaffleCard = ({
   }, [isLast]);
 
   return (
-    <div className="max-w-sm rounded-lg border border-gray-700 bg-secondary shadow">
-      {/* <a href="#"> */}
-      {/* <img className="rounded-t-lg" src={imageUrl} alt="" /> */}
+    <div className="max-w-sm rounded-lg border border-gray-700 bg-secondary shadow transition duration-300 ease-in-out hover:scale-105 hover:transform">
       <div style={{ position: "relative", width: "100%", paddingTop: "100%" }}>
         {!isImageLoaded && (
           <div className="">
@@ -72,7 +70,6 @@ const RaffleCard = ({
           objectPosition="center"
         />
       </div>
-      {/* </a> */}
       <div className="p-5">
         <a href="#">
           <h5 className=" text-2xl font-bold tracking-tight text-light line-clamp-1">

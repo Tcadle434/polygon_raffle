@@ -7,7 +7,7 @@ import CountdownTimer from "./CountdownTimer";
 
 import { api } from "~/utils/api";
 import Divider from "./Divider";
-import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { useAccount, useBalance } from "wagmi";
 
 const raffleSchema = z.object({
   ticketSupply: z.number(),
@@ -56,8 +56,12 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
   const [ticketNum, setTicketNum] = useState(1);
   const [winnerSelectLoading, setWinnerSelectLoading] = useState(false);
   const [buyTicketsLoading, setBuyTicketsLoading] = useState(false);
+  const [enoughFunds, setEnoughFunds] = useState(true);
 
   const { address, isConnected } = useAccount();
+  const balance = useBalance({
+    address: address,
+  });
 
   const allParticipantsForRaffle =
     api.participant.getParticipantsByRaffleId.useQuery(raffleID);
@@ -121,6 +125,18 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
     }
   };
 
+  useEffect(() => {
+    if (
+      balance.isFetched &&
+      ticketNum * ticketPrice >
+        balance.data?.value.toBigInt()! / BigInt(1000000000000000000)
+    ) {
+      setEnoughFunds(false);
+    } else {
+      setEnoughFunds(true);
+    }
+  }, [ticketNum, balance]);
+
   return (
     <div className="">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
@@ -158,8 +174,11 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                       />
                     </div>
                     <button
-                      className="ml-8 inline-flex w-full items-center justify-center rounded-lg bg-third px-3 py-3 text-center text-white hover:bg-purple-800 focus:outline-none focus:ring-4 focus:ring-green-300"
+                      className="ml-8 inline-flex w-full items-center justify-center rounded-lg bg-third px-3 py-3 text-center text-white hover:bg-purple-800 focus:outline-none focus:ring-4 focus:ring-green-300 disabled:cursor-not-allowed disabled:opacity-50"
                       onClick={() => handleBuyTickets()}
+                      disabled={
+                        buyTicketsLoading || !isConnected || !enoughFunds
+                      }
                     >
                       <h3 className="text-xl font-bold">Buy Tickets</h3>
                     </button>
