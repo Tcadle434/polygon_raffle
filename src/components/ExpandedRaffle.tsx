@@ -230,6 +230,9 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                   >
                     {nftTokenName}
                   </h2>
+                  <p className="text-md mt-1 block truncate font-normal text-gray-500 sm:inline-block sm:overflow-visible">
+                    NFT Contract Address: {nftContractAddress}
+                  </p>
                   <div className="mt-8" />
 
                   {winnerSelectLoading && (
