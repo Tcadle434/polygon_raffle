@@ -190,11 +190,11 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                 <div className="mt-4 flex flex-col items-center">
                   <div className="items-center">
                     <div>
-                      <h3 className="mb-4 text-lg font-bold">
+                      <h3 className="text-md mb-4 font-mono font-bold text-light">
                         Raffle Pending...
                       </h3>
                       <button
-                        className="relative mr-8 -ml-px inline-flex items-center  rounded bg-secondary px-4 py-2 text-sm font-medium text-white hover:bg-purple-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 "
+                        className="relative mr-8 -ml-px inline-flex items-center  rounded bg-light px-4 py-2 text-sm font-medium text-white hover:bg-purple-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 "
                         onClick={() => handleWinnerPicked()}
                       >
                         <h3 className="text-xl font-bold">Pick Winner</h3>
@@ -207,7 +207,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
               {winnerPicked && (
                 <div className="mt-4 flex flex-col items-center">
                   <div className="items-center">
-                    <h3 className="text-xl font-bold">
+                    <h3 className="font-mono text-xl font-bold text-light">
                       Winner: {winnerWalletAddress}
                     </h3>
                   </div>
