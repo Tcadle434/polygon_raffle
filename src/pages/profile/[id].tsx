@@ -27,11 +27,13 @@ const profile = () => {
   const rafflesCreated =
     api.raffle.getRaffleByCreatorWalletAddress.useQuery(profileWalletAddress);
 
-  const raffleProfits =
-    api.raffle.getRaffleWinnersTotalProfits.useQuery(profileWalletAddress);
-
   const rafflesForParticipant =
     api.participant.getAllRafflesByParticipantWalletAddress.useQuery(
+      profileWalletAddress
+    );
+
+  const totalRaffleTicketsByCreator =
+    api.participant.getTotalNumTicketsByCreatorWalletAddress.useQuery(
       profileWalletAddress
     );
 
@@ -77,23 +79,11 @@ const profile = () => {
 
           <div className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
             <dt className="truncate text-sm font-medium text-gray-500">
-              Raffle Profits
+              Total Raffle Tickets Sold
             </dt>
             <dd className="mt-1 text-3xl font-semibold tracking-tight text-gray-900">
-              {raffleProfits.isLoading && "Loading..."}
-              {raffleProfits.data?.length === 0 && "0"}
-              {raffleProfits.data?.length !== 0 &&
-                raffleProfits.data?.reduce(
-                  (sum, raffle) =>
-                    sum +
-                    raffle.ticketPrice *
-                      raffle.Participant.reduce(
-                        (totalNumTickets, participant) =>
-                          totalNumTickets + participant.numTickets,
-                        0
-                      ),
-                  0
-                )}
+              {totalRaffleTicketsByCreator.isLoading && "Loading..."}
+              {totalRaffleTicketsByCreator.data?._sum.numTickets}
             </dd>
           </div>
         </div>

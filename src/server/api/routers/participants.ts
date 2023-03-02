@@ -115,4 +115,20 @@ export const participantRouter = createTRPCRouter({
       });
       return response;
     }),
+
+  getTotalNumTicketsByCreatorWalletAddress: publicProcedure
+    .input(z.string())
+    .query(async ({ input, ctx }) => {
+      const response = await ctx.prisma.participant.aggregate({
+        where: {
+          raffle: {
+            creatorWalletAddress: input,
+          },
+        },
+        _sum: {
+          numTickets: true,
+        },
+      });
+      return response;
+    }),
 });
