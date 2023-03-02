@@ -83,7 +83,7 @@ const profile = () => {
             </dt>
             <dd className="mt-1 text-3xl font-semibold tracking-tight text-gray-900">
               {totalRaffleTicketsByCreator.isLoading && "Loading..."}
-              {totalRaffleTicketsByCreator.data?._sum.numTickets}
+              {totalRaffleTicketsByCreator.data?._sum.numTickets || 0}
             </dd>
           </div>
         </div>
