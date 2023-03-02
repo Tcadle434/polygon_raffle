@@ -301,7 +301,7 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                             id="company-website"
                             className="block rounded-md border-2 border-light shadow-sm hover:border-secondary focus:border-secondary"
                             onChange={(e) => {
-                              setTicketPrice(parseInt(e.target.value));
+                              setTicketPrice(parseFloat(e.target.value));
                             }}
                           />
                         </div>
