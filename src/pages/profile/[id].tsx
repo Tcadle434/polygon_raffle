@@ -27,9 +27,6 @@ const profile = () => {
   const rafflesCreated =
     api.raffle.getRaffleByCreatorWalletAddress.useQuery(profileWalletAddress);
 
-  const raffleProfits =
-    api.raffle.getRaffleWinnersTotalProfits.useQuery(profileWalletAddress);
-
   const rafflesForParticipant =
     api.participant.getAllRafflesByParticipantWalletAddress.useQuery(
       profileWalletAddress
