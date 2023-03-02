@@ -101,4 +101,18 @@ export const participantRouter = createTRPCRouter({
       });
       return response;
     }),
+
+  getAllRafflesByParticipantWalletAddress: publicProcedure
+    .input(z.string())
+    .query(async ({ input, ctx }) => {
+      const response = await ctx.prisma.participant.findMany({
+        where: {
+          walletAddress: input,
+        },
+        select: {
+          raffle: true,
+        },
+      });
+      return response;
+    }),
 });
