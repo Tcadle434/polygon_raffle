@@ -53,25 +53,26 @@ const RaffleCard = ({
 
   return (
     <div className="max-w-sm rounded-lg border border-gray-700 bg-secondary shadow">
-      <a href="#">
-        {/* <img className="rounded-t-lg" src={imageUrl} alt="" /> */}
-        <div className="">
-          {!isImageLoaded && (
-            <div className="">
-              <Image src="/rings.svg" alt="loader" width={200} height={200} />
-            </div>
-          )}
-          <Image
-            src={imageUrl}
-            alt="user NFT"
-            className="rounded-t-lg"
-            onLoad={() => setIsImageLoaded(true)}
-            loading="lazy"
-            width={400}
-            height={300}
-          />
-        </div>
-      </a>
+      {/* <a href="#"> */}
+      {/* <img className="rounded-t-lg" src={imageUrl} alt="" /> */}
+      <div style={{ position: "relative", width: "100%", paddingTop: "100%" }}>
+        {!isImageLoaded && (
+          <div className="">
+            <Image src="/rings.svg" alt="loader" width={200} height={200} />
+          </div>
+        )}
+        <Image
+          src={imageUrl}
+          alt="user NFT"
+          className="rounded-t-lg"
+          onLoad={() => setIsImageLoaded(true)}
+          loading="lazy"
+          layout="fill"
+          objectFit="cover"
+          objectPosition="center"
+        />
+      </div>
+      {/* </a> */}
       <div className="p-5">
         <a href="#">
           <h5 className=" text-2xl font-bold tracking-tight text-light line-clamp-1">
