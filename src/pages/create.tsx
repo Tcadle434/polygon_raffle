@@ -35,7 +35,6 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [nftDataLoading, setNftDataLoading] = useState(false);
   const [raffleEndDate, setRaffleEndDate] = useState<Date | null>(null);
-  const [isValid, setIsValid] = useState<boolean>(false);
 
   const router = useRouter();
 
