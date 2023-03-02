@@ -45,7 +45,7 @@ model Raffle {
     createdAt            DateTime      @default(now())
     updatedAt            DateTime      @updatedAt
     ticketSupply         Int
-    ticketPrice          Int
+    ticketPrice          Float
     ticketsSold          Int
     endDate              DateTime
     nftContractAddress   String
