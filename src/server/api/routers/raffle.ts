@@ -118,4 +118,35 @@ export const raffleRouter = createTRPCRouter({
       });
       return response;
     }),
+
+  getRaffleByCreatorWalletAddress: publicProcedure
+    .input(z.string())
+    .query(async ({ input, ctx }) => {
+      const response = await ctx.prisma.raffle.findMany({
+        where: {
+          creatorWalletAddress: input,
+        },
+      });
+      return response;
+    }),
+
+  getRaffleWinnersTotalProfits: publicProcedure
+    .input(z.string())
+    .query(async ({ input, ctx }) => {
+      const response = await ctx.prisma.raffle.findMany({
+        where: {
+          winnerWalletAddress: input,
+        },
+        select: {
+          ticketPrice: true,
+          //need the participant ticket count
+          Participant: {
+            select: {
+              numTickets: true,
+            },
+          },
+        },
+      });
+      return response;
+    }),
 });

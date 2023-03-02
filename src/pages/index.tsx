@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
@@ -40,17 +40,17 @@ const Home = () => {
     raffle.nftTokenName!.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const activeRaffles = filteredRaffles.filter(
-    (raffle) => raffle.endDate! > new Date()
-  );
+  const activeRaffles = filteredRaffles
+    .filter((raffle) => raffle.endDate! > new Date())
+    .sort((a, b) => a.endDate!.getTime() - b.endDate!.getTime());
 
-  const pendingRaffles = filteredRaffles.filter(
-    (raffle) => raffle.endDate! < new Date() && !raffle.winnerPicked
-  );
+  const pendingRaffles = filteredRaffles
+    .filter((raffle) => raffle.endDate! < new Date() && !raffle.winnerPicked)
+    .sort((a, b) => a.endDate!.getTime() - b.endDate!.getTime());
 
-  const completedRaffles = filteredRaffles.filter(
-    (raffle) => raffle.endDate! < new Date() && raffle.winnerPicked
-  );
+  const completedRaffles = filteredRaffles
+    .filter((raffle) => raffle.endDate! < new Date() && raffle.winnerPicked)
+    .sort((a, b) => a.endDate!.getTime() - b.endDate!.getTime());
 
   return (
     <>
