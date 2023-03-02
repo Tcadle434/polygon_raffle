@@ -71,7 +71,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       <Web3Modal
         projectId={projectId}
         ethereumClient={ethereumClient}
-        themeColor="purple"
+        themeColor="teal"
       />
     </>
   );

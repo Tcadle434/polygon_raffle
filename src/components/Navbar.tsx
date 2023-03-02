@@ -14,10 +14,13 @@ export default function Navbar() {
   const { address, isConnected } = useAccount();
 
   return (
-    <Disclosure as="nav" className="bg-white shadow">
+    <Disclosure
+      as="nav"
+      className="bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-slate-900 via-[#981EE2] to-slate-900 shadow"
+    >
       {({ open }) => (
         <>
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 justify-between">
               <div className="flex">
                 <div className="-ml-2 mr-2 flex items-center md:hidden">
@@ -51,7 +54,7 @@ export default function Navbar() {
                   <Link href="/create">
                     <button
                       type="button"
-                      className="relative inline-flex items-center rounded-md border border-transparent bg-secondary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                      className="relative inline-flex items-center rounded-md border border-transparent bg-light px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-pink-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
                     >
                       <PlusIcon className=" h-5 w-5" aria-hidden="true" />
                     </button>
