@@ -5,10 +5,15 @@ import { PlusIcon } from "@heroicons/react/20/solid";
 import Link from "next/link";
 import { Web3Button, Web3NetworkSwitch } from "@web3modal/react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { ethers } from "ethers";
 
 function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(" ");
 }
+
+const provider = new ethers.providers.JsonRpcProvider(
+  "https://polygon-mumbai.infura.io/v3/4458cf4d1689497b9a38b1d6bbf05e78"
+);
 
 export default function Navbar() {
   const { address, isConnected } = useAccount();

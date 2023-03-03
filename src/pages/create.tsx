@@ -11,13 +11,18 @@ import NftUpload from "~/components/NftUpload";
 import { Alchemy, Network, OwnedNft, OwnedNftsResponse } from "alchemy-sdk";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { ethers } from "ethers";
 
 const settings = {
   // apiKey: "7H2-IaYHE7hFfMqYuENjF3tAp-G9BR8Z",
   // network: Network.ETH_MAINNET,
   apiKey: "HRtcdn0En4LLGdjYcniYYIOqT00PAxA9",
-  network: Network.MATIC_MUMBAI,
+  network: Network.MATIC_MAINNET,
 };
+
+const provider = new ethers.providers.JsonRpcProvider(
+  "https://rpc.dev.buildbear.io/Cooing_Zam_Wesell_8ec808a5"
+);
 
 interface Props {
   formId: string;
@@ -35,12 +40,14 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [nftDataLoading, setNftDataLoading] = useState(false);
   const [raffleEndDate, setRaffleEndDate] = useState<Date | null>(null);
-
   const router = useRouter();
-
   const { address, isConnected } = useAccount();
 
   const alchemy = new Alchemy(settings);
+
+  // const contractABI = [""]; // The ABI of the smart contract
+  // const contractAddress = "0x..."; // The address of the smart contract
+  // const contract = new ethers.Contract(contractAddress, contractABI, provider);
 
   const { mutateAsync: createRaffle } = api.raffle.createRaffle.useMutation({
     onSuccess: () => {
@@ -69,6 +76,7 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
       setNftDataLoading(true);
       const nfts = await getOwnerNfts();
       setNfts(nfts.ownedNfts);
+      console.log(nfts.ownedNfts);
     } catch (error) {
       console.log(error);
     } finally {
@@ -99,6 +107,21 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
       console.log(ticketSupply);
       console.log(ticketPrice);
       console.log(raffleEndDate);
+
+      //actually write to the contract before creating the raffle in the db
+      // const tx = await contract.createRaffle(param1, param2, { gasLimit: 1000000 });
+      //
+      //let res = await tx.wait();
+      //
+      // if (!res?.err) {
+      //     console.log('error')
+      // } else {
+      //     console.log('success')
+      // }
+      //
+      // console.log(
+      //   `Mined, see transaction: https://mumbai.polygonscan.com/tx/${tx.hash}`
+      // );
 
       let response = await createRaffle({
         ticketSupply: ticketSupply,
@@ -205,40 +228,49 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                   className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
                 >
                   {nfts.map((nft) => (
-                    <div key={nft.tokenId}>
-                      <button
-                        className="inline-block w-[200px] rounded border-2 border-off hover:border-secondary"
-                        onClick={() => handleNftSelect(nft)}
-                      >
-                        <div className="">
-                          {!isImageLoaded && (
-                            <div className="">
-                              <Image
-                                src="/rings.svg"
-                                alt="loader"
-                                width={200}
-                                height={200}
-                              />
-                            </div>
-                          )}
-                          <Image
-                            src={nft.rawMetadata?.image!}
-                            alt="user NFT"
-                            width={200}
-                            height={200}
-                            onLoad={() => setIsImageLoaded(true)}
-                            loading="lazy"
-                          />
-                        </div>
+                    <>
+                      {nft.rawMetadata &&
+                        (nft.rawMetadata.image || nft.rawMetadata.image_url) &&
+                        !nft.spamInfo?.isSpam && (
+                          <div key={nft.tokenId}>
+                            <button
+                              className="inline-block w-[200px] rounded border-2 border-off hover:border-secondary"
+                              onClick={() => handleNftSelect(nft)}
+                            >
+                              <div className="">
+                                {!isImageLoaded && (
+                                  <div className="">
+                                    <Image
+                                      src="/rings.svg"
+                                      alt="loader"
+                                      width={200}
+                                      height={200}
+                                    />
+                                  </div>
+                                )}
+                                <Image
+                                  src={
+                                    nft.rawMetadata?.image ||
+                                    nft.rawMetadata?.image_url
+                                  }
+                                  alt="user NFT"
+                                  width={200}
+                                  height={200}
+                                  onLoad={() => setIsImageLoaded(true)}
+                                  loading="lazy"
+                                />
+                              </div>
 
-                        <p className="text-md my-2 block truncate pl-2 text-left font-medium text-gray-500">
-                          {nft.contract.openSea?.collectionName}
-                        </p>
-                        <p className="text-md my-2 block truncate pl-2 text-left font-medium text-gray-900">
-                          {nft.rawMetadata?.name}
-                        </p>
-                      </button>
-                    </div>
+                              <p className="text-md my-2 block truncate pl-2 text-left font-medium text-gray-500">
+                                {nft.contract.openSea?.collectionName}
+                              </p>
+                              <p className="text-md my-2 block truncate pl-2 text-left font-medium text-gray-900">
+                                {nft.rawMetadata?.name}
+                              </p>
+                            </button>
+                          </div>
+                        )}
+                    </>
                   ))}
                 </ul>
               </div>
