@@ -14,9 +14,9 @@ const raffle = () => {
 
   if (isLoading) {
     return (
-      <div>
+      <div className="">
         <Navbar />
-        <div className="flex h-screen items-center justify-center bg-gradient-to-b from-[#d5bdf5] to-[#fff]">
+        <div className="flex h-screen items-center justify-center bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-[#59368B] to-slate-900">
           <Image src="/rings.svg" alt="loader" width={200} height={200} />
         </div>
       </div>
@@ -28,8 +28,9 @@ const raffle = () => {
   }
 
   return (
-    <div className="bg-gradient-to-b from-[#d5bdf5] to-[#fff]">
+    <div className="min-h-screen bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-[#59368B] to-slate-900">
       <Navbar />
+      {/* <div className="my-8" /> */}
       <ExpandedRaffle
         ticketSupply={data.ticketSupply}
         ticketPrice={data.ticketPrice}

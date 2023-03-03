@@ -38,14 +38,16 @@ const profile = () => {
     );
 
   return (
-    <div className="bg-gradient-to-b from-[#d5bdf5] to-[#fff]">
+    <div className="min-h-screen bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-[#59368B] to-slate-900">
       <Navbar />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
-        <h1 className="mt-8 text-xl md:text-3xl">Hello,</h1>
-        <h1 className=" text-sm sm:text-xl md:text-3xl">
+        <h1 className="mt-8 font-mono text-xl text-white md:text-3xl">
+          Hello,
+        </h1>
+        <h1 className=" font-mono text-sm text-light sm:text-xl md:text-3xl">
           {profileWalletAddress}
         </h1>
-        <p className="mt-16 ml-1 text-gray-500">Raffle Stats</p>
+        <p className="mt-16 ml-1 text-light">Raffle Stats</p>
         <div className=" grid grid-cols-1 items-start gap-4 md:grid-cols-2 lg:grid-cols-4 lg:gap-8">
           <div className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
             <dt className="truncate text-sm font-medium text-gray-500">
@@ -91,18 +93,17 @@ const profile = () => {
           <button
             type="button"
             className={`${
-              selectedButton === "button1" ? "bg-secondary " : "bg-light"
-            } relative mr-8 -ml-px inline-flex items-center  rounded px-4 py-2 text-sm font-medium text-white hover:bg-purple-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500`}
+              selectedButton === "button1" ? "bg-light " : "bg-transparent"
+            } relative mr-8 -ml-px inline-flex items-center  rounded px-4 py-2 text-sm font-medium text-white hover:bg-light focus:z-10 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500`}
             onClick={() => setSelectedButton("button1")}
-            // className="relative mr-8 -ml-px inline-flex items-center  rounded bg-secondary px-4 py-2 text-sm font-medium text-white hover:bg-purple-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           >
             Raffled Entered
           </button>
           <button
             type="button"
             className={`${
-              selectedButton === "button2" ? "bg-secondary " : "bg-light"
-            } relative mr-8 -ml-px inline-flex items-center  rounded px-4 py-2 text-sm font-medium text-white hover:bg-purple-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500`}
+              selectedButton === "button2" ? "bg-light " : "bg-transparent"
+            } relative mr-8 -ml-px inline-flex items-center  rounded px-4 py-2 text-sm font-medium text-white hover:bg-light focus:z-10 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500`}
             onClick={() => setSelectedButton("button2")}
           >
             RafflesCreated
@@ -116,7 +117,7 @@ const profile = () => {
               <>
                 {!rafflesForParticipant ||
                   (rafflesForParticipant.data?.length === 0 && (
-                    <div className="ml-2 pl-8 text-xl text-secondary">
+                    <div className="ml-2 pl-2 font-mono text-lg text-light">
                       No Entered Raffles Found
                     </div>
                   ))}
@@ -147,7 +148,7 @@ const profile = () => {
               <>
                 {!rafflesCreated ||
                   (rafflesCreated.data?.length === 0 && (
-                    <div className="ml-2 pl-8 text-xl text-secondary">
+                    <div className="ml-2 pl-2 font-mono text-lg text-light">
                       No Entered Raffles Found
                     </div>
                   ))}

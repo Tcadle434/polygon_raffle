@@ -19,7 +19,7 @@ const Home = () => {
     return (
       <div>
         <Navbar />
-        <div className="flex h-screen items-center justify-center bg-gradient-to-b from-[#d5bdf5] to-[#fff]">
+        <div className="flex h-screen items-center justify-center bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-[#59368B] to-slate-900">
           <Image src="/rings.svg" alt="loader" width={200} height={200} />
         </div>
       </div>
@@ -30,7 +30,7 @@ const Home = () => {
     return (
       <div>
         <Navbar />
-        <div className="flex h-screen items-center justify-center bg-gradient-to-b from-[#d5bdf5] to-[#fff]">
+        <div className="flex h-screen items-center justify-center bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-[#59368B] to-slate-900">
           <h1 className="text-4xl font-bold">No Raffles Found</h1>
         </div>
       </div>
@@ -60,15 +60,15 @@ const Home = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navbar />
-      <main className="flex min-h-screen flex-col items-center  bg-gradient-to-b from-[#d5bdf5] to-[#fff]">
-        <div className=" w-full gap-12 px-4 py-16 ">
+      <main className="flex min-h-screen flex-col items-center bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-[#59368B] to-slate-900">
+        <div className="w-full gap-12 px-4 py-16 md:px-12 lg:px-24">
           <div className="  z-50 mb-1 flex w-full flex-col justify-between py-3 pl-8 md:flex-row">
             <div className="mb-4 md:mb-0">
               <button
                 type="button"
                 className={`${
-                  selectedButton === "button1" ? "bg-secondary " : "bg-light"
-                } relative mr-8 -ml-px inline-flex items-center  rounded px-4 py-2 text-sm font-medium text-white hover:bg-purple-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500`}
+                  selectedButton === "button1" ? "bg-light " : "bg-transparent"
+                } relative mr-8 -ml-px inline-flex items-center  rounded px-4 py-2 text-sm font-medium text-white hover:bg-light focus:z-10 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500`}
                 onClick={() => setSelectedButton("button1")}
                 // className="relative mr-8 -ml-px inline-flex items-center  rounded bg-secondary px-4 py-2 text-sm font-medium text-white hover:bg-purple-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               >
@@ -77,8 +77,8 @@ const Home = () => {
               <button
                 type="button"
                 className={`${
-                  selectedButton === "button2" ? "bg-secondary " : "bg-light"
-                } relative mr-8 -ml-px inline-flex items-center  rounded px-4 py-2 text-sm font-medium text-white hover:bg-purple-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500`}
+                  selectedButton === "button2" ? "bg-light " : "bg-transparent"
+                } relative mr-8 -ml-px inline-flex items-center  rounded px-4 py-2 text-sm font-medium text-white hover:bg-light focus:z-10 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500`}
                 onClick={() => setSelectedButton("button2")}
               >
                 Pending Draw
@@ -86,8 +86,8 @@ const Home = () => {
               <button
                 type="button"
                 className={`${
-                  selectedButton === "button3" ? "bg-secondary " : "bg-light"
-                } relative mr-8 -ml-px inline-flex items-center  rounded px-4 py-2 text-sm font-medium text-white hover:bg-purple-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500`}
+                  selectedButton === "button3" ? "bg-light " : "bg-transparent"
+                } relative mr-8 -ml-px inline-flex items-center  rounded px-4 py-2 text-sm font-medium text-white hover:bg-light focus:z-10 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500`}
                 onClick={() => setSelectedButton("button3")}
               >
                 Past Raffles
@@ -104,7 +104,7 @@ const Home = () => {
                 <input
                   id="search"
                   name="search"
-                  className="block w-full rounded-md border border-gray-300 bg-white py-2 pl-10 pr-3 leading-5 placeholder-gray-500 focus:border-indigo-500 focus:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+                  className="block w-full rounded-md border border-gray-300 bg-white py-2 pl-10 pr-3 leading-5 placeholder-gray-500 focus:border-newthird focus:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-newthird sm:text-sm"
                   placeholder="Search Raffles..."
                   type="search"
                   value={searchQuery}
@@ -116,13 +116,13 @@ const Home = () => {
 
           <ul
             role="list"
-            className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
+            className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6  lg:grid-cols-4 xl:gap-x-8"
           >
             {selectedButton === "button1" && (
               <>
                 {!activeRaffles ||
                   (activeRaffles.length === 0 && (
-                    <div className="ml-2 pl-8 text-xl text-secondary">
+                    <div className="ml-4 pl-8 font-mono text-xl text-light">
                       No Active Raffles Found
                     </div>
                   ))}
@@ -153,7 +153,7 @@ const Home = () => {
               <>
                 {!pendingRaffles ||
                   (pendingRaffles.length === 0 && (
-                    <div className="ml-2 pl-8 text-xl text-secondary">
+                    <div className="ml-4 pl-8 font-mono text-xl text-light">
                       No Pending Raffles Found
                     </div>
                   ))}
@@ -184,7 +184,7 @@ const Home = () => {
               <>
                 {!completedRaffles ||
                   (completedRaffles.length === 0 && (
-                    <div className="ml-2 pl-8 text-xl text-secondary">
+                    <div className="ml-4 pl-8 font-mono text-xl text-light">
                       No Past Raffles Found
                     </div>
                   ))}
