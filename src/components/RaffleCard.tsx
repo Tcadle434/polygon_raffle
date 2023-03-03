@@ -110,7 +110,7 @@ const RaffleCard = ({
           </p>
         </div>
 
-        <button className="inline-flex w-full items-center justify-center rounded-lg bg-light px-3 py-2 text-center text-sm font-medium text-white hover:bg-purple-800 focus:outline-none focus:ring-4 focus:ring-purple-300">
+        <button className="inline-flex w-full items-center justify-center rounded-lg bg-light px-3 py-2 text-center text-sm font-medium text-white hover:bg-pink-200 focus:outline-none focus:ring-4 focus:ring-purple-300">
           View Raffle
           <svg
             aria-hidden="true"

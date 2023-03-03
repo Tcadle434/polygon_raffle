@@ -194,7 +194,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                         Raffle Pending...
                       </h3>
                       <button
-                        className="relative mr-8 -ml-px inline-flex items-center  rounded bg-light px-4 py-2 text-sm font-medium text-white hover:bg-purple-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 "
+                        className="relative mr-8 -ml-px inline-flex items-center  rounded bg-light px-4 py-2 text-sm font-medium text-white hover:bg-pink-200 focus:z-10 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 "
                         onClick={() => handleWinnerPicked()}
                       >
                         <h3 className="text-xl font-bold">Pick Winner</h3>

@@ -24,8 +24,6 @@ model User {
     updatedAt     DateTime @updatedAt
     walletAddress String   @id @unique
     name          String?
-    // Raffle        Raffle[]
-    // Participant   Participant[]
 }
 
 model Participant {
@@ -53,8 +51,7 @@ model Raffle {
     nftTokenURI          String?
     nftTokenName         String?
     nftCollectionName    String?
-    // creator             User          @relation(fields: [creatorId], references: [walletAddress])
-    // creatorId            String
+    // nftOpenSeaFloorPrice Float?
     creatorWalletAddress String
     winnerPicked         Boolean       @default(false)
     winnerWalletAddress  String?
