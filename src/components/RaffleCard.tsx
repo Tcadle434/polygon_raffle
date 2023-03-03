@@ -52,7 +52,7 @@ const RaffleCard = ({
   }, [isLast]);
 
   return (
-    <div className="max-w-sm rounded-lg border border-gray-700 bg-secondary shadow transition duration-300 ease-in-out hover:scale-105 hover:transform">
+    <div className="max-w-sm rounded-lg border border-gray-700 bg-[#59368B] shadow transition duration-300 ease-in-out hover:scale-105 hover:transform">
       <div style={{ position: "relative", width: "100%", paddingTop: "100%" }}>
         {!isImageLoaded && (
           <div className="">
@@ -79,10 +79,10 @@ const RaffleCard = ({
         <p className="mt mb-3 font-normal text-white line-clamp-1">{nftName}</p>
         <div className="mt-4 flex flex-row justify-between">
           <div className="flex flex-col ">
-            <label className="text-md text-light line-clamp-1">
+            <label className="text-md text-newthird line-clamp-1">
               Tickets Remaining
             </label>
-            <p className="mb-3 font-normal text-white">
+            <p className="mb-3 block truncate font-normal text-white sm:inline-block sm:overflow-visible">
               {totalTicketsSold.isLoading && <div>Loading...</div>}
               {totalTicketsSold.data && (
                 <div>
@@ -93,14 +93,16 @@ const RaffleCard = ({
             </p>
           </div>
           <div className="flex flex-col">
-            <label className="text-md text-light line-clamp-1">
+            <label className="text-md text-newthird line-clamp-1">
               Ticket Price
             </label>
-            <p className="mb-3 font-normal text-white">{ticketPrice} $MATIC</p>
+            <p className="mb-3 block truncate font-normal text-white sm:inline-block sm:overflow-visible">
+              {ticketPrice} $MATIC
+            </p>
           </div>
         </div>
         <div className="flex flex-col">
-          <label className="text-md text-light line-clamp-1">
+          <label className="text-md text-newthird line-clamp-1">
             Time Remaining
           </label>
           <p className="mb-3 font-normal text-white line-clamp-1">
@@ -108,7 +110,7 @@ const RaffleCard = ({
           </p>
         </div>
 
-        <button className="inline-flex w-full items-center justify-center rounded-lg bg-[#E58247] px-3 py-2 text-center text-sm font-medium text-white hover:bg-purple-800 focus:outline-none focus:ring-4 focus:ring-purple-300">
+        <button className="inline-flex w-full items-center justify-center rounded-lg bg-light px-3 py-2 text-center text-sm font-medium text-white hover:bg-pink-200 focus:outline-none focus:ring-4 focus:ring-purple-300">
           View Raffle
           <svg
             aria-hidden="true"

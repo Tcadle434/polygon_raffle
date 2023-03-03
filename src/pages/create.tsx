@@ -126,10 +126,12 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-[#d5bdf5] to-[#fff]">
+    <div className="min-h-screen bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-[#59368B] to-slate-900">
       <Navbar />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
-        <h1 className="mt-8 text-4xl">Create a new Raffle</h1>
+        <h1 className="mt-8 font-mono text-4xl text-light">
+          Create a new Raffle
+        </h1>
         {/* Main 3 column grid */}
         <div className="mt-8 grid grid-cols-1 items-start gap-4 lg:grid-cols-3 lg:gap-8">
           {/* Left column */}
@@ -294,6 +296,7 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                         <label className="block text-sm font-medium text-gray-700">
                           Ticket Price (in MATIC)
                         </label>
+                        {/* <div className="flex flex-row justify-between"> */}
                         <div className="mt-1">
                           <input
                             type="text"
@@ -305,7 +308,20 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                             }}
                           />
                         </div>
+                        {ticketSupply && ticketPrice && ticketSupply !== 0 ? (
+                          <div className="mt-1">
+                            <p className="my-2 block truncate pl-2 text-left text-xs font-medium text-gray-500">
+                              Raffle sellout value: {ticketSupply * ticketPrice}{" "}
+                              $MATIC
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="my-2 block truncate pl-2 text-left text-xs font-medium text-gray-500">
+                            Raffle sellout value: 0 $MATIC
+                          </p>
+                        )}
                       </div>
+                      {/* </div> */}
 
                       <div className="mt-6">
                         <label className="block text-sm font-medium text-gray-700">

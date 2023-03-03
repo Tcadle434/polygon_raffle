@@ -140,7 +140,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
   return (
     <div className="">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
-        <h1 className=" mt-8 text-4xl">Raffle Details</h1>
+        <h1 className="mt-8 font-mono text-4xl text-light">Raffle Details</h1>
         {/* Main 3 column grid */}
         <div className="mt-8 grid grid-cols-1 items-start gap-4 lg:grid-cols-3 lg:gap-8">
           {/* Left column */}
@@ -174,7 +174,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                       />
                     </div>
                     <button
-                      className="ml-8 inline-flex w-full items-center justify-center rounded-lg bg-third px-3 py-3 text-center text-white hover:bg-purple-800 focus:outline-none focus:ring-4 focus:ring-green-300 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="ml-8 inline-flex w-full items-center justify-center rounded-lg bg-light px-3 py-3 text-center text-white hover:bg-pink-200 focus:outline-none focus:ring-4 focus:ring-pink-300 disabled:cursor-not-allowed disabled:opacity-50"
                       onClick={() => handleBuyTickets()}
                       disabled={
                         buyTicketsLoading || !isConnected || !enoughFunds
@@ -190,11 +190,11 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                 <div className="mt-4 flex flex-col items-center">
                   <div className="items-center">
                     <div>
-                      <h3 className="mb-4 text-lg font-bold">
+                      <h3 className="text-md mb-4 font-mono font-bold text-light">
                         Raffle Pending...
                       </h3>
                       <button
-                        className="relative mr-8 -ml-px inline-flex items-center  rounded bg-secondary px-4 py-2 text-sm font-medium text-white hover:bg-purple-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 "
+                        className="relative mr-8 -ml-px inline-flex items-center  rounded bg-light px-4 py-2 text-sm font-medium text-white hover:bg-pink-200 focus:z-10 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 "
                         onClick={() => handleWinnerPicked()}
                       >
                         <h3 className="text-xl font-bold">Pick Winner</h3>
@@ -207,7 +207,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
               {winnerPicked && (
                 <div className="mt-4 flex flex-col items-center">
                   <div className="items-center">
-                    <h3 className="text-xl font-bold">
+                    <h3 className="font-mono text-xl font-bold text-light">
                       Winner: {winnerWalletAddress}
                     </h3>
                   </div>
