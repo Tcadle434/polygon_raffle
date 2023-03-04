@@ -1,11 +1,12 @@
-import React from "react";
+import React, { SetStateAction } from "react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { api } from "../utils/api";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import Web3Modal from "web3modal";
+import SuccessAlert from "~/components/SuccessAlert";
+import ErrorAlert from "~/components/ErrorAlert";
 
 import Navbar from "~/components/Navbar";
 import NftUpload from "~/components/NftUpload";
@@ -14,17 +15,15 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { ethers } from "ethers";
 import contractAbi from "../contracts/raffle.json";
+import { parseEther } from "ethers/lib/utils.js";
 
 const settings = {
   // apiKey: "7H2-IaYHE7hFfMqYuENjF3tAp-G9BR8Z",
   // network: Network.ETH_MAINNET,
   apiKey: "HRtcdn0En4LLGdjYcniYYIOqT00PAxA9",
-  network: Network.MATIC_MAINNET,
+  // network: Network.MATIC_MAINNET,
+  network: Network.MATIC_MUMBAI,
 };
-
-// const provider = new ethers.providers.JsonRpcProvider(
-//   "https://rpc.dev.buildbear.io/Cooing_Zam_Wesell_8ec808a5"
-// );
 
 interface Props {
   formId: string;
@@ -41,13 +40,29 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
   const [isFormLoading, setIsFormLoading] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [nftDataLoading, setNftDataLoading] = useState(false);
+  const [isNftApproved, setIsNftApproved] = useState(false);
+  const [approvalSuccess, setApprovalSuccess] = useState(0);
+  const [raffleErrorDetails, setRaffleErrorDetails] = useState<Error | null>(
+    null
+  );
+  const [raffleErrorDetailsTwo, setRaffleErrorDetailsTwo] =
+    useState<Error | null>(null);
+  const [raffleErrorDetailsThree, setRaffleErrorDetailsThree] =
+    useState<Error | null>(null);
+
   const [raffleEndDate, setRaffleEndDate] = useState<Date | null>(null);
   const router = useRouter();
   const { address, isConnected } = useAccount();
 
   const alchemy = new Alchemy(settings);
   const contractABI = contractAbi; // The ABI of the smart contract
-  const contractAddress = "0xc80f8409448Fe7E763eae098AB03c0C4937A6a80"; // The address of the smart contract
+  // ERC721 ABI Approve
+  const ERC721ABI = [
+    "function approve(address _to, uint256 _tokenId) public,",
+    "function setApprovalForAll(address _to, bool _approved) public",
+  ];
+  const contractAddress = "0x18bded3e3ba31f720a5a020d447afb185c6197ee"; // The address of the smart contract on mumbai
+  // const contractAddress = "0xc80f8409448Fe7E763eae098AB03c0C4937A6a80";
 
   const { mutateAsync: createRaffle } = api.raffle.createRaffle.useMutation({
     onSuccess: () => {
@@ -92,13 +107,73 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
   const handleNftSelect = (nft: OwnedNft) => {
     setSelectedNft(nft);
     console.log(nft);
+    const approvalResponse = approveNftForTransfer(
+      nft?.contract.address!,
+      nft?.tokenId!
+    );
+    console.log(approvalResponse);
     setIsOpen(false);
+  };
+
+  const approveNftForTransfer = async (
+    nftContractAddress: string,
+    nftTokenId: string
+  ) => {
+    if (window.ethereum) {
+      try {
+        setIsNftApproved(true);
+        // Get the provider object
+        const provider = new ethers.providers.Web3Provider(
+          window.ethereum as ethers.providers.ExternalProvider
+        );
+
+        // Get a signer object from the provider
+        const signer = provider.getSigner();
+
+        //logging contract args
+        console.log("nft contract address: ", nftContractAddress);
+        console.log("abi", ERC721ABI);
+        console.log("signer", signer);
+
+        const contract = new ethers.Contract(
+          nftContractAddress,
+          ERC721ABI,
+          signer
+        );
+
+        // const tx = await contract.approve(contractAddress, nftTokenId, {
+        //   gasLimit: 10000000,
+        // });
+        const tx = await contract.setApprovalForAll(contractAddress, true, {
+          gasLimit: 10000000,
+        });
+        let res = await tx.wait();
+
+        if (res?.err) {
+          console.log("error, ", res);
+          setApprovalSuccess(2);
+        } else {
+          console.log("success", res);
+          setApprovalSuccess(1);
+        }
+
+        console.log(
+          `Mined, see transaction: https://explorer.dev.buildbear.io/Cooing_Zam_Wesell_8ec808a5/tx/${tx.hash}`
+        );
+      } catch (error: unknown) {
+        console.log("entered catch block");
+        setRaffleErrorDetails(error as SetStateAction<Error | null>);
+        setApprovalSuccess(2);
+        console.log(error);
+      } finally {
+        setIsNftApproved(false);
+      }
+    }
   };
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsFormLoading(true);
-    const formData = new FormData(e.currentTarget);
 
     try {
       // Call the onSubmit function with the form data
@@ -109,82 +184,99 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
       console.log(raffleEndDate);
 
       if (window.ethereum) {
-        try {
-          // Get the provider object
-          const provider = new ethers.providers.Web3Provider(
-            window.ethereum as ethers.providers.ExternalProvider
-          );
+        // try {
+        // Get the provider object
+        const provider = new ethers.providers.Web3Provider(
+          window.ethereum as ethers.providers.ExternalProvider
+        );
 
-          // Get a signer object from the provider
-          const signer = provider.getSigner();
+        // Get a signer object from the provider
+        const signer = provider.getSigner();
 
-          const contract = new ethers.Contract(
-            contractAddress,
-            contractABI,
-            signer
-          );
+        const contract = new ethers.Contract(
+          contractAddress,
+          contractABI,
+          signer
+        );
 
-          const priceStructure = {
-            id: 0,
-            numEntries: ticketSupply,
-            price: ethers.utils.parseUnits(ticketPrice.toString(), 18),
-          };
+        const priceStructure = {
+          id: 0,
+          numEntries: ticketSupply,
+          price: ethers.utils.parseUnits(ticketPrice.toString(), 18),
+        };
 
-          //actually write to the contract before creating the raffle in the db
-          const tx = await contract.createRaffle(
-            ticketSupply,
-            selectedNft?.contract.address!,
-            selectedNft?.tokenId!,
-            ethers.utils.parseUnits(ticketPrice.toString(), 18),
-            [priceStructure],
-            address,
-            new Date(raffleEndDate!).getTime()
-          );
+        console.log("before create raffle");
 
-          let res = await tx.wait();
+        //actually write to the contract before creating the raffle in the db
+        const tx = await contract.createRaffle(
+          ticketSupply,
+          selectedNft?.contract.address!,
+          selectedNft?.tokenId!,
+          ethers.utils.parseUnits(ticketPrice.toString(), 18),
+          [priceStructure],
+          address,
+          new Date(raffleEndDate!).getTime(),
+          { gasLimit: 10000000 }
+        );
 
-          if (res?.err) {
-            console.log("error, ", res);
-          } else {
-            console.log("success", res);
-          }
+        let res = await tx.wait();
+
+        if (res?.err) {
+          console.log("error, ", res);
+        } else {
+          console.log("success", res);
+          let response = await createRaffle({
+            ticketSupply: ticketSupply,
+            ticketPrice: ticketPrice,
+            ticketsSold: 0,
+            endDate: raffleEndDate!,
+            nftContractAddress: selectedNft?.contract.address!,
+            nftTokenId: selectedNft?.tokenId!,
+            nftTokenURI:
+              selectedNft?.rawMetadata?.image! ||
+              selectedNft?.rawMetadata?.image_url!,
+            nftTokenName: selectedNft?.rawMetadata?.name!,
+            nftCollectionName: selectedNft?.contract.openSea?.collectionName!,
+            winnerWalletAddress: "",
+            creatorWalletAddress: address!,
+          });
 
           console.log(
-            `Mined, see transaction: https://explorer.dev.buildbear.io/Cooing_Zam_Wesell_8ec808a5/tx/${tx.hash}`
+            "here is the response from creating the raffle in the backend DB: ",
+            response
           );
-        } catch (error) {
-          console.error(error);
         }
+
+        console.log(
+          `Mined, see transaction: https://explorer.dev.buildbear.io/Cooing_Zam_Wesell_8ec808a5/tx/${tx.hash}`
+        );
       } else {
         console.error("wallet is not installed");
       }
-
-      let response = await createRaffle({
-        ticketSupply: ticketSupply,
-        ticketPrice: ticketPrice,
-        ticketsSold: 0,
-        endDate: raffleEndDate!,
-        nftContractAddress: selectedNft?.contract.address!,
-        nftTokenId: selectedNft?.tokenId!,
-        nftTokenURI:
-          selectedNft?.rawMetadata?.image! ||
-          selectedNft?.rawMetadata?.image_url!,
-        nftTokenName: selectedNft?.rawMetadata?.name!,
-        nftCollectionName: selectedNft?.contract.openSea?.collectionName!,
-        winnerWalletAddress: "",
-        creatorWalletAddress: address!,
-      });
-
-      console.log("here is the response from creating the raffle: ", response);
-    } catch (error) {
-      console.error(error);
+    } catch (error: unknown) {
+      setRaffleErrorDetailsTwo(error as SetStateAction<Error | null>);
+      console.log(error);
     } finally {
-      setTimeout(() => {
-        setIsFormLoading(false);
-        router.push("/");
-      }, 3000);
+      !raffleErrorDetails &&
+        !raffleErrorDetailsTwo &&
+        setTimeout(() => {
+          setIsFormLoading(false);
+          router.push("/");
+        }, 3000);
     }
   };
+
+  useEffect(() => {
+    if (raffleErrorDetails || raffleErrorDetailsTwo) {
+      console.log("we found an error in useffect");
+      setIsFormLoading(false);
+    }
+    if (approvalSuccess === 1 || approvalSuccess === 2) {
+      setTimeout(() => {
+        setApprovalSuccess(0);
+      }, 5000);
+    }
+  }, [raffleErrorDetails, raffleErrorDetailsTwo, approvalSuccess]);
 
   return (
     <div className="min-h-screen bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-[#59368B] to-slate-900">
@@ -269,10 +361,11 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                   className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
                 >
                   {nfts.map((nft) => (
-                    <>
+                    <li key={nft.tokenId}>
                       {nft.rawMetadata &&
                         (nft.rawMetadata.image || nft.rawMetadata.image_url) &&
-                        !nft.spamInfo?.isSpam && (
+                        !nft.spamInfo?.isSpam &&
+                        nft.tokenId && (
                           <div key={nft.tokenId}>
                             <button
                               className="inline-block w-[200px] rounded border-2 border-off hover:border-secondary"
@@ -311,7 +404,7 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                             </button>
                           </div>
                         )}
-                    </>
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -319,7 +412,7 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
           )}
 
           {/* Right column */}
-          <div className="grid grid-cols-1 gap-4 rounded border lg:col-span-2">
+          <div className="grid grid-cols-1 gap-4 rounded  lg:col-span-2">
             <section aria-labelledby="section-2-title">
               <div className="overflow-hidden rounded-lg bg-white shadow">
                 <div className="p-6">
@@ -334,7 +427,7 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                     correct.
                   </p>
 
-                  {isFormLoading ? (
+                  {isFormLoading || isNftApproved ? (
                     <div
                       id={loaderId}
                       className="mt-8 flex items-center justify-center"
@@ -347,95 +440,117 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                       />
                     </div>
                   ) : (
-                    <form method="POST" onSubmit={handleFormSubmit} id={formId}>
-                      <div className="mt-6">
-                        <label className="block text-sm font-medium text-gray-700">
-                          Total Ticket Supply
-                        </label>
-                        <div className="mt-1">
-                          <input
-                            type="text"
-                            name="company-website"
-                            id="company-website"
-                            className="block rounded-md border-2 border-light shadow-sm hover:border-secondary focus:border-secondary"
-                            onChange={(e) => {
-                              setTicketSupply(parseInt(e.target.value));
-                            }}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="mt-6">
-                        <label className="block text-sm font-medium text-gray-700">
-                          Ticket Price (in MATIC)
-                        </label>
-                        {/* <div className="flex flex-row justify-between"> */}
-                        <div className="mt-1">
-                          <input
-                            type="text"
-                            name="company-website"
-                            id="company-website"
-                            className="block rounded-md border-2 border-light shadow-sm hover:border-secondary focus:border-secondary"
-                            onChange={(e) => {
-                              setTicketPrice(parseFloat(e.target.value));
-                            }}
-                          />
-                        </div>
-                        {ticketSupply && ticketPrice && ticketSupply !== 0 ? (
+                    <>
+                      <form
+                        method="POST"
+                        onSubmit={handleFormSubmit}
+                        id={formId}
+                      >
+                        <div className="mt-6">
+                          <label className="block text-sm font-medium text-gray-700">
+                            Total Ticket Supply
+                          </label>
                           <div className="mt-1">
-                            <p className="my-2 block truncate pl-2 text-left text-xs font-medium text-gray-500">
-                              Raffle sellout value: {ticketSupply * ticketPrice}{" "}
-                              $MATIC
-                            </p>
+                            <input
+                              type="text"
+                              name="company-website"
+                              id="company-website"
+                              className="block rounded-md border-2 border-light shadow-sm hover:border-secondary focus:border-secondary"
+                              onChange={(e) => {
+                                setTicketSupply(parseInt(e.target.value));
+                              }}
+                            />
                           </div>
-                        ) : (
-                          <p className="my-2 block truncate pl-2 text-left text-xs font-medium text-gray-500">
-                            Raffle sellout value: 0 $MATIC
-                          </p>
-                        )}
-                      </div>
-                      {/* </div> */}
-
-                      <div className="mt-6">
-                        <label className="block text-sm font-medium text-gray-700">
-                          Raffle End Date
-                        </label>
-
-                        <div className="mt-1">
-                          <DatePicker
-                            selected={raffleEndDate}
-                            onChange={(date: Date | null) =>
-                              setRaffleEndDate(date)
-                            }
-                            showTimeSelect
-                            timeFormat="HH:mm"
-                            timeIntervals={15}
-                            dateFormat="MMMM d, yyyy h:mm aa"
-                            className="block rounded-md border-2 border-light shadow-sm hover:border-secondary focus:border-secondary"
-                          />
                         </div>
-                      </div>
 
-                      <div className="mt-6 mr-6 flex flex-row justify-end">
-                        <button
-                          className="relative flex flex-row items-center  justify-end rounded-md border border-transparent bg-secondary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                          type="submit"
-                          disabled={
-                            !isConnected ||
-                            !selectedNft ||
-                            !ticketPrice ||
-                            !ticketSupply ||
-                            !raffleEndDate ||
-                            raffleEndDate < new Date()
-                          }
-                        >
-                          Submit
-                        </button>
-                      </div>
-                    </form>
+                        <div className="mt-6">
+                          <label className="block text-sm font-medium text-gray-700">
+                            Ticket Price (in MATIC)
+                          </label>
+                          {/* <div className="flex flex-row justify-between"> */}
+                          <div className="mt-1">
+                            <input
+                              type="text"
+                              name="company-website"
+                              id="company-website"
+                              className="block rounded-md border-2 border-light shadow-sm hover:border-secondary focus:border-secondary"
+                              onChange={(e) => {
+                                setTicketPrice(parseFloat(e.target.value));
+                              }}
+                            />
+                          </div>
+                          {ticketSupply && ticketPrice && ticketSupply !== 0 ? (
+                            <div className="mt-1">
+                              <p className="my-2 block truncate pl-2 text-left text-xs font-medium text-gray-500">
+                                Raffle sellout value:{" "}
+                                {ticketSupply * ticketPrice} $MATIC
+                              </p>
+                            </div>
+                          ) : (
+                            <p className="my-2 block truncate pl-2 text-left text-xs font-medium text-gray-500">
+                              Raffle sellout value: 0 $MATIC
+                            </p>
+                          )}
+                        </div>
+                        {/* </div> */}
+
+                        <div className="mt-6">
+                          <label className="block text-sm font-medium text-gray-700">
+                            Raffle End Date
+                          </label>
+
+                          <div className="mt-1">
+                            <DatePicker
+                              selected={raffleEndDate}
+                              onChange={(date: Date | null) =>
+                                setRaffleEndDate(date)
+                              }
+                              showTimeSelect
+                              timeFormat="HH:mm"
+                              timeIntervals={15}
+                              dateFormat="MMMM d, yyyy h:mm aa"
+                              className="block rounded-md border-2 border-light shadow-sm hover:border-secondary focus:border-secondary"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="mt-6 mr-6 flex flex-row justify-end">
+                          <button
+                            className="relative flex flex-row items-center  justify-end rounded-md border border-transparent bg-secondary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            type="submit"
+                            disabled={
+                              !isConnected ||
+                              !selectedNft ||
+                              !ticketPrice ||
+                              !ticketSupply ||
+                              !raffleEndDate ||
+                              raffleEndDate < new Date()
+                            }
+                          >
+                            Submit
+                          </button>
+                        </div>
+                      </form>
+                    </>
                   )}
                 </div>
               </div>
+              {approvalSuccess === 1 && (
+                <SuccessAlert successMessage="NFT approved to transfer! Fill out the raffle parameters to raffle your NFT" />
+              )}
+              {approvalSuccess === 2 && (
+                <ErrorAlert errorMessage="NFT not approved to transfer! If you are sure it is ERC721,Please refresh and try again" />
+              )}
+              {raffleErrorDetails && (
+                <ErrorAlert
+                  errorMessage={`Error creating raffle ${raffleErrorDetails!.toString()}`}
+                />
+              )}
+              {raffleErrorDetailsTwo && (
+                <ErrorAlert
+                  errorMessage={`Error creating raffle ${raffleErrorDetailsTwo!.toString()}`}
+                />
+              )}
             </section>
           </div>
         </div>

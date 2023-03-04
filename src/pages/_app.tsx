@@ -23,22 +23,22 @@ if (!process.env.NEXT_PUBLIC_PROJECT_ID) {
 const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
 
 // 2. Configure wagmi client
-// const chains = [polygonMumbai];
+const chains = [polygonMumbai];
 
-const { chains, provider } = configureChains(
-  [polygon],
-  [
-    jsonRpcProvider({
-      rpc: (chain) => ({
-        http: `https://rpc.dev.buildbear.io/Cooing_Zam_Wesell_8ec808a5`,
-      }),
-    }),
-  ]
-);
+// const { chains, provider } = configureChains(
+//   [polygon],
+//   [
+//     jsonRpcProvider({
+//       rpc: (chain) => ({
+//         http: `https://rpc.dev.buildbear.io/Cooing_Zam_Wesell_8ec808a5`,
+//       }),
+//     }),
+//   ]
+// );
 
-// const { provider } = configureChains(chains, [
-//   walletConnectProvider({ projectId }),
-// ]);
+const { provider } = configureChains(chains, [
+  walletConnectProvider({ projectId }),
+]);
 const wagmiClient = createClient({
   autoConnect: true,
   connectors: modalConnectors({
