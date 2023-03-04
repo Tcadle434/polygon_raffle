@@ -25,6 +25,7 @@
     "@types/react-datepicker": "^4.10.0",
     "@walletconnect/types": "^2.4.6",
     "@walletconnect/web3-provider": "^1.8.0",
+    "@web3-react/core": "^6.1.9",
     "@web3modal/ethereum": "^2.1.1",
     "@web3modal/react": "^2.1.1",
     "alchemy-sdk": "^2.4.3",

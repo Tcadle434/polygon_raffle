@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { api } from "../utils/api";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Web3Modal from "web3modal";
 
 import Navbar from "~/components/Navbar";
 import NftUpload from "~/components/NftUpload";
@@ -12,6 +13,7 @@ import { Alchemy, Network, OwnedNft, OwnedNftsResponse } from "alchemy-sdk";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { ethers } from "ethers";
+import contractAbi from "../contracts/raffle.json";
 
 const settings = {
   // apiKey: "7H2-IaYHE7hFfMqYuENjF3tAp-G9BR8Z",
@@ -20,9 +22,9 @@ const settings = {
   network: Network.MATIC_MAINNET,
 };
 
-const provider = new ethers.providers.JsonRpcProvider(
-  "https://rpc.dev.buildbear.io/Cooing_Zam_Wesell_8ec808a5"
-);
+// const provider = new ethers.providers.JsonRpcProvider(
+//   "https://rpc.dev.buildbear.io/Cooing_Zam_Wesell_8ec808a5"
+// );
 
 interface Props {
   formId: string;
@@ -44,10 +46,8 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
   const { address, isConnected } = useAccount();
 
   const alchemy = new Alchemy(settings);
-
-  // const contractABI = [""]; // The ABI of the smart contract
-  // const contractAddress = "0x..."; // The address of the smart contract
-  // const contract = new ethers.Contract(contractAddress, contractABI, provider);
+  const contractABI = contractAbi; // The ABI of the smart contract
+  const contractAddress = "0xc80f8409448Fe7E763eae098AB03c0C4937A6a80"; // The address of the smart contract
 
   const { mutateAsync: createRaffle } = api.raffle.createRaffle.useMutation({
     onSuccess: () => {
@@ -108,20 +108,56 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
       console.log(ticketPrice);
       console.log(raffleEndDate);
 
-      //actually write to the contract before creating the raffle in the db
-      // const tx = await contract.createRaffle(param1, param2, { gasLimit: 1000000 });
-      //
-      //let res = await tx.wait();
-      //
-      // if (!res?.err) {
-      //     console.log('error')
-      // } else {
-      //     console.log('success')
-      // }
-      //
-      // console.log(
-      //   `Mined, see transaction: https://mumbai.polygonscan.com/tx/${tx.hash}`
-      // );
+      if (window.ethereum) {
+        try {
+          // Get the provider object
+          const provider = new ethers.providers.Web3Provider(
+            window.ethereum as ethers.providers.ExternalProvider
+          );
+
+          // Get a signer object from the provider
+          const signer = provider.getSigner();
+
+          const contract = new ethers.Contract(
+            contractAddress,
+            contractABI,
+            signer
+          );
+
+          const priceStructure = {
+            id: 0,
+            numEntries: ticketSupply,
+            price: ethers.utils.parseUnits(ticketPrice.toString(), 18),
+          };
+
+          //actually write to the contract before creating the raffle in the db
+          const tx = await contract.createRaffle(
+            ticketSupply,
+            selectedNft?.contract.address!,
+            selectedNft?.tokenId!,
+            ethers.utils.parseUnits(ticketPrice.toString(), 18),
+            [priceStructure],
+            address,
+            new Date(raffleEndDate!).getTime()
+          );
+
+          let res = await tx.wait();
+
+          if (res?.err) {
+            console.log("error, ", res);
+          } else {
+            console.log("success", res);
+          }
+
+          console.log(
+            `Mined, see transaction: https://explorer.dev.buildbear.io/Cooing_Zam_Wesell_8ec808a5/tx/${tx.hash}`
+          );
+        } catch (error) {
+          console.error(error);
+        }
+      } else {
+        console.error("wallet is not installed");
+      }
 
       let response = await createRaffle({
         ticketSupply: ticketSupply,
@@ -130,7 +166,9 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
         endDate: raffleEndDate!,
         nftContractAddress: selectedNft?.contract.address!,
         nftTokenId: selectedNft?.tokenId!,
-        nftTokenURI: selectedNft?.rawMetadata?.image!,
+        nftTokenURI:
+          selectedNft?.rawMetadata?.image! ||
+          selectedNft?.rawMetadata?.image_url!,
         nftTokenName: selectedNft?.rawMetadata?.name!,
         nftCollectionName: selectedNft?.contract.openSea?.collectionName!,
         winnerWalletAddress: "",
@@ -171,7 +209,10 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                   ) : (
                     <div className=" flex w-full flex-col items-center rounded ">
                       <Image
-                        src={selectedNft.rawMetadata?.image!}
+                        src={
+                          selectedNft.rawMetadata?.image! ||
+                          selectedNft.rawMetadata?.image_url!
+                        }
                         alt="user NFT"
                         width={300}
                         height={300}
