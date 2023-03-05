@@ -16,10 +16,6 @@ interface CardProps {
   isLast: boolean;
 }
 
-function classNames(...classes: any[]) {
-  return classes.filter(Boolean).join(" ");
-}
-
 const RaffleCard = ({
   raffleId,
   imageUrl,

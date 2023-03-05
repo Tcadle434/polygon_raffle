@@ -1,11 +1,9 @@
-import { useState, Fragment } from "react";
+import { useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
-
 import { api } from "~/utils/api";
-import { z } from "zod";
 import RaffleCard from "~/components/RaffleCard";
 import Navbar from "~/components/Navbar";
 
@@ -70,7 +68,6 @@ const Home = () => {
                   selectedButton === "button1" ? "bg-light " : "bg-transparent"
                 } relative mr-8 -ml-px inline-flex items-center  rounded px-4 py-2 text-sm font-medium text-white hover:bg-light focus:z-10 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500`}
                 onClick={() => setSelectedButton("button1")}
-                // className="relative mr-8 -ml-px inline-flex items-center  rounded bg-secondary px-4 py-2 text-sm font-medium text-white hover:bg-purple-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               >
                 Live Now
               </button>

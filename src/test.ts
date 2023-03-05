@@ -1,20 +1,29 @@
-// Setup: npm install alchemy-sdk
-// Github: https://github.com/alchemyplatform/alchemy-sdk-js
-import { Alchemy, Network, AssetTransfersCategory } from "alchemy-sdk";
+export {};
 
-// Optional Config object, but defaults to demo api-key and eth-mainnet.
-const settings = {
-  apiKey: "7H2-IaYHE7hFfMqYuENjF3tAp-G9BR8Z", // Replace with your Alchemy API Key.
-  network: Network.ETH_MAINNET, // Replace with your network.
-};
+const projectId = "6f40891076a444a29fe2b43084e3f8a9";
+const walletAddress = "0x11E7Fa3Bc863bceD1F1eC85B6EdC9b91FdD581CF";
 
-const alchemy = new Alchemy(settings);
+async function getNfts() {
+  try {
+    const response = await fetch(
+      `https://polygon-mainnet.infura.io/v3/6f40891076a444a29fe2b43084e3f8a9/account/${walletAddress}/nfts`
+    );
 
-// Print all NFTs returned in the response:
-const getOwnerNfts = async () => {
-  await alchemy.nft
-    .getNftsForOwner("0x55c0f20123862aD1F6C1B235D06cCb5ebBe97414")
-    .then(console.log);
-};
+    // if (!response.ok) {
+    //   throw new Error("Failed to fetch NFTs");
+    // }
 
-getOwnerNfts();
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+// Usage:
+getNfts().then((nfts) => {
+  if (nfts) {
+    console.log(nfts);
+  }
+});

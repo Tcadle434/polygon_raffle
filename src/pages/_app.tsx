@@ -1,31 +1,37 @@
 import { type AppType } from "next/app";
 import { useEffect, useState } from "react";
 import { api } from "~/utils/api";
-import { env } from "~/env.mjs";
-import "~/styles/globals.css";
-
-import {
-  EthereumClient,
-  modalConnectors,
-  walletConnectProvider,
-} from "@web3modal/ethereum";
-
+import { EthereumClient, modalConnectors } from "@web3modal/ethereum";
 import { Web3Modal } from "@web3modal/react";
 import { configureChains, createClient, WagmiConfig } from "wagmi";
-import { arbitrum, mainnet, polygon, polygonMumbai } from "wagmi/chains";
+import { polygon, polygonMumbai } from "wagmi/chains";
+import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
+import "~/styles/globals.css";
 
-// 1. Get projectID at https://cloud.walletconnect.com
 if (!process.env.NEXT_PUBLIC_PROJECT_ID) {
   throw new Error("You need to provide NEXT_PUBLIC_PROJECT_ID env variable");
 }
 const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
 
 // 2. Configure wagmi client
-const chains = [polygonMumbai];
+// const chains = [polygon];
+// const chains = [polygonMumbai];
 
-const { provider } = configureChains(chains, [
-  walletConnectProvider({ projectId }),
-]);
+// const { provider } = configureChains(chains, [
+//   walletConnectProvider({ projectId }),
+// ]);
+
+const { chains, provider } = configureChains(
+  [polygon],
+  [
+    jsonRpcProvider({
+      rpc: (chain) => ({
+        http: `https://rpc.buildbear.io/National_Saesee_Tiin_4c7bff0b`,
+      }),
+    }),
+  ]
+);
+
 const wagmiClient = createClient({
   autoConnect: true,
   connectors: modalConnectors({
@@ -37,7 +43,6 @@ const wagmiClient = createClient({
   provider,
 });
 
-// 3. Configure modal ethereum client
 const ethereumClient = new EthereumClient(wagmiClient, chains);
 
 const MyApp: AppType = ({ Component, pageProps }) => {
@@ -54,9 +59,6 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       window.ethereum.on!("accountsChanged", () => {
         window.location.reload();
       });
-      // window.ethereum.on!("wallet_disconnect", () => {
-      //   window.location.reload();
-      // });
     }
   }, []);
 

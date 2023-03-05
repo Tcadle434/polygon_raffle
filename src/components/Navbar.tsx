@@ -4,7 +4,7 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import Link from "next/link";
 import { Web3Button, Web3NetworkSwitch } from "@web3modal/react";
-import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { useAccount } from "wagmi";
 
 function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(" ");
