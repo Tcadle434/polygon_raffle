@@ -163,7 +163,7 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
         }
 
         console.log(
-          `Mined, see transaction: https://explorer.dev.buildbear.io/Cooing_Zam_Wesell_8ec808a5/tx/${tx.hash}`
+          `Mined, see transaction: https://rpc.buildbear.io/Thundering_Lobot_363bab71/tx/${tx.hash}`
         );
       } catch (error: unknown) {
         console.log("entered catch block");

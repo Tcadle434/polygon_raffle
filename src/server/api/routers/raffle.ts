@@ -156,4 +156,29 @@ export const raffleRouter = createTRPCRouter({
     });
     return response;
   }),
+
+  updateRaffleWinnerPickedWithWinnerWalletAddress: publicProcedure
+    .input(
+      z.object({
+        raffleId: z.string(),
+        winnerWalletAddress: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { raffleId, winnerWalletAddress } = input;
+      try {
+        const response = await ctx.prisma.raffle.update({
+          where: {
+            id: raffleId,
+          },
+          data: {
+            winnerWalletAddress: winnerWalletAddress,
+            winnerPicked: true,
+          },
+        });
+        console.log("RESPONSE", response);
+      } catch (e) {
+        console.log("ERROR", e);
+      }
+    }),
 });

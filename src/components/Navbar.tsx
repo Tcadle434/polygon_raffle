@@ -69,9 +69,9 @@ export default function Navbar() {
                     />
                   </div>
 
-                  <div className="mx-2 flex-shrink-0">
+                  {/* <div className="mx-2 flex-shrink-0">
                     <Web3NetworkSwitch />
-                  </div>
+                  </div> */}
 
                   {/* Profile dropdown */}
                   <Menu as="div" className="relative ml-3">

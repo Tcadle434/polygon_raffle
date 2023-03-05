@@ -117,6 +117,16 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
       },
     });
 
+  const { mutateAsync: updateRaffleWinnerPickedWithWinnerWalletAddress } =
+    api.raffle.updateRaffleWinnerPickedWithWinnerWalletAddress.useMutation({
+      onSuccess: () => {
+        console.log("Success User");
+      },
+      onError: (err) => {
+        console.log("FAILURE User", err);
+      },
+    });
+
   const handleBuyTickets = async () => {
     console.log(`Buying ${ticketNum} tickets...`);
     setBuyTicketsLoading(true);
@@ -145,7 +155,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
         console.log("ticketNum: ", ticketNum);
         console.log("ticketPrice: ", ticketPrice);
 
-        const tx = await contract.buyEntry(0, ticketNum, {
+        const tx = await contract.buyEntry(contractRaffleId, ticketNum, {
           value: ethers.utils.parseUnits(
             (ticketNum * ticketPrice).toString(),
             18
@@ -231,17 +241,55 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
           contractABI,
           signer
         );
+
+        const tx = await contract.setWinner(contractRaffleId, {
+          gasLimit: 10000000,
+        });
+
+        console.log("after setWinner");
+        let res = await tx.wait();
+        console.log("after wait");
+        console.log("res: ", res);
+
+        const receipt = await provider.getTransactionReceipt(tx.hash);
+        console.log("unfilteredLogs", receipt.logs);
+        const logs = receipt.logs.filter(
+          (log) =>
+            log.topics[0] === contract.interface.getEventTopic("RaffleEnded")
+        );
+        const parsedLogs = logs.map((log) => contract.interface.parseLog(log));
+        console.log("parsedLogs", parsedLogs);
+        const raffleWinnerAddress = parsedLogs[0]?.args.winner;
+
+        if (res?.err) {
+          console.log("error, ", res);
+          setBuySuccess(2);
+        } else {
+          console.log("success", res);
+          setBuySuccess(1);
+          // let response = await updateRaffleWinnerPicked({ raffleId: raffleID }); // needs to be replaced with the raffle winner as well
+          let response = await updateRaffleWinnerPickedWithWinnerWalletAddress({
+            raffleId: raffleID,
+            winnerWalletAddress: raffleWinnerAddress,
+          });
+
+          console.log(
+            "here is the response from buying the tickets for the DB: ",
+            response
+          );
+        }
+        console.log(
+          `Mined, see transaction: https://rpc.buildbear.io/National_Saesee_Tiin_4c7bff0b/tx/${tx.hash}`
+        );
       } else {
         alert("Please install MetaMask first.");
       }
-
-      let response = await updateRaffleWinnerPicked({ raffleId: raffleID });
     } catch (error) {
       console.error(error);
     } finally {
       setTimeout(() => {
         setWinnerSelectLoading(false);
-        router.reload();
+        // router.reload();
       }, 3000);
     }
   };
