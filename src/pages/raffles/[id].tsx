@@ -30,7 +30,6 @@ const raffle = () => {
   return (
     <div className="min-h-screen bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-[#59368B] to-slate-900">
       <Navbar />
-      {/* <div className="my-8" /> */}
       <ExpandedRaffle
         ticketSupply={data.ticketSupply}
         ticketPrice={data.ticketPrice}
@@ -46,6 +45,7 @@ const raffle = () => {
         creatorWalletAddress={data.creatorWalletAddress}
         createdAt={data.createdAt}
         raffleID={data.id}
+        contractRaffleId={data.contractRaffleId}
       />
     </div>
   );

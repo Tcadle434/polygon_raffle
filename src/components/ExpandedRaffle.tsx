@@ -1,13 +1,27 @@
-import React, { useEffect, useState } from "react";
+import React, { SetStateAction, useEffect, useState } from "react";
 import Image from "next/image";
 import { NextPage } from "next";
 import z from "zod";
 import { useRouter } from "next/router";
 import CountdownTimer from "./CountdownTimer";
+import SuccessAlert from "./SuccessAlert";
+import ErrorAlert from "./ErrorAlert";
 
 import { api } from "~/utils/api";
 import Divider from "./Divider";
 import { useAccount, useBalance } from "wagmi";
+import { ethers } from "ethers";
+// import { Alchemy, Network, OwnedNft, OwnedNftsResponse } from "alchemy-sdk";
+
+import contractAbi from "../contracts/raffle.json";
+
+// const settings = {
+//   // apiKey: "7H2-IaYHE7hFfMqYuENjF3tAp-G9BR8Z",
+//   // network: Network.ETH_MAINNET,
+//   apiKey: "HRtcdn0En4LLGdjYcniYYIOqT00PAxA9",
+//   network: Network.MATIC_MAINNET,
+//   // network: Network.MATIC_MUMBAI,
+// };
 
 const raffleSchema = z.object({
   ticketSupply: z.number(),
@@ -24,6 +38,7 @@ const raffleSchema = z.object({
   creatorWalletAddress: z.string(),
   createdAt: z.date(),
   raffleID: z.string(),
+  contractRaffleId: z.string(),
 });
 
 type RaffleProps = z.infer<typeof raffleSchema>;
@@ -52,12 +67,16 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
   creatorWalletAddress,
   createdAt,
   raffleID,
+  contractRaffleId,
 }) => {
   const [ticketNum, setTicketNum] = useState(1);
   const [winnerSelectLoading, setWinnerSelectLoading] = useState(false);
   const [buyTicketsLoading, setBuyTicketsLoading] = useState(false);
+  const [buySuccess, setBuySuccess] = useState(0);
   const [enoughFunds, setEnoughFunds] = useState(true);
-
+  const [raffleErrorDetails, setRaffleErrorDetails] = useState<Error | null>(
+    null
+  );
   const { address, isConnected } = useAccount();
   const balance = useBalance({
     address: address,
@@ -69,6 +88,15 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
     api.participant.getTotalNumTicketsByRaffleId.useQuery(raffleID);
 
   const router = useRouter();
+
+  const contractABI = contractAbi; // The ABI of the smart contract
+  // ERC721 ABI Approve
+  const ERC721ABI = [
+    "function approve(address _to, uint256 _tokenId) public,",
+    "function setApprovalForAll(address _to, bool _approved) public",
+  ];
+  // const contractAddress = "0x18bded3e3ba31f720a5a020d447afb185c6197ee"; // The address of the smart contract on mumbai
+  const contractAddress = "0x4401c8DbDcd9201C48092F6fC384db0ae80BE197";
 
   const { mutateAsync: buyTickets } = api.participant.buyTickets.useMutation({
     onSuccess: () => {
@@ -93,15 +121,86 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
     console.log(`Buying ${ticketNum} tickets...`);
     setBuyTicketsLoading(true);
     try {
-      let response = await buyTickets({
-        numTickets: ticketNum,
-        buyerWalletAddress: address!,
-        raffleId: raffleID,
-      });
+      if (window.ethereum) {
+        const provider = new ethers.providers.Web3Provider(
+          window.ethereum as ethers.providers.ExternalProvider
+        );
 
-      console.log("here is the response from buying the tickets: ", response);
-    } catch (error) {
-      console.error(error);
+        // Get a signer object from the provider
+        const signer = provider.getSigner();
+
+        //logging contract args
+        console.log("nft contract address: ", contractAddress);
+        console.log("abi", contractABI);
+        console.log("signer", signer);
+
+        const contract = new ethers.Contract(
+          contractAddress,
+          contractABI,
+          signer
+        );
+
+        console.log("before buyEntry");
+        console.log("contract raffle id: ", contractRaffleId);
+        console.log("ticketNum: ", ticketNum);
+        console.log("ticketPrice: ", ticketPrice);
+
+        const tx = await contract.buyEntry(0, ticketNum, {
+          value: ethers.utils.parseUnits(
+            (ticketNum * ticketPrice).toString(),
+            18
+          ),
+          gasLimit: 10000000,
+        });
+
+        // const tx = await contract.buyTicketsMock(0, ticketNum, {
+        //   value: ethers.utils.parseUnits(
+        //     (ticketNum * ticketPrice).toString(),
+        //     18
+        //   ),
+        //   gasLimit: 10000000,
+        // });
+
+        console.log("after buyEntry");
+        let res = await tx.wait();
+        console.log("after wait");
+
+        if (res?.err) {
+          console.log("error, ", res);
+          setBuySuccess(2);
+        } else {
+          console.log("success", res);
+          setBuySuccess(1);
+
+          let response = await buyTickets({
+            numTickets: ticketNum,
+            buyerWalletAddress: address!,
+            raffleId: raffleID,
+          });
+          console.log(
+            "here is the response from buying the tickets for the DB: ",
+            response
+          );
+        }
+
+        console.log(
+          `Mined, see transaction: https://rpc.buildbear.io/National_Saesee_Tiin_4c7bff0b/tx/${tx.hash}`
+        );
+      } else {
+        alert("Please install MetaMask first.");
+      }
+      // let response = await buyTickets({
+      //   numTickets: ticketNum,
+      //   buyerWalletAddress: address!,
+      //   raffleId: raffleID,
+      // });
+
+      // console.log("here is the response from buying the tickets: ", response);
+    } catch (error: unknown) {
+      console.log("entered catch block");
+
+      setRaffleErrorDetails(error as SetStateAction<Error | null>);
+      setBuySuccess(2);
     } finally {
       setTimeout(() => {
         setBuyTicketsLoading(false);
@@ -114,6 +213,28 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
     console.log(`Picking winner...`);
     setWinnerSelectLoading(true);
     try {
+      if (window.ethereum) {
+        const provider = new ethers.providers.Web3Provider(
+          window.ethereum as ethers.providers.ExternalProvider
+        );
+
+        // Get a signer object from the provider
+        const signer = provider.getSigner();
+
+        //logging contract args
+        console.log("our raffle contract address: ", contractAddress);
+        console.log("abi", contractABI);
+        console.log("signer", signer);
+
+        const contract = new ethers.Contract(
+          contractAddress,
+          contractABI,
+          signer
+        );
+      } else {
+        alert("Please install MetaMask first.");
+      }
+
       let response = await updateRaffleWinnerPicked({ raffleId: raffleID });
     } catch (error) {
       console.error(error);
@@ -136,6 +257,18 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
       setEnoughFunds(true);
     }
   }, [ticketNum, balance]);
+
+  useEffect(() => {
+    if (raffleErrorDetails) {
+      console.log("we found an error in useffect");
+      setBuyTicketsLoading(false);
+    }
+    if (buySuccess === 1 || buySuccess === 2) {
+      setTimeout(() => {
+        setBuySuccess(0);
+      }, 5000);
+    }
+  }, [raffleErrorDetails, buySuccess]);
 
   return (
     <div className="">
@@ -217,7 +350,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
           </div>
 
           {/* Right column */}
-          <div className="grid grid-cols-1 gap-4 rounded border lg:col-span-2">
+          <div className="grid grid-cols-1 gap-4 rounded  lg:col-span-2">
             <section aria-labelledby="section-2-title">
               <div className="overflow-hidden rounded-lg bg-white shadow">
                 <div className="p-6">
@@ -350,6 +483,12 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                   )}
                 </div>
               </div>
+              {buySuccess === 1 && (
+                <SuccessAlert successMessage="Your Raffle tickets have been purchased!" />
+              )}
+              {buySuccess === 2 && (
+                <ErrorAlert errorMessage="Failed to purchase tickets, please try again" />
+              )}
             </section>
           </div>
         </div>
