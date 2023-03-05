@@ -33,3 +33,7 @@ We believe that Raffi3 is a great start to a platform that will be a staple in t
 - [ ] Insurance for raffles
 - [ ] Integration with trusted DeFi services to transfer out the temporarily held funds
 - [ ] Raffles as a Service
+
+## Wen Launch?
+
+Theoretically, the platform is ready to launch on mainnet now. However, we want to take our time to fix all potential bugs and roll out a proper marketing campaign, so the demo is recorded on a custom testnet. We are aiming to go live in the next 2-3 weeks, but our MVP is ready now.
