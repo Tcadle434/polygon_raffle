@@ -18,11 +18,10 @@ import contractAbi from "../contracts/raffle.json";
 import { parseEther } from "ethers/lib/utils.js";
 
 const settings = {
-  // apiKey: "7H2-IaYHE7hFfMqYuENjF3tAp-G9BR8Z",
-  // network: Network.ETH_MAINNET,
-  apiKey: "HRtcdn0En4LLGdjYcniYYIOqT00PAxA9",
-  // network: Network.MATIC_MAINNET,
-  network: Network.MATIC_MUMBAI,
+  apiKey: "ZuSU4sqkiZWPY9G2jJuWNSBu7WlqaVmK", // mainnet
+  network: Network.MATIC_MAINNET,
+  // apiKey: "HRtcdn0En4LLGdjYcniYYIOqT00PAxA9", // testnet
+  // network: Network.MATIC_MUMBAI,
 };
 
 interface Props {
@@ -42,17 +41,19 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
   const [nftDataLoading, setNftDataLoading] = useState(false);
   const [isNftApproved, setIsNftApproved] = useState(false);
   const [approvalSuccess, setApprovalSuccess] = useState(0);
+  const [raffleIdFromContract, setRaffleIdFromContract] = useState("");
+  const [publishRaffleSuccess, setPublishRaffleSuccess] = useState(0);
   const [raffleErrorDetails, setRaffleErrorDetails] = useState<Error | null>(
     null
   );
   const [raffleErrorDetailsTwo, setRaffleErrorDetailsTwo] =
     useState<Error | null>(null);
-  const [raffleErrorDetailsThree, setRaffleErrorDetailsThree] =
-    useState<Error | null>(null);
 
   const [raffleEndDate, setRaffleEndDate] = useState<Date | null>(null);
   const router = useRouter();
   const { address, isConnected } = useAccount();
+
+  // const allNftTokenIds = api.raffle.getAllNftTokenIds.useQuery();
 
   const alchemy = new Alchemy(settings);
   const contractABI = contractAbi; // The ABI of the smart contract
@@ -61,8 +62,10 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
     "function approve(address _to, uint256 _tokenId) public,",
     "function setApprovalForAll(address _to, bool _approved) public",
   ];
-  const contractAddress = "0x18bded3e3ba31f720a5a020d447afb185c6197ee"; // The address of the smart contract on mumbai
-  // const contractAddress = "0xc80f8409448Fe7E763eae098AB03c0C4937A6a80";
+  // const contractAddress = "0x18bded3e3ba31f720a5a020d447afb185c6197ee"; // The address of the smart contract on mumbai
+  const contractAddress = "0xf21CCb5B77749292f2B8af5C4d7ba4305A2955e4"; // the address of the smart contract on build bear test
+
+  let currentKey = 0;
 
   const { mutateAsync: createRaffle } = api.raffle.createRaffle.useMutation({
     onSuccess: () => {
@@ -85,6 +88,11 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
   async function getOwnerNfts(): Promise<OwnedNftsResponse> {
     return alchemy.nft.getNftsForOwner(address!);
   }
+
+  // const nftTokenIds = [1420, 3398, 3405, 3408, 4376]
+  // const contract = new ethers.Contract("0xace8187b113a38f83bd9c896c6878b175c234dcc", [
+  //   "function ownerOf(uint id)"]
+  // const new = await contract.balanceOf(account)
 
   async function getNftDetails() {
     try {
@@ -141,12 +149,12 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
           signer
         );
 
-        // const tx = await contract.approve(contractAddress, nftTokenId, {
-        //   gasLimit: 10000000,
-        // });
-        const tx = await contract.setApprovalForAll(contractAddress, true, {
+        const tx = await contract.approve(contractAddress, nftTokenId, {
           gasLimit: 10000000,
         });
+        // const tx = await contract.setApprovalForAll(contractAddress, true, {
+        //   gasLimit: 10000000,
+        // });
         let res = await tx.wait();
 
         if (res?.err) {
@@ -206,8 +214,8 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
         };
 
         console.log("before create raffle");
+        console.log("contract interface ", contract.interface);
 
-        //actually write to the contract before creating the raffle in the db
         const tx = await contract.createRaffle(
           ticketSupply,
           selectedNft?.contract.address!,
@@ -220,9 +228,24 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
         );
 
         let res = await tx.wait();
+        console.log("res", res);
+
+        // const formattedTxHash = ethers.utils.hexlify(tx);
+        const receipt = await provider.getTransactionReceipt(tx.hash);
+        console.log("unfilteredLogs", receipt.logs);
+        const logs = receipt.logs.filter(
+          (log) =>
+            log.topics[0] === contract.interface.getEventTopic("RaffleCreated")
+        );
+        const parsedLogs = logs.map((log) => contract.interface.parseLog(log));
+
+        const contractRaffleId = parsedLogs[0]?.args.raffleId._hex;
+        setRaffleIdFromContract(contractRaffleId);
+        console.log("raffle id", contractRaffleId);
 
         if (res?.err) {
           console.log("error, ", res);
+          setPublishRaffleSuccess(2);
         } else {
           console.log("success", res);
           let response = await createRaffle({
@@ -237,6 +260,7 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
               selectedNft?.rawMetadata?.image_url!,
             nftTokenName: selectedNft?.rawMetadata?.name!,
             nftCollectionName: selectedNft?.contract.openSea?.collectionName!,
+            contractRaffleId: contractRaffleId,
             winnerWalletAddress: "",
             creatorWalletAddress: address!,
           });
@@ -245,16 +269,18 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
             "here is the response from creating the raffle in the backend DB: ",
             response
           );
+          setPublishRaffleSuccess(1);
         }
 
         console.log(
-          `Mined, see transaction: https://explorer.dev.buildbear.io/Cooing_Zam_Wesell_8ec808a5/tx/${tx.hash}`
+          `Mined, see transaction: https://rpc.buildbear.io/Cautious_Jar_Jar_Binks_e940c24d/tx/${tx.hash}`
         );
       } else {
         console.error("wallet is not installed");
       }
     } catch (error: unknown) {
       setRaffleErrorDetailsTwo(error as SetStateAction<Error | null>);
+      setPublishRaffleSuccess(2);
       console.log(error);
     } finally {
       !raffleErrorDetails &&
@@ -361,11 +387,10 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                   className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
                 >
                   {nfts.map((nft) => (
-                    <li key={nft.tokenId}>
+                    <React.Fragment key={currentKey++}>
                       {nft.rawMetadata &&
                         (nft.rawMetadata.image || nft.rawMetadata.image_url) &&
-                        !nft.spamInfo?.isSpam &&
-                        nft.tokenId && (
+                        !nft.spamInfo?.isSpam && (
                           <div key={nft.tokenId}>
                             <button
                               className="inline-block w-[200px] rounded border-2 border-off hover:border-secondary"
@@ -382,10 +407,31 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                                     />
                                   </div>
                                 )}
-                                <Image
+                                {/* <Image
                                   src={
                                     nft.rawMetadata?.image ||
                                     nft.rawMetadata?.image_url
+                                  }
+                                  alt="user NFT"
+                                  width={200}
+                                  height={200}
+                                  onLoad={() => setIsImageLoaded(true)}
+                                  loading="lazy"
+                                /> */}
+                                <Image
+                                  src={
+                                    (
+                                      nft.rawMetadata?.image ||
+                                      nft.rawMetadata?.image_url
+                                    ).startsWith("ipfs://")
+                                      ? `https://ipfs.io/${
+                                          nft.rawMetadata?.image ||
+                                          nft.rawMetadata?.image_url
+                                        }`
+                                      : `${
+                                          nft.rawMetadata?.image ||
+                                          nft.rawMetadata?.image_url
+                                        }`
                                   }
                                   alt="user NFT"
                                   width={200}
@@ -404,7 +450,7 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                             </button>
                           </div>
                         )}
-                    </li>
+                    </React.Fragment>
                   ))}
                 </ul>
               </div>
@@ -541,14 +587,20 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
               {approvalSuccess === 2 && (
                 <ErrorAlert errorMessage="NFT not approved to transfer! If you are sure it is ERC721,Please refresh and try again" />
               )}
+              {publishRaffleSuccess === 1 && (
+                <SuccessAlert successMessage="Raffle created! You can view it on the home page" />
+              )}
+              {publishRaffleSuccess === 2 && (
+                <ErrorAlert errorMessage="Raffle not created! Please try again" />
+              )}
               {raffleErrorDetails && (
                 <ErrorAlert
-                  errorMessage={`Error creating raffle ${raffleErrorDetails!.toString()}`}
+                  errorMessage={`Error creating raffle ${raffleErrorDetails!.message.toString()}`}
                 />
               )}
               {raffleErrorDetailsTwo && (
                 <ErrorAlert
-                  errorMessage={`Error creating raffle ${raffleErrorDetailsTwo!.toString()}`}
+                  errorMessage={`Error creating raffle ${raffleErrorDetailsTwo!.message.toString()}`}
                 />
               )}
             </section>

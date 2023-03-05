@@ -11,8 +11,8 @@ export default function ErrorAlert({ errorMessage }: ErrorAlertProps) {
         <div className="flex-shrink-0">
           <XCircleIcon className="h-5 w-5 text-red-400" aria-hidden="true" />
         </div>
-        <div className="ml-3">
-          <p className="block truncate text-sm font-medium text-red-800 line-clamp-1">
+        <div className="ml-3 line-clamp-1">
+          <p className="block truncate text-sm font-medium text-red-800">
             {errorMessage}
           </p>
         </div>

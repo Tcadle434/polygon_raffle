@@ -46,6 +46,7 @@ const raffle = () => {
         creatorWalletAddress={data.creatorWalletAddress}
         createdAt={data.createdAt}
         raffleID={data.id}
+        contractRaffleId={data.contractRaffleId}
       />
     </div>
   );
