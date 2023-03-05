@@ -26,7 +26,7 @@ const { chains, provider } = configureChains(
   [
     jsonRpcProvider({
       rpc: (chain) => ({
-        http: `https://rpc.buildbear.io/National_Saesee_Tiin_4c7bff0b`,
+        http: `https://rpc.buildbear.io/Uncomfortable_Ackbar_80465655`,
       }),
     }),
   ]

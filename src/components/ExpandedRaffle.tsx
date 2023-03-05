@@ -96,7 +96,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
     "function setApprovalForAll(address _to, bool _approved) public",
   ];
   // const contractAddress = "0x18bded3e3ba31f720a5a020d447afb185c6197ee"; // The address of the smart contract on mumbai
-  const contractAddress = "0x4401c8DbDcd9201C48092F6fC384db0ae80BE197";
+  const contractAddress = "0x18bDED3E3ba31F720A5a020d447afb185C6197eE";
 
   const { mutateAsync: buyTickets } = api.participant.buyTickets.useMutation({
     onSuccess: () => {

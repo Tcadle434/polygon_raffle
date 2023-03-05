@@ -59,7 +59,7 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
   ];
 
   // const contractAddress = "0x18bded3e3ba31f720a5a020d447afb185c6197ee"; // The address of the smart contract on mumbai
-  const contractAddress = "0x4401c8DbDcd9201C48092F6fC384db0ae80BE197"; // the address of the smart contract on build bear test
+  const contractAddress = "0x18bDED3E3ba31F720A5a020d447afb185C6197eE"; // the address of the smart contract on build bear test
 
   let currentKey = 0;
 
@@ -206,7 +206,7 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
           ethers.utils.parseUnits(ticketPrice.toString(), 18),
           [priceStructure],
           address,
-          new Date(raffleEndDate!).getTime(),
+          Math.floor(raffleEndDate!.getTime() / 1000),
           { gasLimit: 10000000 }
         );
 
