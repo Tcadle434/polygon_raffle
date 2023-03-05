@@ -11,17 +11,17 @@ import { api } from "~/utils/api";
 import Divider from "./Divider";
 import { useAccount, useBalance } from "wagmi";
 import { ethers } from "ethers";
-import { Alchemy, Network, OwnedNft, OwnedNftsResponse } from "alchemy-sdk";
+// import { Alchemy, Network, OwnedNft, OwnedNftsResponse } from "alchemy-sdk";
 
 import contractAbi from "../contracts/raffle.json";
 
-const settings = {
-  // apiKey: "7H2-IaYHE7hFfMqYuENjF3tAp-G9BR8Z",
-  // network: Network.ETH_MAINNET,
-  apiKey: "HRtcdn0En4LLGdjYcniYYIOqT00PAxA9",
-  network: Network.MATIC_MAINNET,
-  // network: Network.MATIC_MUMBAI,
-};
+// const settings = {
+//   // apiKey: "7H2-IaYHE7hFfMqYuENjF3tAp-G9BR8Z",
+//   // network: Network.ETH_MAINNET,
+//   apiKey: "HRtcdn0En4LLGdjYcniYYIOqT00PAxA9",
+//   network: Network.MATIC_MAINNET,
+//   // network: Network.MATIC_MUMBAI,
+// };
 
 const raffleSchema = z.object({
   ticketSupply: z.number(),
@@ -96,7 +96,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
     "function setApprovalForAll(address _to, bool _approved) public",
   ];
   // const contractAddress = "0x18bded3e3ba31f720a5a020d447afb185c6197ee"; // The address of the smart contract on mumbai
-  const contractAddress = "0xc80f8409448Fe7E763eae098AB03c0C4937A6a80";
+  const contractAddress = "0x4401c8DbDcd9201C48092F6fC384db0ae80BE197";
 
   const { mutateAsync: buyTickets } = api.participant.buyTickets.useMutation({
     onSuccess: () => {
@@ -131,7 +131,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
 
         //logging contract args
         console.log("nft contract address: ", contractAddress);
-        console.log("abi", ERC721ABI);
+        console.log("abi", contractABI);
         console.log("signer", signer);
 
         const contract = new ethers.Contract(
@@ -143,13 +143,25 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
         console.log("before buyEntry");
         console.log("contract raffle id: ", contractRaffleId);
         console.log("ticketNum: ", ticketNum);
-        const tx = await contract.buyEntry(contractRaffleId, ticketNum, {
+        console.log("ticketPrice: ", ticketPrice);
+
+        const tx = await contract.buyEntry(0, ticketNum, {
+          value: ethers.utils.parseUnits(
+            (ticketNum * ticketPrice).toString(),
+            18
+          ),
           gasLimit: 10000000,
         });
-        console.log("after buyEntry");
-        // const tx = await contract.setApprovalForAll(contractAddress, true, {
+
+        // const tx = await contract.buyTicketsMock(0, ticketNum, {
+        //   value: ethers.utils.parseUnits(
+        //     (ticketNum * ticketPrice).toString(),
+        //     18
+        //   ),
         //   gasLimit: 10000000,
         // });
+
+        console.log("after buyEntry");
         let res = await tx.wait();
         console.log("after wait");
 
@@ -172,7 +184,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
         }
 
         console.log(
-          `Mined, see transaction: https://explorer.dev.buildbear.io/Cooing_Zam_Wesell_8ec808a5/tx/${tx.hash}`
+          `Mined, see transaction: https://rpc.buildbear.io/National_Saesee_Tiin_4c7bff0b/tx/${tx.hash}`
         );
       } else {
         alert("Please install MetaMask first.");
@@ -186,6 +198,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
       // console.log("here is the response from buying the tickets: ", response);
     } catch (error: unknown) {
       console.log("entered catch block");
+
       setRaffleErrorDetails(error as SetStateAction<Error | null>);
       setBuySuccess(2);
     } finally {
@@ -200,6 +213,28 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
     console.log(`Picking winner...`);
     setWinnerSelectLoading(true);
     try {
+      if (window.ethereum) {
+        const provider = new ethers.providers.Web3Provider(
+          window.ethereum as ethers.providers.ExternalProvider
+        );
+
+        // Get a signer object from the provider
+        const signer = provider.getSigner();
+
+        //logging contract args
+        console.log("our raffle contract address: ", contractAddress);
+        console.log("abi", contractABI);
+        console.log("signer", signer);
+
+        const contract = new ethers.Contract(
+          contractAddress,
+          contractABI,
+          signer
+        );
+      } else {
+        alert("Please install MetaMask first.");
+      }
+
       let response = await updateRaffleWinnerPicked({ raffleId: raffleID });
     } catch (error) {
       console.error(error);

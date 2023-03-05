@@ -7,15 +7,13 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import SuccessAlert from "~/components/SuccessAlert";
 import ErrorAlert from "~/components/ErrorAlert";
-
 import Navbar from "~/components/Navbar";
 import NftUpload from "~/components/NftUpload";
 import { Alchemy, Network, OwnedNft, OwnedNftsResponse } from "alchemy-sdk";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { useAccount } from "wagmi";
 import { ethers } from "ethers";
 import contractAbi from "../contracts/raffle.json";
-import { parseEther } from "ethers/lib/utils.js";
 
 const settings = {
   apiKey: "ZuSU4sqkiZWPY9G2jJuWNSBu7WlqaVmK", // mainnet
@@ -41,29 +39,27 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
   const [nftDataLoading, setNftDataLoading] = useState(false);
   const [isNftApproved, setIsNftApproved] = useState(false);
   const [approvalSuccess, setApprovalSuccess] = useState(0);
-  const [raffleIdFromContract, setRaffleIdFromContract] = useState("");
   const [publishRaffleSuccess, setPublishRaffleSuccess] = useState(0);
+  const [raffleEndDate, setRaffleEndDate] = useState<Date | null>(null);
   const [raffleErrorDetails, setRaffleErrorDetails] = useState<Error | null>(
     null
   );
   const [raffleErrorDetailsTwo, setRaffleErrorDetailsTwo] =
     useState<Error | null>(null);
 
-  const [raffleEndDate, setRaffleEndDate] = useState<Date | null>(null);
+  const contractABI = contractAbi; // The ABI of the smart contract
   const router = useRouter();
   const { address, isConnected } = useAccount();
 
-  // const allNftTokenIds = api.raffle.getAllNftTokenIds.useQuery();
-
   const alchemy = new Alchemy(settings);
-  const contractABI = contractAbi; // The ABI of the smart contract
-  // ERC721 ABI Approve
+
   const ERC721ABI = [
     "function approve(address _to, uint256 _tokenId) public,",
     "function setApprovalForAll(address _to, bool _approved) public",
   ];
+
   // const contractAddress = "0x18bded3e3ba31f720a5a020d447afb185c6197ee"; // The address of the smart contract on mumbai
-  const contractAddress = "0xf21CCb5B77749292f2B8af5C4d7ba4305A2955e4"; // the address of the smart contract on build bear test
+  const contractAddress = "0x4401c8DbDcd9201C48092F6fC384db0ae80BE197"; // the address of the smart contract on build bear test
 
   let currentKey = 0;
 
@@ -85,14 +81,21 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
     }
   }, [isOpen, setIsOpen]);
 
+  useEffect(() => {
+    if (raffleErrorDetails || raffleErrorDetailsTwo) {
+      console.log("we found an error in useffect");
+      setIsFormLoading(false);
+    }
+    if (approvalSuccess === 1 || approvalSuccess === 2) {
+      setTimeout(() => {
+        setApprovalSuccess(0);
+      }, 5000);
+    }
+  }, [raffleErrorDetails, raffleErrorDetailsTwo, approvalSuccess]);
+
   async function getOwnerNfts(): Promise<OwnedNftsResponse> {
     return alchemy.nft.getNftsForOwner(address!);
   }
-
-  // const nftTokenIds = [1420, 3398, 3405, 3408, 4376]
-  // const contract = new ethers.Contract("0xace8187b113a38f83bd9c896c6878b175c234dcc", [
-  //   "function ownerOf(uint id)"]
-  // const new = await contract.balanceOf(account)
 
   async function getNftDetails() {
     try {
@@ -130,18 +133,11 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
     if (window.ethereum) {
       try {
         setIsNftApproved(true);
-        // Get the provider object
+
         const provider = new ethers.providers.Web3Provider(
           window.ethereum as ethers.providers.ExternalProvider
         );
-
-        // Get a signer object from the provider
         const signer = provider.getSigner();
-
-        //logging contract args
-        console.log("nft contract address: ", nftContractAddress);
-        console.log("abi", ERC721ABI);
-        console.log("signer", signer);
 
         const contract = new ethers.Contract(
           nftContractAddress,
@@ -155,6 +151,7 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
         // const tx = await contract.setApprovalForAll(contractAddress, true, {
         //   gasLimit: 10000000,
         // });
+
         let res = await tx.wait();
 
         if (res?.err) {
@@ -184,21 +181,10 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
     setIsFormLoading(true);
 
     try {
-      // Call the onSubmit function with the form data
-      console.log("submitting form");
-      console.log(selectedNft);
-      console.log(ticketSupply);
-      console.log(ticketPrice);
-      console.log(raffleEndDate);
-
       if (window.ethereum) {
-        // try {
-        // Get the provider object
         const provider = new ethers.providers.Web3Provider(
           window.ethereum as ethers.providers.ExternalProvider
         );
-
-        // Get a signer object from the provider
         const signer = provider.getSigner();
 
         const contract = new ethers.Contract(
@@ -212,9 +198,6 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
           numEntries: ticketSupply,
           price: ethers.utils.parseUnits(ticketPrice.toString(), 18),
         };
-
-        console.log("before create raffle");
-        console.log("contract interface ", contract.interface);
 
         const tx = await contract.createRaffle(
           ticketSupply,
@@ -230,7 +213,6 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
         let res = await tx.wait();
         console.log("res", res);
 
-        // const formattedTxHash = ethers.utils.hexlify(tx);
         const receipt = await provider.getTransactionReceipt(tx.hash);
         console.log("unfilteredLogs", receipt.logs);
         const logs = receipt.logs.filter(
@@ -238,16 +220,14 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
             log.topics[0] === contract.interface.getEventTopic("RaffleCreated")
         );
         const parsedLogs = logs.map((log) => contract.interface.parseLog(log));
-
         const contractRaffleId = parsedLogs[0]?.args.raffleId._hex;
-        setRaffleIdFromContract(contractRaffleId);
-        console.log("raffle id", contractRaffleId);
 
         if (res?.err) {
           console.log("error, ", res);
           setPublishRaffleSuccess(2);
         } else {
           console.log("success", res);
+          //write the raffle object to the DB
           let response = await createRaffle({
             ticketSupply: ticketSupply,
             ticketPrice: ticketPrice,
@@ -291,18 +271,6 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
         }, 3000);
     }
   };
-
-  useEffect(() => {
-    if (raffleErrorDetails || raffleErrorDetailsTwo) {
-      console.log("we found an error in useffect");
-      setIsFormLoading(false);
-    }
-    if (approvalSuccess === 1 || approvalSuccess === 2) {
-      setTimeout(() => {
-        setApprovalSuccess(0);
-      }, 5000);
-    }
-  }, [raffleErrorDetails, raffleErrorDetailsTwo, approvalSuccess]);
 
   return (
     <div className="min-h-screen bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-[#59368B] to-slate-900">
@@ -407,17 +375,6 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                                     />
                                   </div>
                                 )}
-                                {/* <Image
-                                  src={
-                                    nft.rawMetadata?.image ||
-                                    nft.rawMetadata?.image_url
-                                  }
-                                  alt="user NFT"
-                                  width={200}
-                                  height={200}
-                                  onLoad={() => setIsImageLoaded(true)}
-                                  loading="lazy"
-                                /> */}
                                 <Image
                                   src={
                                     (
@@ -513,7 +470,6 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                           <label className="block text-sm font-medium text-gray-700">
                             Ticket Price (in MATIC)
                           </label>
-                          {/* <div className="flex flex-row justify-between"> */}
                           <div className="mt-1">
                             <input
                               type="text"
@@ -538,7 +494,6 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                             </p>
                           )}
                         </div>
-                        {/* </div> */}
 
                         <div className="mt-6">
                           <label className="block text-sm font-medium text-gray-700">

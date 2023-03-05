@@ -50,11 +50,6 @@ export const raffleRouter = createTRPCRouter({
             contractRaffleId: contractRaffleId,
             winnerWalletAddress: winnerWalletAddress,
             creatorWalletAddress: creatorWalletAddress,
-            // creator: {
-            //   connect: {
-            //     walletAddress: creatorWalletAddress,
-            //   },
-            // },
           },
         });
         console.log("RESPONSE", response);
