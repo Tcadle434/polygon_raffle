@@ -73,6 +73,8 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
   const [winnerSelectLoading, setWinnerSelectLoading] = useState(false);
   const [buyTicketsLoading, setBuyTicketsLoading] = useState(false);
   const [buySuccess, setBuySuccess] = useState(0);
+  const [winnerPickedSuccess, setWinnerPickedSuccess] = useState(0);
+
   const [enoughFunds, setEnoughFunds] = useState(true);
   const [raffleErrorDetails, setRaffleErrorDetails] = useState<Error | null>(
     null
@@ -96,7 +98,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
     "function setApprovalForAll(address _to, bool _approved) public",
   ];
   // const contractAddress = "0x18bded3e3ba31f720a5a020d447afb185c6197ee"; // The address of the smart contract on mumbai
-  const contractAddress = "0x18bDED3E3ba31F720A5a020d447afb185C6197eE";
+  const contractAddress = "0xE2cD25aFd56f3C044b663ae7a880E13e218eD48A";
 
   const { mutateAsync: buyTickets } = api.participant.buyTickets.useMutation({
     onSuccess: () => {
@@ -263,10 +265,10 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
 
         if (res?.err) {
           console.log("error, ", res);
-          setBuySuccess(2);
+          setWinnerPickedSuccess(2);
         } else {
           console.log("success", res);
-          setBuySuccess(1);
+          setWinnerPickedSuccess(1);
           // let response = await updateRaffleWinnerPicked({ raffleId: raffleID }); // needs to be replaced with the raffle winner as well
           let response = await updateRaffleWinnerPickedWithWinnerWalletAddress({
             raffleId: raffleID,
@@ -311,9 +313,15 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
       console.log("we found an error in useffect");
       setBuyTicketsLoading(false);
     }
-    if (buySuccess === 1 || buySuccess === 2) {
+    if (
+      buySuccess === 1 ||
+      buySuccess === 2 ||
+      winnerPickedSuccess === 1 ||
+      winnerPickedSuccess === 2
+    ) {
       setTimeout(() => {
         setBuySuccess(0);
+        setWinnerPickedSuccess(0);
       }, 5000);
     }
   }, [raffleErrorDetails, buySuccess]);
@@ -389,8 +397,11 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                 <div className="mt-4 flex flex-col items-center">
                   <div className="items-center">
                     <h3 className="font-mono text-xl font-bold text-light">
-                      Winner: {winnerWalletAddress}
+                      Winner:
                     </h3>
+                    <p className="text-md font-mono font-bold text-light">
+                      {winnerWalletAddress}
+                    </p>
                   </div>
                 </div>
               )}
@@ -536,6 +547,12 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
               )}
               {buySuccess === 2 && (
                 <ErrorAlert errorMessage="Failed to purchase tickets, please try again" />
+              )}
+              {winnerPickedSuccess === 1 && (
+                <SuccessAlert successMessage="Raffle winner has been selected!" />
+              )}
+              {winnerPickedSuccess === 2 && (
+                <ErrorAlert errorMessage="Failed to pick a winner, please try again" />
               )}
             </section>
           </div>
