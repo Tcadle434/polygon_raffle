@@ -1,28 +1,24 @@
-# Create T3 App
+# Raffi3 - Polygon Premier NFT Raffle Platform
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+- **Full-Stack Web App**: [Next.js](https://github.com/Tcadle434/polygon_raffle)
+- **Smart Contract** [Smart Contract](https://github.com/amateur-dev/ethdenver)
+- **Database**: [PlanetScale](https://planetscale.com)
+- **Deployment**: [Vercel](https://vercel.com)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com)
+- **Pitch Deck** [Pitch Deck](https://www.canva.com/design/DAFb3xD9Kp0/axUQfAEzSHEFdsxKj5iutw/edit?utm_content=DAFb3xD9Kp0&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 
-## What's next? How do I make an app with this?
+## Let's Dive In
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+Raffi3 is the first fully operable and decentralized NFT raffle platform on the Polygon network. Raffi3 is a full-stack web application built with Next.js, Tailwind CSS, and Vercel and is backed by our smart contract on the Polygon network. It is connected to Planetscale Database to store all of the raffle data. We leverage prisma and tRPC for a type-safe and perfomant application.
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+The platform gives the opportunity for users to raffle off their own NFTs on the Polygon chain. A seller can set the ticket supply, ticket price, and end date of the raffle. Buyers can buy tickets and have a chance at winning.
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+The winner of the raffle is chosen at random using Chainlink VRF. Upon conclusion, the winner is able to claim their NFT and funds are distributed to the seller.
 
-## Learn More
+## Why a Raffle Platform? And Why Polygon?
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+Polygon has recently taken dramatic steps to declare itself as a leader in the NFT space. They have continuously shown progress in brand acquisition and business development, and have also brought y00ts over from solana in an effort to curate an authentic community of NFT collectors and traders.
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+It is our belief that Polygon will continue to grow and expand its NFT ecoysystem. In that wake, we believe that NFT trading tools will be in high demand. We hope to front run their explosive growth by creating a platform that will be a staple in the Polygon NFT ecosystem and allow people to raffle off their NFTs, instead of selling them on traditional marketplaces.
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
-
-## How do I deploy this?
-
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+Finally, we belive that Polygon's low latency and high throughput will allow for a smooth and enjoyable user experience. We hope to create a platform incentivizes users to buy tickets and participate in raffles because they do not have to worry about high gas fees.
