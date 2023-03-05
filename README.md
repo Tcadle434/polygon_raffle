@@ -1,6 +1,6 @@
 # Raffi3 - Polygon Premier NFT Raffle Platform
 
-- **Full-Stack Web App**: [Next.js](https://github.com/Tcadle434/polygon_raffle)
+- **Full-Stack Web App**: [Github](https://github.com/Tcadle434/polygon_raffle)
 - **Smart Contract** [Smart Contract](https://github.com/amateur-dev/ethdenver)
 - **Database**: [PlanetScale](https://planetscale.com)
 - **Deployment**: [Vercel](https://vercel.com)
@@ -22,3 +22,14 @@ Polygon has recently taken dramatic steps to declare itself as a leader in the N
 It is our belief that Polygon will continue to grow and expand its NFT ecoysystem. In that wake, we believe that NFT trading tools will be in high demand. We hope to front run their explosive growth by creating a platform that will be a staple in the Polygon NFT ecosystem and allow people to raffle off their NFTs, instead of selling them on traditional marketplaces.
 
 Finally, we belive that Polygon's low latency and high throughput will allow for a smooth and enjoyable user experience. We hope to create a platform incentivizes users to buy tickets and participate in raffles because they do not have to worry about high gas fees.
+
+## TODO
+
+We believe that Raffi3 is a great start to a platform that will be a staple in the Polygon NFT ecosystem. However, there is still a lot of work to be done. Here are some of the features we would like to add in the future:
+
+- [ ] Implementing buyer side "tips" in an era where royalties are dying out
+- [ ] Partnering with new brands/projects to raise awareness on upcoming mints
+- [ ] Adding a "featured" section to the homepage
+- [ ] Insurance for raffles
+- [ ] Integration with trusted DeFi services to transfer out the temporarily held funds
+- [ ] Raffles as a Service
