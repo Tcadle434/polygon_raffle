@@ -36,6 +36,7 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
   const [ticketPrice, setTicketPrice] = useState(0);
   const [isFormLoading, setIsFormLoading] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [isPlaceholderLoaded, setIsPlaceholderLoaded] = useState(false);
   const [nftDataLoading, setNftDataLoading] = useState(false);
   const [isNftApproved, setIsNftApproved] = useState(false);
   const [approvalSuccess, setApprovalSuccess] = useState(0);
@@ -366,15 +367,26 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                             >
                               <div className="">
                                 {!isImageLoaded && (
-                                  <div className="">
-                                    <Image
-                                      src="/rings.svg"
-                                      alt="loader"
-                                      width={200}
-                                      height={200}
-                                    />
+                                  <div>
+                                    {!isPlaceholderLoaded && (
+                                      <div>
+                                        <Image
+                                          src="/rings.svg"
+                                          alt="loader"
+                                          width={200}
+                                          height={200}
+                                          onLoad={() =>
+                                            setIsPlaceholderLoaded(true)
+                                          }
+                                        />
+                                      </div>
+                                    )}
+                                    {!isPlaceholderLoaded && (
+                                      <div>Loading...</div>
+                                    )}
                                   </div>
                                 )}
+
                                 <Image
                                   src={
                                     (
@@ -382,8 +394,14 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
                                       nft.rawMetadata?.image_url
                                     ).startsWith("ipfs://")
                                       ? `https://ipfs.io/${
-                                          nft.rawMetadata?.image ||
-                                          nft.rawMetadata?.image_url
+                                          nft.rawMetadata?.image!.replace(
+                                            "ipfs://",
+                                            "ipfs/"
+                                          ) ||
+                                          nft.rawMetadata?.image_url.replace(
+                                            "ipfs://",
+                                            "ipfs/"
+                                          )
                                         }`
                                       : `${
                                           nft.rawMetadata?.image ||
