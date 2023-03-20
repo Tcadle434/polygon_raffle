@@ -197,7 +197,7 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
         const parsedLogs = logs.map((log) => contract.interface.parseLog(log));
         const contractRaffleId = parsedLogs[0]?.args.raffleId._hex;
 
-        if (res?.err) {
+        if (res?.err || !contractRaffleId) {
           setPublishRaffleSuccess(2);
         } else {
           await createRaffle({
