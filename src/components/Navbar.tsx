@@ -2,9 +2,9 @@ import { Fragment } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/20/solid";
-import Link from "next/link";
-import { Web3Button, Web3NetworkSwitch } from "@web3modal/react";
+import { Web3Button } from "@web3modal/react";
 import { useAccount } from "wagmi";
+import Link from "next/link";
 
 function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(" ");
@@ -68,10 +68,6 @@ export default function Navbar() {
                       balance="show"
                     />
                   </div>
-
-                  {/* <div className="mx-2 flex-shrink-0">
-                    <Web3NetworkSwitch />
-                  </div> */}
 
                   {/* Profile dropdown */}
                   <Menu as="div" className="relative ml-3">

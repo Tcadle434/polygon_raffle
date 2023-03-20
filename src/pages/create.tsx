@@ -3,23 +3,25 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { api } from "../utils/api";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+
 import SuccessAlert from "~/components/SuccessAlert";
 import ErrorAlert from "~/components/ErrorAlert";
 import Navbar from "~/components/Navbar";
 import NftUpload from "~/components/NftUpload";
+
 import { Alchemy, Network, OwnedNft, OwnedNftsResponse } from "alchemy-sdk";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useAccount } from "wagmi";
 import { ethers } from "ethers";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
 import contractAbi from "../contracts/raffle.json";
+import { API_KEY, CONTRACT_ADDRESS, BASE_EXPLORER_URL } from "~/lib/constants";
 
 const settings = {
-  apiKey: "ZuSU4sqkiZWPY9G2jJuWNSBu7WlqaVmK", // mainnet
+  apiKey: API_KEY,
   network: Network.MATIC_MAINNET,
-  // apiKey: "HRtcdn0En4LLGdjYcniYYIOqT00PAxA9", // testnet
-  // network: Network.MATIC_MUMBAI,
 };
 
 interface Props {
@@ -28,19 +30,19 @@ interface Props {
   onSubmit: (formData: FormData) => Promise<any>;
 }
 
-const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [nfts, setNfts] = useState<OwnedNft[]>([]);
-  const [selectedNft, setSelectedNft] = useState<OwnedNft>();
+const create: React.FC<Props> = ({ formId, loaderId }) => {
   const [ticketSupply, setTicketSupply] = useState(0);
   const [ticketPrice, setTicketPrice] = useState(0);
+  const [approvalSuccess, setApprovalSuccess] = useState(0);
+  const [publishRaffleSuccess, setPublishRaffleSuccess] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
   const [isFormLoading, setIsFormLoading] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isPlaceholderLoaded, setIsPlaceholderLoaded] = useState(false);
   const [nftDataLoading, setNftDataLoading] = useState(false);
   const [isNftApproved, setIsNftApproved] = useState(false);
-  const [approvalSuccess, setApprovalSuccess] = useState(0);
-  const [publishRaffleSuccess, setPublishRaffleSuccess] = useState(0);
+  const [nfts, setNfts] = useState<OwnedNft[]>([]);
+  const [selectedNft, setSelectedNft] = useState<OwnedNft>();
   const [raffleEndDate, setRaffleEndDate] = useState<Date | null>(null);
   const [raffleErrorDetails, setRaffleErrorDetails] = useState<Error | null>(
     null
@@ -48,51 +50,24 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
   const [raffleErrorDetailsTwo, setRaffleErrorDetailsTwo] =
     useState<Error | null>(null);
 
-  const contractABI = contractAbi; // The ABI of the smart contract
-  const router = useRouter();
   const { address, isConnected } = useAccount();
-
+  const router = useRouter();
   const alchemy = new Alchemy(settings);
+  let currentKey = 0;
 
   const ERC721ABI = [
     "function approve(address _to, uint256 _tokenId) public,",
     "function setApprovalForAll(address _to, bool _approved) public",
   ];
 
-  // const contractAddress = "0x18bded3e3ba31f720a5a020d447afb185c6197ee"; // The address of the smart contract on mumbai
-  const contractAddress = "0xE2cD25aFd56f3C044b663ae7a880E13e218eD48A"; // the address of the smart contract on build bear test
-
-  let currentKey = 0;
-
   const { mutateAsync: createRaffle } = api.raffle.createRaffle.useMutation({
     onSuccess: () => {
-      console.log("Success User");
+      console.log("Success creating raffle");
     },
     onError: (err) => {
-      console.log("FAILURE User", err);
+      console.log("Failed to create the raffle: ", err);
     },
   });
-
-  //allow for scrolling on the modal if necessary
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-  }, [isOpen, setIsOpen]);
-
-  useEffect(() => {
-    if (raffleErrorDetails || raffleErrorDetailsTwo) {
-      console.log("we found an error in useffect");
-      setIsFormLoading(false);
-    }
-    if (approvalSuccess === 1 || approvalSuccess === 2) {
-      setTimeout(() => {
-        setApprovalSuccess(0);
-      }, 5000);
-    }
-  }, [raffleErrorDetails, raffleErrorDetailsTwo, approvalSuccess]);
 
   async function getOwnerNfts(): Promise<OwnedNftsResponse> {
     return alchemy.nft.getNftsForOwner(address!);
@@ -103,7 +78,6 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
       setNftDataLoading(true);
       const nfts = await getOwnerNfts();
       setNfts(nfts.ownedNfts);
-      console.log(nfts.ownedNfts);
     } catch (error) {
       console.log(error);
     } finally {
@@ -118,7 +92,6 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
 
   const handleNftSelect = (nft: OwnedNft) => {
     setSelectedNft(nft);
-    console.log(nft);
     const approvalResponse = approveNftForTransfer(
       nft?.contract.address!,
       nft?.tokenId!
@@ -127,6 +100,13 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
     setIsOpen(false);
   };
 
+  /**
+   * function to approve NFT for transfer out of user's wallet
+   * and to the raffle contract. This is the first of two transactions
+   * that need to be completed in order to create a raffle.
+   * @param {string} nftContractAddress - address of the conract for the specific NFT
+   * @param {string} nftTokenId - Token ID of the specific NFT
+   */
   const approveNftForTransfer = async (
     nftContractAddress: string,
     nftTokenId: string
@@ -139,35 +119,25 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
           window.ethereum as ethers.providers.ExternalProvider
         );
         const signer = provider.getSigner();
-
         const contract = new ethers.Contract(
           nftContractAddress,
           ERC721ABI,
           signer
         );
 
-        const tx = await contract.approve(contractAddress, nftTokenId, {
-          gasLimit: 10000000,
+        const tx = await contract.approve(CONTRACT_ADDRESS, nftTokenId, {
+          gasLimit: 500000,
         });
-        // const tx = await contract.setApprovalForAll(contractAddress, true, {
-        //   gasLimit: 10000000,
-        // });
-
         let res = await tx.wait();
 
         if (res?.err) {
-          console.log("error, ", res);
           setApprovalSuccess(2);
         } else {
-          console.log("success", res);
           setApprovalSuccess(1);
         }
 
-        console.log(
-          `Mined, see transaction: https://rpc.buildbear.io/Thundering_Lobot_363bab71/tx/${tx.hash}`
-        );
+        console.log(`See Transaction: ${BASE_EXPLORER_URL}/tx/${tx.hash}`);
       } catch (error: unknown) {
-        console.log("entered catch block");
         setRaffleErrorDetails(error as SetStateAction<Error | null>);
         setApprovalSuccess(2);
         console.log(error);
@@ -177,20 +147,26 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
     }
   };
 
+  /**
+   * handler for the form submit event. This is the second of two transactions
+   * that need to be completed in order to create a raffle. This function
+   * will communicate with the smart contract to create the raffle via the
+   * createRaffle function. Upon success, it will write the raffle data to the
+   * database via the createRaffle tRPC endpoint.
+   * @param {React.FormEvent<HTMLFormElement>} e - form submit event
+   */
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsFormLoading(true);
-
     try {
       if (window.ethereum) {
         const provider = new ethers.providers.Web3Provider(
           window.ethereum as ethers.providers.ExternalProvider
         );
         const signer = provider.getSigner();
-
         const contract = new ethers.Contract(
-          contractAddress,
-          contractABI,
+          CONTRACT_ADDRESS,
+          contractAbi,
           signer
         );
 
@@ -208,14 +184,12 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
           [priceStructure],
           address,
           Math.floor(raffleEndDate!.getTime() / 1000),
-          { gasLimit: 10000000 }
+          { gasLimit: 500000 }
         );
 
         let res = await tx.wait();
-        console.log("res", res);
 
         const receipt = await provider.getTransactionReceipt(tx.hash);
-        console.log("unfilteredLogs", receipt.logs);
         const logs = receipt.logs.filter(
           (log) =>
             log.topics[0] === contract.interface.getEventTopic("RaffleCreated")
@@ -224,12 +198,9 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
         const contractRaffleId = parsedLogs[0]?.args.raffleId._hex;
 
         if (res?.err) {
-          console.log("error, ", res);
           setPublishRaffleSuccess(2);
         } else {
-          console.log("success", res);
-          //write the raffle object to the DB
-          let response = await createRaffle({
+          await createRaffle({
             ticketSupply: ticketSupply,
             ticketPrice: ticketPrice,
             ticketsSold: 0,
@@ -245,19 +216,12 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
             winnerWalletAddress: "",
             creatorWalletAddress: address!,
           });
-
-          console.log(
-            "here is the response from creating the raffle in the backend DB: ",
-            response
-          );
           setPublishRaffleSuccess(1);
         }
 
-        console.log(
-          `Mined, see transaction: https://rpc.buildbear.io/Cautious_Jar_Jar_Binks_e940c24d/tx/${tx.hash}`
-        );
+        console.log(`See Transaction: ${BASE_EXPLORER_URL}/tx/${tx.hash}`);
       } else {
-        console.error("wallet is not installed");
+        console.error("Please install Metamask or another Ethereum wallet.");
       }
     } catch (error: unknown) {
       setRaffleErrorDetailsTwo(error as SetStateAction<Error | null>);
@@ -272,6 +236,33 @@ const create: React.FC<Props> = ({ formId, loaderId, onSubmit }) => {
         }, 3000);
     }
   };
+
+  /**
+   * useEffect to allow for scrolling when the modal is
+   * open if there are excess nfts to scroll through.
+   */
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+  }, [isOpen, setIsOpen]);
+
+  /**
+   * useEffect to check for errors and update state variables accordingly.
+   * This is used to display error messages to the user.
+   */
+  useEffect(() => {
+    if (raffleErrorDetails || raffleErrorDetailsTwo) {
+      setIsFormLoading(false);
+    }
+    if (approvalSuccess === 1 || approvalSuccess === 2) {
+      setTimeout(() => {
+        setApprovalSuccess(0);
+      }, 5000);
+    }
+  }, [raffleErrorDetails, raffleErrorDetailsTwo, approvalSuccess]);
 
   return (
     <div className="min-h-screen bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-[#59368B] to-slate-900">

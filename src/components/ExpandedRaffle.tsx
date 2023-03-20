@@ -1,27 +1,20 @@
 import React, { SetStateAction, useEffect, useState } from "react";
-import Image from "next/image";
 import { NextPage } from "next";
-import z from "zod";
 import { useRouter } from "next/router";
+import Image from "next/image";
+
+import { useAccount, useBalance } from "wagmi";
+import { ethers } from "ethers";
+import z from "zod";
+
+import { api } from "~/utils/api";
 import CountdownTimer from "./CountdownTimer";
 import SuccessAlert from "./SuccessAlert";
 import ErrorAlert from "./ErrorAlert";
-
-import { api } from "~/utils/api";
 import Divider from "./Divider";
-import { useAccount, useBalance } from "wagmi";
-import { ethers } from "ethers";
-// import { Alchemy, Network, OwnedNft, OwnedNftsResponse } from "alchemy-sdk";
 
 import contractAbi from "../contracts/raffle.json";
-
-// const settings = {
-//   // apiKey: "7H2-IaYHE7hFfMqYuENjF3tAp-G9BR8Z",
-//   // network: Network.ETH_MAINNET,
-//   apiKey: "HRtcdn0En4LLGdjYcniYYIOqT00PAxA9",
-//   network: Network.MATIC_MAINNET,
-//   // network: Network.MATIC_MUMBAI,
-// };
+import { CONTRACT_ADDRESS, BASE_EXPLORER_URL } from "~/lib/constants";
 
 const raffleSchema = z.object({
   ticketSupply: z.number(),
@@ -43,15 +36,6 @@ const raffleSchema = z.object({
 
 type RaffleProps = z.infer<typeof raffleSchema>;
 
-interface Participants {
-  walletAddress: string;
-  ticketsBought: number;
-}
-
-interface ListProps {
-  items: Participants[];
-}
-
 const ExpandedRaffle: NextPage<RaffleProps> = ({
   ticketSupply,
   ticketPrice,
@@ -70,67 +54,50 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
   contractRaffleId,
 }) => {
   const [ticketNum, setTicketNum] = useState(1);
-  const [winnerSelectLoading, setWinnerSelectLoading] = useState(false);
-  const [buyTicketsLoading, setBuyTicketsLoading] = useState(false);
   const [buySuccess, setBuySuccess] = useState(0);
   const [winnerPickedSuccess, setWinnerPickedSuccess] = useState(0);
-
+  const [winnerSelectLoading, setWinnerSelectLoading] = useState(false);
+  const [buyTicketsLoading, setBuyTicketsLoading] = useState(false);
   const [enoughFunds, setEnoughFunds] = useState(true);
   const [raffleErrorDetails, setRaffleErrorDetails] = useState<Error | null>(
     null
   );
+
+  const router = useRouter();
   const { address, isConnected } = useAccount();
-  const balance = useBalance({
-    address: address,
-  });
+  const balance = useBalance({ address: address });
 
   const allParticipantsForRaffle =
     api.participant.getParticipantsByRaffleId.useQuery(raffleID);
   const totalTicketsSold =
     api.participant.getTotalNumTicketsByRaffleId.useQuery(raffleID);
 
-  const router = useRouter();
-
-  const contractABI = contractAbi; // The ABI of the smart contract
-  // ERC721 ABI Approve
-  const ERC721ABI = [
-    "function approve(address _to, uint256 _tokenId) public,",
-    "function setApprovalForAll(address _to, bool _approved) public",
-  ];
-  // const contractAddress = "0x18bded3e3ba31f720a5a020d447afb185c6197ee"; // The address of the smart contract on mumbai
-  const contractAddress = "0xE2cD25aFd56f3C044b663ae7a880E13e218eD48A";
-
   const { mutateAsync: buyTickets } = api.participant.buyTickets.useMutation({
     onSuccess: () => {
-      console.log("Success User");
+      console.log("Successfully bought tickets");
     },
     onError: (err) => {
-      console.log("FAILURE User", err);
+      console.log("Failed to buy tickets: ", err);
     },
   });
-
-  const { mutateAsync: updateRaffleWinnerPicked } =
-    api.raffle.updateRaffleWinnerPicked.useMutation({
-      onSuccess: () => {
-        console.log("Success User");
-      },
-      onError: (err) => {
-        console.log("FAILURE User", err);
-      },
-    });
 
   const { mutateAsync: updateRaffleWinnerPickedWithWinnerWalletAddress } =
     api.raffle.updateRaffleWinnerPickedWithWinnerWalletAddress.useMutation({
       onSuccess: () => {
-        console.log("Success User");
+        console.log("Successfully updated with winner wallet address");
       },
       onError: (err) => {
-        console.log("FAILURE User", err);
+        console.log("Failed to update with winner wallet address: ", err);
       },
     });
 
+  /**
+   * Handler to purchase the tickets for the raffle. This function will
+   * communicate with the smart contract to purchase the tickets via the
+   * buyEntry function. It will then update the database with the new
+   * ticket purchases upon success via the buyTickets tRPC call.
+   */
   const handleBuyTickets = async () => {
-    console.log(`Buying ${ticketNum} tickets...`);
     setBuyTicketsLoading(true);
     try {
       if (window.ethereum) {
@@ -138,79 +105,38 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
           window.ethereum as ethers.providers.ExternalProvider
         );
 
-        // Get a signer object from the provider
         const signer = provider.getSigner();
-
-        //logging contract args
-        console.log("nft contract address: ", contractAddress);
-        console.log("abi", contractABI);
-        console.log("signer", signer);
-
         const contract = new ethers.Contract(
-          contractAddress,
-          contractABI,
+          CONTRACT_ADDRESS,
+          contractAbi,
           signer
         );
-
-        console.log("before buyEntry");
-        console.log("contract raffle id: ", contractRaffleId);
-        console.log("ticketNum: ", ticketNum);
-        console.log("ticketPrice: ", ticketPrice);
 
         const tx = await contract.buyEntry(contractRaffleId, ticketNum, {
           value: ethers.utils.parseUnits(
             (ticketNum * ticketPrice).toString(),
             18
           ),
-          gasLimit: 10000000,
+          gasLimit: 500000,
         });
-
-        // const tx = await contract.buyTicketsMock(0, ticketNum, {
-        //   value: ethers.utils.parseUnits(
-        //     (ticketNum * ticketPrice).toString(),
-        //     18
-        //   ),
-        //   gasLimit: 10000000,
-        // });
-
-        console.log("after buyEntry");
         let res = await tx.wait();
-        console.log("after wait");
 
         if (res?.err) {
-          console.log("error, ", res);
           setBuySuccess(2);
         } else {
-          console.log("success", res);
           setBuySuccess(1);
-
-          let response = await buyTickets({
+          await buyTickets({
             numTickets: ticketNum,
             buyerWalletAddress: address!,
             raffleId: raffleID,
           });
-          console.log(
-            "here is the response from buying the tickets for the DB: ",
-            response
-          );
         }
 
-        console.log(
-          `Mined, see transaction: https://rpc.buildbear.io/National_Saesee_Tiin_4c7bff0b/tx/${tx.hash}`
-        );
+        console.log(`See Transaction: ${BASE_EXPLORER_URL}/tx/${tx.hash}`);
       } else {
-        alert("Please install MetaMask first.");
+        alert("Please install MetaMask or a different Ethereum wallet.");
       }
-      // let response = await buyTickets({
-      //   numTickets: ticketNum,
-      //   buyerWalletAddress: address!,
-      //   raffleId: raffleID,
-      // });
-
-      // console.log("here is the response from buying the tickets: ", response);
     } catch (error: unknown) {
-      console.log("entered catch block");
-
       setRaffleErrorDetails(error as SetStateAction<Error | null>);
       setBuySuccess(2);
     } finally {
@@ -221,36 +147,31 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
     }
   };
 
+  /**
+   * Handler to pick the winner for the raffle. This function will
+   * communicate with the smart contract to pick the winner via the
+   * setWinner function. It will then update the database with the new
+   * winner wallet address upon success via the
+   * updateRaffleWinnerPickedWithWinnerWalletAddress tRPC call.
+   */
   const handleWinnerPicked = async () => {
-    console.log(`Picking winner...`);
     setWinnerSelectLoading(true);
     try {
       if (window.ethereum) {
         const provider = new ethers.providers.Web3Provider(
           window.ethereum as ethers.providers.ExternalProvider
         );
-
-        // Get a signer object from the provider
         const signer = provider.getSigner();
-
-        //logging contract args
-        console.log("our raffle contract address: ", contractAddress);
-        console.log("abi", contractABI);
-        console.log("signer", signer);
-
         const contract = new ethers.Contract(
-          contractAddress,
-          contractABI,
+          CONTRACT_ADDRESS,
+          contractAbi,
           signer
         );
 
         const tx = await contract.setWinner(contractRaffleId, {
-          gasLimit: 10000000,
+          gasLimit: 500000,
         });
-
-        console.log("after setWinner");
         let res = await tx.wait();
-        console.log("after wait");
         console.log("res: ", res);
 
         const receipt = await provider.getTransactionReceipt(tx.hash);
@@ -259,43 +180,45 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
           (log) =>
             log.topics[0] === contract.interface.getEventTopic("RaffleEnded")
         );
+        console.log("logs", logs);
         const parsedLogs = logs.map((log) => contract.interface.parseLog(log));
         console.log("parsedLogs", parsedLogs);
         const raffleWinnerAddress = parsedLogs[0]?.args.winner;
+        console.log("raffleWinnerAddress", raffleWinnerAddress);
 
-        if (res?.err) {
+        if (res?.err || !raffleWinnerAddress || tx?.err) {
           console.log("error, ", res);
           setWinnerPickedSuccess(2);
         } else {
           console.log("success", res);
           setWinnerPickedSuccess(1);
-          // let response = await updateRaffleWinnerPicked({ raffleId: raffleID }); // needs to be replaced with the raffle winner as well
-          let response = await updateRaffleWinnerPickedWithWinnerWalletAddress({
+          await updateRaffleWinnerPickedWithWinnerWalletAddress({
             raffleId: raffleID,
             winnerWalletAddress: raffleWinnerAddress,
           });
-
-          console.log(
-            "here is the response from buying the tickets for the DB: ",
-            response
-          );
         }
-        console.log(
-          `Mined, see transaction: https://rpc.buildbear.io/National_Saesee_Tiin_4c7bff0b/tx/${tx.hash}`
-        );
+        console.log(`See Transaction: ${BASE_EXPLORER_URL}/tx/${tx.hash}`);
       } else {
-        alert("Please install MetaMask first.");
+        alert("Please install MetaMask or a different Ethereum wallet.");
       }
     } catch (error) {
       console.error(error);
     } finally {
       setTimeout(() => {
         setWinnerSelectLoading(false);
-        // router.reload();
+        router.reload();
       }, 3000);
     }
   };
 
+  /**
+   * useEffect to check if the user has enough funds to purchase the
+   * amount of tickets they are trying to purchase. If they do not have
+   * enough funds, the buy tickets button will be disabled.
+   *
+   * TODO: also check to see if the raffle has sold out before allowing
+   * the user to purchase tickets.
+   */
   useEffect(() => {
     if (
       balance.isFetched &&
@@ -308,6 +231,10 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
     }
   }, [ticketNum, balance]);
 
+  /**
+   * useEffect to check for errors and update state variables accordingly.
+   * This is used to display error messages to the user.
+   */
   useEffect(() => {
     if (raffleErrorDetails) {
       console.log("we found an error in useffect");
@@ -327,7 +254,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
   }, [raffleErrorDetails, buySuccess]);
 
   return (
-    <div className="">
+    <div>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
         <h1 className="mt-8 font-mono text-4xl text-light">Raffle Details</h1>
         {/* Main 3 column grid */}
@@ -535,7 +462,6 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                                 </div>
                               )
                             )}
-                          {/* <ParticipantList /> */}
                         </div>
                       </div>
                     </>
