@@ -1,8 +1,8 @@
 import React from "react";
-import { api } from "~/utils/api";
 import Error from "next/error";
-import { useRouter } from "next/router";
 import Image from "next/image";
+import { useRouter } from "next/router";
+import { api } from "~/utils/api";
 
 import Navbar from "~/components/Navbar";
 import ExpandedRaffle from "~/components/ExpandedRaffle";

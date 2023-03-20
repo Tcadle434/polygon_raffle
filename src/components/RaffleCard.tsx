@@ -34,7 +34,6 @@ const RaffleCard = ({
     api.participant.getTotalNumTicketsByRaffleId.useQuery(raffleId);
 
   useEffect(() => {
-    console.log(raffleId);
     if (!cardRef?.current) return;
 
     const observer = new IntersectionObserver(([entry]) => {
@@ -80,15 +79,15 @@ const RaffleCard = ({
             <label className="text-md text-newthird line-clamp-1">
               Tickets Remaining
             </label>
-            <p className="mb-3 block truncate font-normal text-white sm:inline-block sm:overflow-visible">
-              {totalTicketsSold.isLoading && <div>Loading...</div>}
+            <div className="mb-3 block truncate font-normal text-white sm:inline-block sm:overflow-visible">
+              {totalTicketsSold.isLoading && <p>Loading...</p>}
               {totalTicketsSold.data && (
-                <div>
+                <p>
                   {totalTickets - totalTicketsSold.data._sum.numTickets!} /{" "}
                   {totalTickets}
-                </div>
+                </p>
               )}
-            </p>
+            </div>
           </div>
           <div className="flex flex-col">
             <label className="text-md text-newthird line-clamp-1">

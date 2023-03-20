@@ -1,16 +1,9 @@
 import React, { useState } from "react";
-import { api } from "~/utils/api";
+import Link from "next/link";
 import { useRouter } from "next/router";
+import { api } from "~/utils/api";
 import Navbar from "~/components/Navbar";
 import RaffleCard from "~/components/RaffleCard";
-import Link from "next/link";
-
-const stats = [
-  { name: "Total Subscribers", stat: "71,897" },
-  { name: "Avg. Open Rate", stat: "58.16%" },
-  { name: "Avg. Click Rate", stat: "24.57%" },
-  { name: "Avg. Click Rate", stat: "24.57%" },
-];
 
 const profile = () => {
   const [selectedButton, setSelectedButton] = useState("button1");
