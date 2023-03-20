@@ -51,7 +51,7 @@ model Raffle {
     nftTokenURI          String?
     nftTokenName         String?
     nftCollectionName    String?
-    contractRaffleId     String
+    contractRaffleId     String?
     creatorWalletAddress String
     winnerPicked         Boolean       @default(false)
     winnerWalletAddress  String?
