@@ -215,9 +215,6 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
    * useEffect to check if the user has enough funds to purchase the
    * amount of tickets they are trying to purchase. If they do not have
    * enough funds, the buy tickets button will be disabled.
-   *
-   * TODO: also check to see if the raffle has sold out before allowing
-   * the user to purchase tickets.
    */
   useEffect(() => {
     if (
@@ -293,7 +290,16 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                       className="ml-8 inline-flex w-full items-center justify-center rounded-lg bg-light px-3 py-3 text-center text-white hover:bg-pink-200 focus:outline-none focus:ring-4 focus:ring-pink-300 disabled:cursor-not-allowed disabled:opacity-50"
                       onClick={() => handleBuyTickets()}
                       disabled={
-                        buyTicketsLoading || !isConnected || !enoughFunds
+                        buyTicketsLoading ||
+                        !isConnected ||
+                        !enoughFunds ||
+                        address === creatorWalletAddress ||
+                        ticketNum >
+                          ticketSupply -
+                            totalTicketsSold.data?._sum.numTickets! ||
+                        ticketSupply -
+                          totalTicketsSold.data?._sum.numTickets! <=
+                          0
                       }
                     >
                       <h3 className="text-xl font-bold">Buy Tickets</h3>
@@ -355,24 +361,32 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                   <div className="mt-8" />
 
                   {winnerSelectLoading && (
-                    <div className="mt-8 flex items-center justify-center">
+                    <div className="mt-8 flex flex-col items-center justify-center">
                       <Image
                         src="/bars.svg"
                         alt="form loader"
                         height={50}
                         width={50}
                       />
+                      <p className=" mt-6 text-sm text-secondary">
+                        Network congestion can affect load times. Please be
+                        patient while we pick a winner!
+                      </p>
                     </div>
                   )}
 
                   {buyTicketsLoading && (
-                    <div className="mt-8 flex items-center justify-center">
+                    <div className="mt-8 flex flex-col items-center justify-center">
                       <Image
                         src="/bars.svg"
                         alt="form loader"
                         height={50}
                         width={50}
                       />
+                      <p className=" mt-6 text-sm text-secondary">
+                        Network congestion can affect load times. Please be
+                        patient while we purchase your tickets!
+                      </p>
                     </div>
                   )}
 

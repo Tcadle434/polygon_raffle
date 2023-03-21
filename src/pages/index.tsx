@@ -29,7 +29,7 @@ const Home = () => {
       <div>
         <Navbar />
         <div className="flex h-screen items-center justify-center bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-[#59368B] to-slate-900">
-          <h1 className="text-4xl font-bold">No Raffles Found</h1>
+          <h1 className="text-4xl font-bold text-light">No Raffles Found</h1>
         </div>
       </div>
     );

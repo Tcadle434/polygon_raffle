@@ -77,6 +77,7 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
     try {
       setNftDataLoading(true);
       const nfts = await getOwnerNfts();
+      console.log(nfts);
       setNfts(nfts.ownedNfts);
     } catch (error) {
       console.log(error);
@@ -126,7 +127,7 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
         );
 
         const tx = await contract.approve(CONTRACT_ADDRESS, nftTokenId, {
-          gasLimit: 500000,
+          gasLimit: 5000000,
         });
         let res = await tx.wait();
 
@@ -207,11 +208,9 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
             endDate: raffleEndDate!,
             nftContractAddress: selectedNft?.contract.address!,
             nftTokenId: selectedNft?.tokenId!,
-            nftTokenURI:
-              selectedNft?.rawMetadata?.image! ||
-              selectedNft?.rawMetadata?.image_url!,
+            nftTokenURI: selectedNft?.media[0]?.gateway,
             nftTokenName: selectedNft?.rawMetadata?.name!,
-            nftCollectionName: selectedNft?.contract.openSea?.collectionName!,
+            nftCollectionName: selectedNft?.contract.name!,
             contractRaffleId: contractRaffleId,
             winnerWalletAddress: "",
             creatorWalletAddress: address!,
@@ -287,17 +286,14 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
                   ) : (
                     <div className=" flex w-full flex-col items-center rounded ">
                       <Image
-                        src={
-                          selectedNft.rawMetadata?.image! ||
-                          selectedNft.rawMetadata?.image_url!
-                        }
+                        src={selectedNft.media[0]?.gateway!}
                         alt="user NFT"
                         width={300}
                         height={300}
                         className="items-center"
                       />
                       <p className="text-md my-2 block truncate pl-2 text-left font-medium text-gray-500">
-                        {selectedNft.contract.openSea?.collectionName}
+                        {selectedNft.contract.name}
                       </p>
                       <p className="text-md my-2 block truncate pl-2 text-left font-medium text-gray-900">
                         {selectedNft.rawMetadata?.name}
@@ -349,7 +345,7 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
                   {nfts.map((nft) => (
                     <React.Fragment key={currentKey++}>
                       {nft.rawMetadata &&
-                        (nft.rawMetadata.image || nft.rawMetadata.image_url) &&
+                        nft.media[0]?.gateway &&
                         !nft.spamInfo?.isSpam && (
                           <div key={nft.tokenId}>
                             <button
@@ -379,26 +375,7 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
                                 )}
 
                                 <Image
-                                  src={
-                                    (
-                                      nft.rawMetadata?.image ||
-                                      nft.rawMetadata?.image_url
-                                    ).startsWith("ipfs://")
-                                      ? `https://ipfs.io/${
-                                          nft.rawMetadata?.image!.replace(
-                                            "ipfs://",
-                                            "ipfs/"
-                                          ) ||
-                                          nft.rawMetadata?.image_url.replace(
-                                            "ipfs://",
-                                            "ipfs/"
-                                          )
-                                        }`
-                                      : `${
-                                          nft.rawMetadata?.image ||
-                                          nft.rawMetadata?.image_url
-                                        }`
-                                  }
+                                  src={nft.media[0]?.gateway!}
                                   alt="user NFT"
                                   width={200}
                                   height={200}
@@ -408,7 +385,7 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
                               </div>
 
                               <p className="text-md my-2 block truncate pl-2 text-left font-medium text-gray-500">
-                                {nft.contract.openSea?.collectionName}
+                                {nft.contract.name}
                               </p>
                               <p className="text-md my-2 block truncate pl-2 text-left font-medium text-gray-900">
                                 {nft.rawMetadata?.name}
@@ -442,7 +419,7 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
                   {isFormLoading || isNftApproved ? (
                     <div
                       id={loaderId}
-                      className="mt-8 flex items-center justify-center"
+                      className="mt-8 flex flex-col items-center justify-center"
                     >
                       <Image
                         src="/bars.svg"
@@ -450,6 +427,10 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
                         height={50}
                         width={50}
                       />
+                      <p className=" mt-6 text-sm text-secondary">
+                        Network congestion can affect load times. Please be
+                        patient!
+                      </p>
                     </div>
                   ) : (
                     <>
