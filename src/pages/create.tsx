@@ -8,6 +8,7 @@ import SuccessAlert from "~/components/SuccessAlert";
 import ErrorAlert from "~/components/ErrorAlert";
 import Navbar from "~/components/Navbar";
 import NftUpload from "~/components/NftUpload";
+import SmallRaffleCard from "~/components/SmallRaffleCard";
 
 import { Alchemy, Network, OwnedNft, OwnedNftsResponse } from "alchemy-sdk";
 import { XMarkIcon } from "@heroicons/react/24/outline";
@@ -284,21 +285,26 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
                       }}
                     />
                   ) : (
-                    <div className=" flex w-full flex-col items-center rounded ">
-                      <Image
-                        src={selectedNft.media[0]?.gateway!}
-                        alt="user NFT"
-                        width={300}
-                        height={300}
-                        className="items-center"
-                      />
-                      <p className="text-md my-2 block truncate pl-2 text-left font-medium text-gray-500">
-                        {selectedNft.contract.name}
-                      </p>
-                      <p className="text-md my-2 block truncate pl-2 text-left font-medium text-gray-900">
-                        {selectedNft.rawMetadata?.name}
-                      </p>
-                    </div>
+                    <>
+                      <div className=" flex w-full flex-col items-center rounded ">
+                        <Image
+                          src={selectedNft.media[0]?.gateway!}
+                          alt="user NFT"
+                          width={300}
+                          height={300}
+                          className="items-center"
+                        />
+                      </div>
+                      <div className="mt-4">
+                        {/* <p className="my-2 block truncate pl-2 text-left text-2xl font-bold text-gray-500"> */}
+                        <p className="text-2xl font-bold tracking-tight text-secondary line-clamp-1">
+                          {selectedNft.contract.name}
+                        </p>
+                        <p className="font-medium tracking-tight text-black line-clamp-1">
+                          {selectedNft.rawMetadata?.name}
+                        </p>
+                      </div>
+                    </>
                   )}
                 </div>
               </div>
@@ -349,47 +355,14 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
                         !nft.spamInfo?.isSpam && (
                           <div key={nft.tokenId}>
                             <button
-                              className="inline-block w-[200px] rounded border-2 border-off hover:border-secondary"
+                              className="inline-block w-[200px] "
                               onClick={() => handleNftSelect(nft)}
                             >
-                              <div className="">
-                                {!isImageLoaded && (
-                                  <div>
-                                    {!isPlaceholderLoaded && (
-                                      <div>
-                                        <Image
-                                          src="/rings.svg"
-                                          alt="loader"
-                                          width={200}
-                                          height={200}
-                                          onLoad={() =>
-                                            setIsPlaceholderLoaded(true)
-                                          }
-                                        />
-                                      </div>
-                                    )}
-                                    {!isPlaceholderLoaded && (
-                                      <div>Loading...</div>
-                                    )}
-                                  </div>
-                                )}
-
-                                <Image
-                                  src={nft.media[0]?.gateway!}
-                                  alt="user NFT"
-                                  width={200}
-                                  height={200}
-                                  onLoad={() => setIsImageLoaded(true)}
-                                  loading="lazy"
-                                />
-                              </div>
-
-                              <p className="text-md my-2 block truncate pl-2 text-left font-medium text-gray-500">
-                                {nft.contract.name}
-                              </p>
-                              <p className="text-md my-2 block truncate pl-2 text-left font-medium text-gray-900">
-                                {nft.rawMetadata?.name}
-                              </p>
+                              <SmallRaffleCard
+                                imageUrl={nft.media[0]?.gateway!}
+                                nftName={nft.contract.name!}
+                                nftCollectionName={nft.rawMetadata?.name!}
+                              />
                             </button>
                           </div>
                         )}
