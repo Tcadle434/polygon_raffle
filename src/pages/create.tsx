@@ -128,7 +128,7 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
         );
 
         const tx = await contract.approve(CONTRACT_ADDRESS, nftTokenId, {
-          gasLimit: 5000000,
+          gasLimit: 500000,
         });
         let res = await tx.wait();
 
@@ -211,7 +211,9 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
             nftTokenId: selectedNft?.tokenId!,
             nftTokenURI: selectedNft?.media[0]?.gateway,
             nftTokenName: selectedNft?.rawMetadata?.name!,
-            nftCollectionName: selectedNft?.contract.name!,
+            nftCollectionName:
+              selectedNft?.contract.name! ||
+              selectedNft?.contract.openSea?.collectionName!,
             contractRaffleId: contractRaffleId,
             winnerWalletAddress: "",
             creatorWalletAddress: address!,
@@ -298,7 +300,8 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
                       <div className="mt-4">
                         {/* <p className="my-2 block truncate pl-2 text-left text-2xl font-bold text-gray-500"> */}
                         <p className="text-2xl font-bold tracking-tight text-secondary line-clamp-1">
-                          {selectedNft.contract.name}
+                          {selectedNft.contract.name ||
+                            selectedNft.contract.openSea?.collectionName!}
                         </p>
                         <p className="font-medium tracking-tight text-black line-clamp-1">
                           {selectedNft.rawMetadata?.name}
@@ -346,7 +349,7 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
 
                 <ul
                   role="list"
-                  className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
+                  className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
                 >
                   {nfts.map((nft) => (
                     <React.Fragment key={currentKey++}>
@@ -360,8 +363,11 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
                             >
                               <SmallRaffleCard
                                 imageUrl={nft.media[0]?.gateway!}
-                                nftName={nft.contract.name!}
-                                nftCollectionName={nft.rawMetadata?.name!}
+                                nftName={nft.rawMetadata?.name!}
+                                nftCollectionName={
+                                  nft.contract.name! ||
+                                  nft.contract.openSea?.collectionName!
+                                }
                               />
                             </button>
                           </div>
@@ -427,6 +433,9 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
                               }}
                             />
                           </div>
+                          <p className="my-2 block truncate pl-2 text-left text-xs font-medium text-gray-500">
+                            Ticket supply must be a whole number
+                          </p>
                         </div>
 
                         <div className="mt-6">
@@ -440,7 +449,9 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
                               id="company-website"
                               className="block rounded-md border-2 border-light shadow-sm hover:border-secondary focus:border-secondary"
                               onChange={(e) => {
-                                setTicketPrice(parseFloat(e.target.value));
+                                setTicketPrice(
+                                  Number(parseFloat(e.target.value).toFixed(3))
+                                );
                               }}
                             />
                           </div>
@@ -448,7 +459,9 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
                             <div className="mt-1">
                               <p className="my-2 block truncate pl-2 text-left text-xs font-medium text-gray-500">
                                 Raffle sellout value:{" "}
-                                {ticketSupply * ticketPrice} $MATIC
+                                {Math.round(ticketSupply * ticketPrice * 1000) /
+                                  1000}{" "}
+                                $MATIC
                               </p>
                             </div>
                           ) : (
@@ -476,6 +489,9 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
                               className="block rounded-md border-2 border-light shadow-sm hover:border-secondary focus:border-secondary"
                             />
                           </div>
+                          <p className="my-2 block truncate pl-2 text-left text-xs font-medium text-gray-500">
+                            Raffles must be at least 24h long
+                          </p>
                         </div>
 
                         <div className="mt-6 mr-6 flex flex-row justify-end">
@@ -489,6 +505,8 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
                               !ticketSupply ||
                               !raffleEndDate ||
                               raffleEndDate < new Date()
+                              // raffleEndDate.getTime() - new Date().getTime() <
+                              //   86400000
                             }
                           >
                             Submit

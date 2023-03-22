@@ -114,7 +114,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
 
         const tx = await contract.buyEntry(contractRaffleId, ticketNum, {
           value: ethers.utils.parseUnits(
-            (ticketNum * ticketPrice).toString(),
+            (ticketNum * ticketPrice).toFixed(3),
             18
           ),
           gasLimit: 500000,
@@ -220,7 +220,8 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
     if (
       balance.isFetched &&
       ticketNum * ticketPrice >
-        balance.data?.value.toBigInt()! / BigInt(1000000000000000000)
+        parseFloat(balance.data?.value.toBigInt()!.toString()!) /
+          1000000000000000000
     ) {
       setEnoughFunds(false);
     } else {
@@ -304,6 +305,15 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                     >
                       <h3 className="text-xl font-bold">Buy Tickets</h3>
                     </button>
+                  </div>
+                  <div className="mt-4 flex flex-col ">
+                    <h3 className="text-md mb-4 font-mono font-bold text-light">
+                      Buying {ticketNum} ticket(s)
+                    </h3>
+                    <h3 className="text-md mb-4 font-mono font-bold text-light">
+                      Total Cost:{" "}
+                      {Math.round(ticketNum * ticketPrice * 1000) / 1000} $MATIC
+                    </h3>
                   </div>
                 </div>
               )}
