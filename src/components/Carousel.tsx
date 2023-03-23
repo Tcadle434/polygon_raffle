@@ -56,7 +56,7 @@ const Carousel = () => {
   }, [activeIndex]);
 
   return (
-    <div className="border-1 relative flex h-32 w-full flex-col items-center rounded border-white sm:h-48 md:h-64 lg:h-96">
+    <div className="border-1 relative flex h-32 w-full flex-col items-center overflow-hidden rounded border-white sm:h-48 md:h-64 lg:h-96">
       {carouselData.map((item, index) => (
         <div
           key={index}
