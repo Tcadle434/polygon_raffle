@@ -69,7 +69,15 @@ const RaffleCard = ({
       <div style={{ position: "relative", width: "100%", paddingTop: "100%" }}>
         {!isImageLoaded && (
           <div className="flex flex-col items-center">
-            <Image src="/rings.svg" alt="loader" width={200} height={200} />
+            <Image
+              src="/rings.svg"
+              alt="loader"
+              className="rounded-t-lg"
+              loading="lazy"
+              layout="fill"
+              objectFit="cover"
+              objectPosition="center"
+            />
           </div>
         )}
         <div className="flex flex-col items-center">
