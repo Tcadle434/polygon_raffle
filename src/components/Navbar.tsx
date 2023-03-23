@@ -76,7 +76,7 @@ export default function Navbar() {
                         <Menu.Button className="flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
                           <span className="inline-block h-8 w-8 overflow-hidden rounded-full bg-gray-100">
                             <svg
-                              className="h-full w-full text-gray-300"
+                              className="h-full w-full text-secondary"
                               fill="currentColor"
                               viewBox="0 0 24 24"
                             >

@@ -5,7 +5,7 @@ import CountdownTimer from "./CountdownTimer";
 import { verified } from "~/lib/verified";
 import {
   CheckBadgeIcon,
-  ExclamationCircleIcon,
+  ExclamationTriangleIcon,
 } from "@heroicons/react/20/solid";
 
 interface CardProps {
@@ -100,11 +100,11 @@ const RaffleCard = ({
           </h5>
           {isVerified ? (
             <button title="The Raffi3 team has marked this as a verified collection">
-              <CheckBadgeIcon width={25} color="lime" />
+              <CheckBadgeIcon width={25} color="#8FFFE6" />
             </button>
           ) : (
             <button title="This collection has not been verfified by the Raffi3 team. Be careful! Please reach out to get the collection added if it is legitimate">
-              <ExclamationCircleIcon width={25} color="red" />
+              <ExclamationTriangleIcon width={25} color="yellow" />
             </button>
           )}
         </div>

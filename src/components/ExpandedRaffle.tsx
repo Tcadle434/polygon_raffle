@@ -8,7 +8,7 @@ import { ethers } from "ethers";
 import z from "zod";
 import {
   CheckBadgeIcon,
-  ExclamationCircleIcon,
+  ExclamationTriangleIcon,
 } from "@heroicons/react/20/solid";
 
 import { api } from "~/utils/api";
@@ -18,7 +18,11 @@ import ErrorAlert from "./ErrorAlert";
 import Divider from "./Divider";
 
 import contractAbi from "../contracts/raffle.json";
-import { CONTRACT_ADDRESS, BASE_EXPLORER_URL } from "~/lib/constants";
+import {
+  CONTRACT_ADDRESS,
+  BASE_EXPLORER_URL,
+  BASE_ME_COLLECTION_URL,
+} from "~/lib/constants";
 import { verified } from "~/lib/verified";
 
 const raffleSchema = z.object({
@@ -376,18 +380,18 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
             <section aria-labelledby="section-2-title">
               <div className="overflow-hidden rounded-lg bg-white shadow">
                 <div className="p-6">
-                  <div className="flex flex-row items-center ">
+                  <div className="flex flex-row items-center">
                     <h5 className="text-md mr-1 font-medium text-gray-500">
                       {nftCollectionName}{" "}
                     </h5>
                     <div>
                       {isVerified ? (
                         <button title="The Raffi3 team has marked this as a verified collection">
-                          <CheckBadgeIcon width={25} color="green" />
+                          <CheckBadgeIcon width={25} color="#8FFFE6" />
                         </button>
                       ) : (
                         <button title="This collection has not been verfified by the Raffi3 team. Be careful! Please reach out to get the collection added if it is legitimate">
-                          <ExclamationCircleIcon width={25} color="red" />
+                          <ExclamationTriangleIcon width={25} color="#F6BE00" />
                         </button>
                       )}
                     </div>
@@ -399,16 +403,36 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                     {nftTokenName}
                   </h2>
                   <div className="flex flex-col">
-                    <a
-                      href={`${BASE_EXPLORER_URL}/address/${nftContractAddress}`}
-                    >
-                      <p className="text-md mt-1 block truncate font-normal text-gray-500 sm:inline-block sm:overflow-visible">
-                        NFT Contract Address: {nftContractAddress}
-                      </p>
-                    </a>
+                    <p className="text-md mt-1 block truncate font-normal text-gray-500 sm:inline-block sm:overflow-visible">
+                      NFT Contract Address: {nftContractAddress}
+                    </p>
                     <p className="text-md mt-1 block truncate font-normal text-gray-500 sm:inline-block sm:overflow-visible">
                       NFT Token ID: {nftTokenId}
                     </p>
+                    <div className="flex flex-row">
+                      <a
+                        href={`${BASE_ME_COLLECTION_URL}/${nftContractAddress}`}
+                      >
+                        <Image
+                          src="/me_poly_logo.jpeg"
+                          alt="Magic Eden logo"
+                          height={40}
+                          width={40}
+                          className="mt-2 mr-4 rounded"
+                        />
+                      </a>
+                      <a
+                        href={`${BASE_EXPLORER_URL}/address/${nftContractAddress}`}
+                      >
+                        <Image
+                          src="/polyscan.png"
+                          alt="Magic Eden logo"
+                          height={40}
+                          width={40}
+                          className="mt-2 rounded"
+                        />
+                      </a>
+                    </div>
                   </div>
                   <div className="mt-8" />
 

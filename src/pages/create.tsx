@@ -22,7 +22,7 @@ import { API_KEY, CONTRACT_ADDRESS, BASE_EXPLORER_URL } from "~/lib/constants";
 import { verified } from "~/lib/verified";
 import {
   CheckBadgeIcon,
-  ExclamationCircleIcon,
+  ExclamationTriangleIcon,
 } from "@heroicons/react/20/solid";
 
 const settings = {
@@ -324,11 +324,14 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
                           </p>
                           {isVerified ? (
                             <button title="The Raffi3 team has marked this as a verified collection">
-                              <CheckBadgeIcon width={25} color="green" />
+                              <CheckBadgeIcon width={25} color="#8FFFE6" />
                             </button>
                           ) : (
                             <button title="This collection has not been verfified by the Raffi3 team. Be careful! Please reach out to get the collection added if it is legitimate">
-                              <ExclamationCircleIcon width={25} color="red" />
+                              <ExclamationTriangleIcon
+                                width={25}
+                                color="#F6BE00"
+                              />
                             </button>
                           )}
                         </div>
