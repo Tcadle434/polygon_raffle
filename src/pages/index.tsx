@@ -2,13 +2,20 @@ import { useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
+import { Switch } from "@headlessui/react";
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { api } from "~/utils/api";
 import RaffleCard from "~/components/RaffleCard";
 import Navbar from "~/components/Navbar";
+import { verified } from "~/lib/verified";
+
+function classNames(...classes: any[]) {
+  return classes.filter(Boolean).join(" ");
+}
 
 const Home = () => {
   const [page, setPage] = useState(1);
+  const [enabled, setEnabled] = useState(true);
   const [selectedButton, setSelectedButton] = useState("button1");
   const [searchQuery, setSearchQuery] = useState("");
   const allRaffles = api.raffle.getAllRaffles.useQuery();
@@ -48,6 +55,41 @@ const Home = () => {
 
   const completedRaffles = filteredRaffles
     .filter((raffle) => raffle.endDate! < new Date() && raffle.winnerPicked)
+    .sort((a, b) => a.endDate!.getTime() - b.endDate!.getTime());
+
+  const activeRafflesVerified = filteredRaffles
+    .filter(
+      (raffle) =>
+        raffle.endDate! > new Date() &&
+        verified.some(
+          (address) =>
+            address.toLowerCase() === raffle.nftContractAddress.toLowerCase()
+        )
+    )
+    .sort((a, b) => a.endDate!.getTime() - b.endDate!.getTime());
+
+  const pendingRafflesVerified = filteredRaffles
+    .filter(
+      (raffle) =>
+        raffle.endDate! < new Date() &&
+        !raffle.winnerPicked &&
+        verified.some(
+          (address) =>
+            address.toLowerCase() === raffle.nftContractAddress.toLowerCase()
+        )
+    )
+    .sort((a, b) => a.endDate!.getTime() - b.endDate!.getTime());
+
+  const completedRafflesVerified = filteredRaffles
+    .filter(
+      (raffle) =>
+        raffle.endDate! < new Date() &&
+        raffle.winnerPicked &&
+        verified.some(
+          (address) =>
+            address.toLowerCase() === raffle.nftContractAddress.toLowerCase()
+        )
+    )
     .sort((a, b) => a.endDate!.getTime() - b.endDate!.getTime());
 
   return (
@@ -91,6 +133,75 @@ const Home = () => {
               </button>
             </div>
             <div className="flex items-center pr-8">
+              <div
+                className="mr-6 flex flex-col items-center"
+                title="Toggle between verified only and all collections"
+              >
+                <label
+                  htmlFor="verified"
+                  className="text-sm font-medium text-light"
+                >
+                  {enabled ? "Verified Only" : "All Collections"}
+                </label>
+                <Switch
+                  checked={enabled}
+                  onChange={setEnabled}
+                  className={classNames(
+                    enabled ? "bg-light" : "bg-gray-200",
+                    "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
+                  )}
+                >
+                  <span className="sr-only">Use setting</span>
+                  <span
+                    className={classNames(
+                      enabled ? "translate-x-5" : "translate-x-0",
+                      "pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                    )}
+                  >
+                    <span
+                      className={classNames(
+                        enabled
+                          ? "opacity-0 duration-100 ease-out"
+                          : "opacity-100 duration-200 ease-in",
+                        "absolute inset-0 flex h-full w-full items-center justify-center transition-opacity"
+                      )}
+                      aria-hidden="true"
+                    >
+                      <svg
+                        className="h-3 w-3 text-gray-400"
+                        fill="none"
+                        viewBox="0 0 12 12"
+                      >
+                        <path
+                          d="M4 8l2-2m0 0l2-2M6 6L4 4m2 2l2 2"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </span>
+                    <span
+                      className={classNames(
+                        enabled
+                          ? "opacity-100 duration-200 ease-in"
+                          : "opacity-0 duration-100 ease-out",
+                        "absolute inset-0 flex h-full w-full items-center justify-center transition-opacity"
+                      )}
+                      aria-hidden="true"
+                    >
+                      <svg
+                        className="h-3 w-3 text-secondary"
+                        fill="currentColor"
+                        viewBox="0 0 12 12"
+                      >
+                        <path d="M3.707 5.293a1 1 0 00-1.414 1.414l1.414-1.414zM5 8l-.707.707a1 1 0 001.414 0L5 8zm4.707-3.293a1 1 0 00-1.414-1.414l1.414 1.414zm-7.414 2l2 2 1.414-1.414-2-2-1.414 1.414zm3.414 2l4-4-1.414-1.414-4 4 1.414 1.414z" />
+                      </svg>
+                    </span>
+                  </span>
+                </Switch>
+              </div>
+
               <div className="relative w-72">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                   <MagnifyingGlassIcon
@@ -123,27 +234,50 @@ const Home = () => {
                       No Active Raffles Found
                     </div>
                   ))}
-                {activeRaffles.map((raffle: any, index: any) => (
-                  <li key={raffle.id} className="relative">
-                    <Link href={`/raffles/${raffle.id}`}>
-                      <RaffleCard
-                        raffleId={raffle.id!}
-                        imageUrl={raffle.nftTokenURI!}
-                        nftName={raffle.nftTokenName!}
-                        nftCollectionName={raffle.nftCollectionName!}
-                        nftContractAddress={raffle.nftContractAddress!}
-                        raffleEndDate={raffle.endDate!}
-                        ticketPrice={raffle.ticketPrice}
-                        ticketsRemaining={
-                          raffle.ticketSupply - raffle.ticketsSold
-                        }
-                        totalTickets={raffle.ticketSupply}
-                        isLast={index === allRaffles.data.length - 1}
-                        newLimit={() => setPage(page + 1)}
-                      />
-                    </Link>
-                  </li>
-                ))}
+                {enabled &&
+                  activeRafflesVerified.map((raffle: any, index: any) => (
+                    <li key={raffle.id} className="relative">
+                      <Link href={`/raffles/${raffle.id}`}>
+                        <RaffleCard
+                          raffleId={raffle.id!}
+                          imageUrl={raffle.nftTokenURI!}
+                          nftName={raffle.nftTokenName!}
+                          nftCollectionName={raffle.nftCollectionName!}
+                          nftContractAddress={raffle.nftContractAddress!}
+                          raffleEndDate={raffle.endDate!}
+                          ticketPrice={raffle.ticketPrice}
+                          ticketsRemaining={
+                            raffle.ticketSupply - raffle.ticketsSold
+                          }
+                          totalTickets={raffle.ticketSupply}
+                          isLast={index === allRaffles.data.length - 1}
+                          newLimit={() => setPage(page + 1)}
+                        />
+                      </Link>
+                    </li>
+                  ))}
+                {!enabled &&
+                  activeRaffles.map((raffle: any, index: any) => (
+                    <li key={raffle.id} className="relative">
+                      <Link href={`/raffles/${raffle.id}`}>
+                        <RaffleCard
+                          raffleId={raffle.id!}
+                          imageUrl={raffle.nftTokenURI!}
+                          nftName={raffle.nftTokenName!}
+                          nftCollectionName={raffle.nftCollectionName!}
+                          nftContractAddress={raffle.nftContractAddress!}
+                          raffleEndDate={raffle.endDate!}
+                          ticketPrice={raffle.ticketPrice}
+                          ticketsRemaining={
+                            raffle.ticketSupply - raffle.ticketsSold
+                          }
+                          totalTickets={raffle.ticketSupply}
+                          isLast={index === allRaffles.data.length - 1}
+                          newLimit={() => setPage(page + 1)}
+                        />
+                      </Link>
+                    </li>
+                  ))}
               </>
             )}
 
@@ -155,27 +289,50 @@ const Home = () => {
                       No Pending Raffles Found
                     </div>
                   ))}
-                {pendingRaffles.map((raffle: any, index: any) => (
-                  <li key={raffle.id} className="relative">
-                    <Link href={`/raffles/${raffle.id}`}>
-                      <RaffleCard
-                        raffleId={raffle.id!}
-                        imageUrl={raffle.nftTokenURI!}
-                        nftName={raffle.nftTokenName!}
-                        nftCollectionName={raffle.nftCollectionName!}
-                        nftContractAddress={raffle.nftContractAddress!}
-                        raffleEndDate={raffle.endDate!}
-                        ticketPrice={raffle.ticketPrice}
-                        ticketsRemaining={
-                          raffle.ticketSupply - raffle.ticketsSold
-                        }
-                        totalTickets={raffle.ticketSupply}
-                        isLast={index === allRaffles.data.length - 1}
-                        newLimit={() => setPage(page + 1)}
-                      />
-                    </Link>
-                  </li>
-                ))}
+                {enabled &&
+                  pendingRafflesVerified.map((raffle: any, index: any) => (
+                    <li key={raffle.id} className="relative">
+                      <Link href={`/raffles/${raffle.id}`}>
+                        <RaffleCard
+                          raffleId={raffle.id!}
+                          imageUrl={raffle.nftTokenURI!}
+                          nftName={raffle.nftTokenName!}
+                          nftCollectionName={raffle.nftCollectionName!}
+                          nftContractAddress={raffle.nftContractAddress!}
+                          raffleEndDate={raffle.endDate!}
+                          ticketPrice={raffle.ticketPrice}
+                          ticketsRemaining={
+                            raffle.ticketSupply - raffle.ticketsSold
+                          }
+                          totalTickets={raffle.ticketSupply}
+                          isLast={index === allRaffles.data.length - 1}
+                          newLimit={() => setPage(page + 1)}
+                        />
+                      </Link>
+                    </li>
+                  ))}
+                {!enabled &&
+                  pendingRaffles.map((raffle: any, index: any) => (
+                    <li key={raffle.id} className="relative">
+                      <Link href={`/raffles/${raffle.id}`}>
+                        <RaffleCard
+                          raffleId={raffle.id!}
+                          imageUrl={raffle.nftTokenURI!}
+                          nftName={raffle.nftTokenName!}
+                          nftCollectionName={raffle.nftCollectionName!}
+                          nftContractAddress={raffle.nftContractAddress!}
+                          raffleEndDate={raffle.endDate!}
+                          ticketPrice={raffle.ticketPrice}
+                          ticketsRemaining={
+                            raffle.ticketSupply - raffle.ticketsSold
+                          }
+                          totalTickets={raffle.ticketSupply}
+                          isLast={index === allRaffles.data.length - 1}
+                          newLimit={() => setPage(page + 1)}
+                        />
+                      </Link>
+                    </li>
+                  ))}
               </>
             )}
 
@@ -187,27 +344,50 @@ const Home = () => {
                       No Past Raffles Found
                     </div>
                   ))}
-                {completedRaffles.map((raffle: any, index: any) => (
-                  <li key={raffle.id} className="relative">
-                    <Link href={`/raffles/${raffle.id}`}>
-                      <RaffleCard
-                        raffleId={raffle.id!}
-                        imageUrl={raffle.nftTokenURI!}
-                        nftName={raffle.nftTokenName!}
-                        nftCollectionName={raffle.nftCollectionName!}
-                        nftContractAddress={raffle.nftContractAddress!}
-                        raffleEndDate={raffle.endDate!}
-                        ticketPrice={raffle.ticketPrice}
-                        ticketsRemaining={
-                          raffle.ticketSupply - raffle.ticketsSold
-                        }
-                        totalTickets={raffle.ticketSupply}
-                        isLast={index === allRaffles.data.length - 1}
-                        newLimit={() => setPage(page + 1)}
-                      />
-                    </Link>
-                  </li>
-                ))}
+                {enabled &&
+                  completedRafflesVerified.map((raffle: any, index: any) => (
+                    <li key={raffle.id} className="relative">
+                      <Link href={`/raffles/${raffle.id}`}>
+                        <RaffleCard
+                          raffleId={raffle.id!}
+                          imageUrl={raffle.nftTokenURI!}
+                          nftName={raffle.nftTokenName!}
+                          nftCollectionName={raffle.nftCollectionName!}
+                          nftContractAddress={raffle.nftContractAddress!}
+                          raffleEndDate={raffle.endDate!}
+                          ticketPrice={raffle.ticketPrice}
+                          ticketsRemaining={
+                            raffle.ticketSupply - raffle.ticketsSold
+                          }
+                          totalTickets={raffle.ticketSupply}
+                          isLast={index === allRaffles.data.length - 1}
+                          newLimit={() => setPage(page + 1)}
+                        />
+                      </Link>
+                    </li>
+                  ))}
+                {!enabled &&
+                  completedRaffles.map((raffle: any, index: any) => (
+                    <li key={raffle.id} className="relative">
+                      <Link href={`/raffles/${raffle.id}`}>
+                        <RaffleCard
+                          raffleId={raffle.id!}
+                          imageUrl={raffle.nftTokenURI!}
+                          nftName={raffle.nftTokenName!}
+                          nftCollectionName={raffle.nftCollectionName!}
+                          nftContractAddress={raffle.nftContractAddress!}
+                          raffleEndDate={raffle.endDate!}
+                          ticketPrice={raffle.ticketPrice}
+                          ticketsRemaining={
+                            raffle.ticketSupply - raffle.ticketsSold
+                          }
+                          totalTickets={raffle.ticketSupply}
+                          isLast={index === allRaffles.data.length - 1}
+                          newLimit={() => setPage(page + 1)}
+                        />
+                      </Link>
+                    </li>
+                  ))}
               </>
             )}
           </ul>
