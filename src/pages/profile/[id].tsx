@@ -99,7 +99,7 @@ const profile = () => {
             } relative mr-8 -ml-px inline-flex items-center  rounded px-4 py-2 text-sm font-medium text-white hover:bg-light focus:z-10 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500`}
             onClick={() => setSelectedButton("button2")}
           >
-            RafflesCreated
+            Raffles Created
           </button>
 
           <ul
