@@ -7,6 +7,8 @@ import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { api } from "~/utils/api";
 import RaffleCard from "~/components/RaffleCard";
 import Navbar from "~/components/Navbar";
+import CarouselComponent from "~/components/CarouselComponent";
+import Carousel from "~/components/Carousel";
 import { verified } from "~/lib/verified";
 
 function classNames(...classes: any[]) {
@@ -101,8 +103,27 @@ const Home = () => {
       </Head>
       <Navbar />
       <main className="flex min-h-screen flex-col items-center bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-[#59368B] to-slate-900">
-        <div className="w-full gap-12 px-4 py-16 md:px-12 lg:px-24">
-          <div className="  z-50 mb-1 flex w-full flex-col justify-between py-3 pl-8 md:flex-row">
+        <div className="w-full gap-12 px-4 pb-8 md:px-12 lg:px-24">
+          <Carousel />
+          {/* <CarouselComponent
+            collectionName="The Sandbox"
+            collectionDescription="a sample description of this NFT project for the banner"
+            collectionBannerUrl="/sandbox_banner.jpeg"
+            collectionLogoUrl="/sandbox_logo.jpeg"
+            marketplaceUrl="https://polygon.magiceden.io/collections/polygon/0x9d305a42a3975ee4c1c57555bed5919889dce63f"
+            marketplaceName="MagicEden"
+          /> */}
+          <div className="mt-8 flex flex-col items-center text-center">
+            <h1 className="font-mono text-2xl tracking-wide text-white md:text-4xl">
+              Polygon's Premier NFT Raffle Platorm
+            </h1>
+            <h4 className="mt-4 font-mono text-sm text-light md:text-lg">
+              <span className="text-gray-200">Create Raffles</span> |{" "}
+              <span className="text-gray-200">Buy Tickets</span> |{" "}
+              <span className="text-gray-200">Win NFTs</span>
+            </h4>
+          </div>
+          <div className="  z-50 mb-1 flex w-full flex-col justify-between pt-8 pb-4  md:flex-row">
             <div className="mb-4 md:mb-0">
               <button
                 type="button"
@@ -132,14 +153,14 @@ const Home = () => {
                 Past Raffles
               </button>
             </div>
-            <div className="flex items-center pr-8">
+            <div className="flex items-center">
               <div
                 className="mr-6 flex flex-col items-center"
                 title="Toggle between verified only and all collections"
               >
                 <label
                   htmlFor="verified"
-                  className="text-sm font-medium text-light"
+                  className="pb-1 text-sm font-medium text-light"
                 >
                   {enabled ? "Verified Only" : "All Collections"}
                 </label>
@@ -212,7 +233,7 @@ const Home = () => {
                 <input
                   id="search"
                   name="search"
-                  className="block w-full rounded-md border border-gray-300 bg-white py-2 pl-10 pr-3 leading-5 placeholder-gray-500 focus:border-newthird focus:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-newthird sm:text-sm"
+                  className="block w-full rounded-md border border-secondary bg-white py-2 pl-10 pr-3 leading-5 placeholder-gray-500 focus:border-secondary focus:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-secondary sm:text-sm"
                   placeholder="Search Raffles..."
                   type="search"
                   value={searchQuery}
