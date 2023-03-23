@@ -19,6 +19,11 @@ import "react-datepicker/dist/react-datepicker.css";
 
 import contractAbi from "../contracts/raffle.json";
 import { API_KEY, CONTRACT_ADDRESS, BASE_EXPLORER_URL } from "~/lib/constants";
+import { verified } from "~/lib/verified";
+import {
+  CheckBadgeIcon,
+  ExclamationCircleIcon,
+} from "@heroicons/react/20/solid";
 
 const settings = {
   apiKey: API_KEY,
@@ -38,10 +43,9 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
   const [publishRaffleSuccess, setPublishRaffleSuccess] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [isFormLoading, setIsFormLoading] = useState(false);
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
-  const [isPlaceholderLoaded, setIsPlaceholderLoaded] = useState(false);
   const [nftDataLoading, setNftDataLoading] = useState(false);
   const [isNftApproved, setIsNftApproved] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
   const [nfts, setNfts] = useState<OwnedNft[]>([]);
   const [selectedNft, setSelectedNft] = useState<OwnedNft>();
   const [raffleEndDate, setRaffleEndDate] = useState<Date | null>(null);
@@ -266,6 +270,21 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
     }
   }, [raffleErrorDetails, raffleErrorDetailsTwo, approvalSuccess]);
 
+  /**
+   * useEffect to check if the nftContractAddress is a part of the verified
+   * contracts list. If it is, we will set isVerified to true.
+   */
+  useEffect(() => {
+    if (
+      verified.some(
+        (address) =>
+          address.toLowerCase() === selectedNft?.contract.address.toLowerCase()
+      )
+    ) {
+      setIsVerified(true);
+    }
+  }, [selectedNft, verified]);
+
   return (
     <div className="min-h-screen bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-[#59368B] to-slate-900">
       <Navbar />
@@ -298,11 +317,21 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
                         />
                       </div>
                       <div className="mt-4">
-                        {/* <p className="my-2 block truncate pl-2 text-left text-2xl font-bold text-gray-500"> */}
-                        <p className="text-2xl font-bold tracking-tight text-secondary line-clamp-1">
-                          {selectedNft.contract.name ||
-                            selectedNft.contract.openSea?.collectionName!}
-                        </p>
+                        <div className="flex flex-row items-center">
+                          <p className="mr-1 text-2xl font-bold tracking-tight text-secondary line-clamp-1">
+                            {selectedNft.contract.name ||
+                              selectedNft.contract.openSea?.collectionName!}
+                          </p>
+                          {isVerified ? (
+                            <button title="The Raffi3 team has marked this as a verified collection">
+                              <CheckBadgeIcon width={25} color="green" />
+                            </button>
+                          ) : (
+                            <button title="This collection has not been verfified by the Raffi3 team. Be careful! Please reach out to get the collection added if it is legitimate">
+                              <ExclamationCircleIcon width={25} color="red" />
+                            </button>
+                          )}
+                        </div>
                         <p className="font-medium tracking-tight text-black line-clamp-1">
                           {selectedNft.rawMetadata?.name}
                         </p>
@@ -368,6 +397,7 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
                                   nft.contract.name! ||
                                   nft.contract.openSea?.collectionName!
                                 }
+                                nftContractAddress={nft.contract.address!}
                               />
                             </button>
                           </div>

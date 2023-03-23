@@ -122,6 +122,7 @@ const profile = () => {
                         imageUrl={raffle.raffle.nftTokenURI!}
                         nftName={raffle.raffle.nftTokenName!}
                         nftCollectionName={raffle.raffle.nftCollectionName!}
+                        nftContractAddress={raffle.raffle.nftContractAddress!}
                         raffleEndDate={raffle.raffle.endDate!}
                         ticketPrice={raffle.raffle.ticketPrice}
                         ticketsRemaining={
@@ -153,6 +154,7 @@ const profile = () => {
                         imageUrl={raffle.nftTokenURI!}
                         nftName={raffle.nftTokenName!}
                         nftCollectionName={raffle.nftCollectionName!}
+                        nftContractAddress={raffle.nftContractAddress!}
                         raffleEndDate={raffle.endDate!}
                         ticketPrice={raffle.ticketPrice}
                         ticketsRemaining={

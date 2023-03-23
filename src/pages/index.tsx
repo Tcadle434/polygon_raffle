@@ -131,6 +131,7 @@ const Home = () => {
                         imageUrl={raffle.nftTokenURI!}
                         nftName={raffle.nftTokenName!}
                         nftCollectionName={raffle.nftCollectionName!}
+                        nftContractAddress={raffle.nftContractAddress!}
                         raffleEndDate={raffle.endDate!}
                         ticketPrice={raffle.ticketPrice}
                         ticketsRemaining={
@@ -162,6 +163,7 @@ const Home = () => {
                         imageUrl={raffle.nftTokenURI!}
                         nftName={raffle.nftTokenName!}
                         nftCollectionName={raffle.nftCollectionName!}
+                        nftContractAddress={raffle.nftContractAddress!}
                         raffleEndDate={raffle.endDate!}
                         ticketPrice={raffle.ticketPrice}
                         ticketsRemaining={
@@ -193,6 +195,7 @@ const Home = () => {
                         imageUrl={raffle.nftTokenURI!}
                         nftName={raffle.nftTokenName!}
                         nftCollectionName={raffle.nftCollectionName!}
+                        nftContractAddress={raffle.nftContractAddress!}
                         raffleEndDate={raffle.endDate!}
                         ticketPrice={raffle.ticketPrice}
                         ticketsRemaining={

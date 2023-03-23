@@ -2,12 +2,18 @@ import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { api } from "~/utils/api";
 import CountdownTimer from "./CountdownTimer";
+import { verified } from "~/lib/verified";
+import {
+  CheckBadgeIcon,
+  ExclamationCircleIcon,
+} from "@heroicons/react/20/solid";
 
 interface CardProps {
   raffleId: string;
   imageUrl: string;
   nftName: string;
   nftCollectionName: string;
+  nftContractAddress: string;
   raffleEndDate: Date;
   ticketPrice: number;
   ticketsRemaining: number;
@@ -21,6 +27,7 @@ const RaffleCard = ({
   imageUrl,
   nftName,
   nftCollectionName,
+  nftContractAddress,
   raffleEndDate,
   ticketPrice,
   ticketsRemaining,
@@ -29,6 +36,7 @@ const RaffleCard = ({
   isLast,
 }: CardProps) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
   const cardRef = useRef();
   const totalTicketsSold =
     api.participant.getTotalNumTicketsByRaffleId.useQuery(raffleId);
@@ -45,6 +53,16 @@ const RaffleCard = ({
 
     observer.observe(cardRef.current);
   }, [isLast]);
+
+  useEffect(() => {
+    if (
+      verified.some(
+        (address) => address.toLowerCase() === nftContractAddress.toLowerCase()
+      )
+    ) {
+      setIsVerified(true);
+    }
+  }, [nftContractAddress]);
 
   return (
     <div className="max-w-sm rounded-lg border border-gray-700 bg-[#59368B] shadow transition duration-300 ease-in-out hover:scale-105 hover:transform">
@@ -68,11 +86,20 @@ const RaffleCard = ({
         </div>
       </div>
       <div className="p-5">
-        <a href="#">
-          <h5 className=" text-2xl font-bold tracking-tight text-light line-clamp-1">
+        <div className="flex flex-row items-center">
+          <h5 className=" mr-1 text-2xl font-bold tracking-tight text-light line-clamp-1">
             {nftCollectionName}
           </h5>
-        </a>
+          {isVerified ? (
+            <button title="The Raffi3 team has marked this as a verified collection">
+              <CheckBadgeIcon width={25} color="lime" />
+            </button>
+          ) : (
+            <button title="This collection has not been verfified by the Raffi3 team. Be careful! Please reach out to get the collection added if it is legitimate">
+              <ExclamationCircleIcon width={25} color="red" />
+            </button>
+          )}
+        </div>
         <p className="mt mb-3 font-normal text-white line-clamp-1">{nftName}</p>
         <div className="mt-4 flex flex-row justify-between">
           <div className="flex flex-col ">

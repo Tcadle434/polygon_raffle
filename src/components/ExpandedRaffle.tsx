@@ -6,6 +6,10 @@ import Image from "next/image";
 import { useAccount, useBalance } from "wagmi";
 import { ethers } from "ethers";
 import z from "zod";
+import {
+  CheckBadgeIcon,
+  ExclamationCircleIcon,
+} from "@heroicons/react/20/solid";
 
 import { api } from "~/utils/api";
 import CountdownTimer from "./CountdownTimer";
@@ -15,6 +19,7 @@ import Divider from "./Divider";
 
 import contractAbi from "../contracts/raffle.json";
 import { CONTRACT_ADDRESS, BASE_EXPLORER_URL } from "~/lib/constants";
+import { verified } from "~/lib/verified";
 
 const raffleSchema = z.object({
   ticketSupply: z.number(),
@@ -58,6 +63,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
   const [winnerPickedSuccess, setWinnerPickedSuccess] = useState(0);
   const [winnerSelectLoading, setWinnerSelectLoading] = useState(false);
   const [buyTicketsLoading, setBuyTicketsLoading] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
   const [enoughFunds, setEnoughFunds] = useState(true);
   const [raffleErrorDetails, setRaffleErrorDetails] = useState<Error | null>(
     null
@@ -251,6 +257,20 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
     }
   }, [raffleErrorDetails, buySuccess]);
 
+  /**
+   * useEffect to check if the nftContractAddress is a part of the verified
+   * contracts list. If it is, we will set isVerified to true.
+   */
+  useEffect(() => {
+    if (
+      verified.some(
+        (address) => address.toLowerCase() === nftContractAddress.toLowerCase()
+      )
+    ) {
+      setIsVerified(true);
+    }
+  }, [nftContractAddress]);
+
   return (
     <div>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
@@ -356,9 +376,22 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
             <section aria-labelledby="section-2-title">
               <div className="overflow-hidden rounded-lg bg-white shadow">
                 <div className="p-6">
-                  <h5 className="text-md font-medium text-gray-500">
-                    {nftCollectionName}
-                  </h5>
+                  <div className="flex flex-row items-center ">
+                    <h5 className="text-md mr-1 font-medium text-gray-500">
+                      {nftCollectionName}{" "}
+                    </h5>
+                    <div>
+                      {isVerified ? (
+                        <button title="The Raffi3 team has marked this as a verified collection">
+                          <CheckBadgeIcon width={25} color="green" />
+                        </button>
+                      ) : (
+                        <button title="This collection has not been verfified by the Raffi3 team. Be careful! Please reach out to get the collection added if it is legitimate">
+                          <ExclamationCircleIcon width={25} color="red" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
                   <h2
                     id="section-2-title"
                     className="text-3xl font-medium text-gray-900"
