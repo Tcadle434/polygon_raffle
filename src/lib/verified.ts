@@ -1,0 +1,4 @@
+export const verified = [
+  "0x7dbCE2B0b1e91e92e6c36a0C2E0DC1F8c262C4A2",
+  "0x9C25Ee0F938122A504be82189536dF74687858e4",
+];
