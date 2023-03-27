@@ -221,7 +221,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
           return null;
         }
 
-        const raffleWinnerAddress = await fetchPastLogs(6, 30000); // Retry up to 6 times with a 30 second delay between attempts
+        const raffleWinnerAddress = await fetchPastLogs(10, 30000); // Retry up to 6 times with a 30 second delay between attempts
 
         if (res?.err || !raffleWinnerAddress || tx?.err) {
           console.log("error, ", res);
@@ -473,8 +473,8 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                         width={50}
                       />
                       <p className=" mt-6 text-sm text-secondary">
-                        Please be patient while we pick a winner! This may take
-                        up to 3 minutes or so.
+                        Please be patient while we pick a winner! It's usually
+                        quick, but this may take up to 5 minutes.
                       </p>
                     </div>
                   )}
