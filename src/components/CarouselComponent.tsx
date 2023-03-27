@@ -35,7 +35,7 @@ const CarouselComponent = ({
         <h3 className="font-mono text-lg text-white md:text-4xl md:tracking-wide ">
           {collectionName}
         </h3>
-        <p className="text-sm text-gray-200 md:text-lg md:tracking-wide ">
+        <p className="block truncate text-sm text-gray-200 line-clamp-1 md:text-lg md:tracking-wide ">
           {collectionDescription}
         </p>
         <a href={marketplaceUrl}>

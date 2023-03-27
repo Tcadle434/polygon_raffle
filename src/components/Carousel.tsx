@@ -4,9 +4,18 @@ import CarouselComponent from "./CarouselComponent";
 
 const carouselData = [
   {
+    collectionName: "HellCats",
+    collectionDescription:
+      "A collection of 2,500 HellCats that open the doors to The Clubhouse, an exclusive community that extends far beyond the digital world.",
+    collectionBannerUrl: "/hellcats_banner.jpeg",
+    collectionLogoUrl: "/hellcats_logo.jpeg",
+    marketplaceUrl: "https://magiceden.io/collections/polygon/hellcats",
+    marketplaceName: "MagicEden",
+  },
+  {
     collectionName: "The Sandbox",
     collectionDescription:
-      "a sample description of this NFT project for the banner",
+      "The Sandbox is a community-driven platform where creators can monetize voxel assets and gaming experiences on the blockchain.",
     collectionBannerUrl: "/sandbox_banner.jpeg",
     collectionLogoUrl: "/sandbox_logo.jpeg",
     marketplaceUrl:
@@ -16,19 +25,10 @@ const carouselData = [
   {
     collectionName: "Voxies",
     collectionDescription:
-      "a sample description of this NFT project for the banner",
+      "Voxies are cute, lovable and collectible 3d voxel buddies, that live and play on the Polygon blockchain.",
     collectionBannerUrl: "/voxies_banner.jpeg",
     collectionLogoUrl: "/voxies_logo.jpeg",
     marketplaceUrl: "https://opensea.io/collection/voxies",
-    marketplaceName: "OpenSea",
-  },
-  {
-    collectionName: "Zed Run",
-    collectionDescription:
-      "a sample description of this NFT project for the banner",
-    collectionBannerUrl: "/zed_banner.jpeg",
-    collectionLogoUrl: "/zed_logo.jpeg",
-    marketplaceUrl: "https://opensea.io/collection/zed-run-official",
     marketplaceName: "OpenSea",
   },
 ];
