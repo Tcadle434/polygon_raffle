@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 
 import { useAccount, useBalance } from "wagmi";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import z from "zod";
 import {
   CheckBadgeIcon,
@@ -177,6 +177,8 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
           contractAbi,
           signer
         );
+        const raffleEndedTopic =
+          contract.interface.getEventTopic("RaffleEnded");
 
         const tx = await contract.setWinner(contractRaffleId, {
           gasLimit: 500000,
@@ -184,17 +186,42 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
         let res = await tx.wait();
         console.log("res: ", res);
 
-        const receipt = await provider.getTransactionReceipt(tx.hash);
-        console.log("unfilteredLogs", receipt.logs);
-        const logs = receipt.logs.filter(
-          (log) =>
-            log.topics[0] === contract.interface.getEventTopic("RaffleEnded")
-        );
-        console.log("logs", logs);
-        const parsedLogs = logs.map((log) => contract.interface.parseLog(log));
-        console.log("parsedLogs", parsedLogs);
-        const raffleWinnerAddress = parsedLogs[0]?.args.winner;
-        console.log("raffleWinnerAddress", raffleWinnerAddress);
+        async function fetchPastLogs(
+          attempts: number,
+          delay: number
+        ): Promise<string | null> {
+          for (let i = 0; i < attempts; i++) {
+            if (i > 0) {
+              await new Promise((resolve) => setTimeout(resolve, delay));
+            }
+
+            const pastLogs = await provider.getLogs({
+              fromBlock: res.blockNumber,
+              toBlock: "latest",
+              topics: [raffleEndedTopic],
+            });
+
+            for (const log of pastLogs) {
+              const parsedLog = contract.interface.parseLog(log);
+              if (
+                BigNumber.from(parsedLog.args.raffleId).eq(contractRaffleId)
+              ) {
+                const raffleWinnerAddress = parsedLog.args.winner;
+                return raffleWinnerAddress;
+              }
+            }
+
+            console.log(
+              `Attempt ${i + 1} failed. Please be patient :). Retrying in ${
+                delay / 1000
+              } seconds...`
+            );
+          }
+
+          return null;
+        }
+
+        const raffleWinnerAddress = await fetchPastLogs(6, 30000); // Retry up to 6 times with a 30 second delay between attempts
 
         if (res?.err || !raffleWinnerAddress || tx?.err) {
           console.log("error, ", res);
@@ -324,7 +351,8 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                             totalTicketsSold.data?._sum.numTickets! ||
                         ticketSupply -
                           totalTicketsSold.data?._sum.numTickets! <=
-                          0
+                          0 ||
+                        endDate! < new Date()
                       }
                     >
                       <h3 className="text-xl font-bold">Buy Tickets</h3>
@@ -445,8 +473,8 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                         width={50}
                       />
                       <p className=" mt-6 text-sm text-secondary">
-                        Network congestion can affect load times. Please be
-                        patient while we pick a winner!
+                        Please be patient while we pick a winner! This may take
+                        up to 3 minutes or so.
                       </p>
                     </div>
                   )}
