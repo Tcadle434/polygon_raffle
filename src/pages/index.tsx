@@ -7,6 +7,7 @@ import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { api } from "~/utils/api";
 import RaffleCard from "~/components/RaffleCard";
 import Navbar from "~/components/Navbar";
+import Footer from "~/components/Footer";
 import CarouselComponent from "~/components/CarouselComponent";
 import Carousel from "~/components/Carousel";
 import { verified } from "~/lib/verified";
@@ -414,6 +415,7 @@ const Home = () => {
           </ul>
         </div>
       </main>
+      <Footer />
     </>
   );
 };
