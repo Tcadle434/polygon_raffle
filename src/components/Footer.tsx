@@ -1,4 +1,5 @@
 import { SVGProps } from "react";
+import { CONTRACT_ADDRESS } from "~/lib/constants";
 
 const navigation = [
   {
@@ -35,7 +36,7 @@ const navigation = [
   },
   {
     name: "PolygonScan",
-    href: "https://polygonscan.com/address/0x1db6060c700190cb4dd925d60ce82b60cc8e8343",
+    href: `https://polygonscan.com/address/${CONTRACT_ADDRESS}`,
     icon: (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
       <svg
         version="1.1"
