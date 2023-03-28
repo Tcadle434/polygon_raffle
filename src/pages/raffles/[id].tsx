@@ -6,6 +6,7 @@ import { api } from "~/utils/api";
 
 import Navbar from "~/components/Navbar";
 import ExpandedRaffle from "~/components/ExpandedRaffle";
+import Footer from "~/components/Footer";
 
 const raffle = () => {
   const router = useRouter();
@@ -28,26 +29,29 @@ const raffle = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-[#59368B] to-slate-900">
-      <Navbar />
-      <ExpandedRaffle
-        ticketSupply={data.ticketSupply}
-        ticketPrice={data.ticketPrice}
-        ticketsSold={data.ticketsSold}
-        endDate={data.endDate}
-        nftContractAddress={data.nftContractAddress}
-        nftTokenId={data.nftTokenId}
-        nftTokenURI={data.nftTokenURI}
-        nftTokenName={data.nftTokenName}
-        nftCollectionName={data.nftCollectionName}
-        winnerWalletAddress={data.winnerWalletAddress}
-        winnerPicked={data.winnerPicked}
-        creatorWalletAddress={data.creatorWalletAddress}
-        createdAt={data.createdAt}
-        raffleID={data.id}
-        contractRaffleId={data.contractRaffleId!}
-      />
-    </div>
+    <>
+      <div className="min-h-screen bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-[#59368B] to-slate-900">
+        <Navbar />
+        <ExpandedRaffle
+          ticketSupply={data.ticketSupply}
+          ticketPrice={data.ticketPrice}
+          ticketsSold={data.ticketsSold}
+          endDate={data.endDate}
+          nftContractAddress={data.nftContractAddress}
+          nftTokenId={data.nftTokenId}
+          nftTokenURI={data.nftTokenURI}
+          nftTokenName={data.nftTokenName}
+          nftCollectionName={data.nftCollectionName}
+          winnerWalletAddress={data.winnerWalletAddress}
+          winnerPicked={data.winnerPicked}
+          creatorWalletAddress={data.creatorWalletAddress}
+          createdAt={data.createdAt}
+          raffleID={data.id}
+          contractRaffleId={data.contractRaffleId!}
+        />
+      </div>
+      <Footer />
+    </>
   );
 };
 
