@@ -59,4 +59,6 @@ export const verified = [
   "0x1de8AeB6794DFF0c76914E4a429a28a44bA056c5",
   "0x7dbCE2B0b1e91e92e6c36a0C2E0DC1F8c262C4A2",
   "0xa6e068e11dcf60eb6cec6c1eb1ff0e62c88a1606",
+  "0x670fd103b1a08628e9557cd66b87ded841115190",
+  "0x220fa5ccc9404802ed6db0935eb4feefc27c937e",
 ];
