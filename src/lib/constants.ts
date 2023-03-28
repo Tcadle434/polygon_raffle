@@ -1,4 +1,4 @@
-export const CONTRACT_ADDRESS = "0xb82BC52Ec9022A3240dD6d9782689e6C70cc4BbA";
+export const CONTRACT_ADDRESS = "0x62C84185eb49b6a8062dbF885856AF89Cd3dE85A";
 export const BASE_EXPLORER_URL = "https://polygonscan.com";
 export const API_KEY = "ZuSU4sqkiZWPY9G2jJuWNSBu7WlqaVmK";
 export const BASE_ME_COLLECTION_URL =
