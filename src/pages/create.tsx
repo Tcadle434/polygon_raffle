@@ -442,8 +442,8 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
                           width={50}
                         />
                         <p className=" mt-6 text-sm text-secondary">
-                          Network congestion can affect load times. Please be
-                          patient!
+                          PLEASE DO NOT REFRESH OR CLICK AWAY FROM THIS SCREEN.
+                          YOUR RAFFLE DATA COULD BE LOST. Please be patient!
                         </p>
                       </div>
                     ) : (
