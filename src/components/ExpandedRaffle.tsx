@@ -164,6 +164,97 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
    * winner wallet address upon success via the
    * updateRaffleWinnerPickedWithWinnerWalletAddress tRPC call.
    */
+  // const handleWinnerPicked = async () => {
+  //   setWinnerSelectLoading(true);
+  //   try {
+  //     if (window.ethereum) {
+  //       const provider = new ethers.providers.Web3Provider(
+  //         window.ethereum as ethers.providers.ExternalProvider
+  //       );
+  //       const signer = provider.getSigner();
+  //       const contract = new ethers.Contract(
+  //         CONTRACT_ADDRESS,
+  //         contractAbi,
+  //         signer
+  //       );
+  //       const raffleEndedTopic =
+  //         contract.interface.getEventTopic("RaffleEnded");
+
+  //       const tx = await contract.setWinner(contractRaffleId, {
+  //         gasLimit: 500000,
+  //       });
+  //       let res = await tx.wait();
+  //       console.log("res: ", res);
+
+  //       async function fetchPastLogs(
+  //         attempts: number,
+  //         delay: number
+  //       ): Promise<string | null> {
+  //         for (let i = 0; i < attempts; i++) {
+  //           if (i > 0) {
+  //             await new Promise((resolve) => setTimeout(resolve, delay));
+  //           }
+
+  //           const pastLogs = await provider.getLogs({
+  //             fromBlock: res.blockNumber,
+  //             toBlock: "latest",
+  //             topics: [raffleEndedTopic],
+  //           });
+
+  //           for (const log of pastLogs) {
+  //             const parsedLog = contract.interface.parseLog(log);
+  //             if (
+  //               BigNumber.from(parsedLog.args.raffleId).eq(contractRaffleId)
+  //             ) {
+  //               const raffleWinnerAddress = parsedLog.args.winner;
+  //               return raffleWinnerAddress;
+  //             }
+  //           }
+
+  //           console.log(
+  //             `Attempt ${i + 1} failed. Please be patient :). Retrying in ${
+  //               delay / 1000
+  //             } seconds...`
+  //           );
+  //         }
+
+  //         return null;
+  //       }
+
+  //       const raffleWinnerAddress = await fetchPastLogs(10, 30000); // Retry up to 6 times with a 30 second delay between attempts
+
+  //       if (res?.err || !raffleWinnerAddress || tx?.err) {
+  //         console.log("error, ", res);
+  //         setWinnerPickedSuccess(2);
+  //       } else {
+  //         console.log("success", res);
+  //         setWinnerPickedSuccess(1);
+  //         await updateRaffleWinnerPickedWithWinnerWalletAddress({
+  //           raffleId: raffleID,
+  //           winnerWalletAddress: raffleWinnerAddress,
+  //         });
+  //       }
+  //       console.log(`See Transaction: ${BASE_EXPLORER_URL}/tx/${tx.hash}`);
+  //     } else {
+  //       alert("Please install MetaMask or a different Ethereum wallet.");
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //   } finally {
+  //     setTimeout(() => {
+  //       setWinnerSelectLoading(false);
+  //       router.reload();
+  //     }, 3000);
+  //   }
+  // };
+
+  /**
+   * Handler to pick the winner for the raffle. This function will
+   * communicate with the smart contract to pick the winner via the
+   * setWinner function. It will then update the database with the new
+   * winner wallet address upon success via the
+   * updateRaffleWinnerPickedWithWinnerWalletAddress tRPC call.
+   */
   const handleWinnerPicked = async () => {
     setWinnerSelectLoading(true);
     try {
@@ -177,51 +268,30 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
           contractAbi,
           signer
         );
-        const raffleEndedTopic =
-          contract.interface.getEventTopic("RaffleEnded");
+        const verifiedNumberEntries =
+          contract.getNumberOfEntries(contractRaffleId);
+        console.log("verifiedNumberEntries: ", verifiedNumberEntries);
+        // get a random number between 1 and the number of entries
+        const randomNumber = Math.floor(
+          Math.random() * verifiedNumberEntries + 1
+        );
+        console.log("randomNumber: ", randomNumber);
 
-        const tx = await contract.setWinner(contractRaffleId, {
+        const tx = await contract.setWinner(contractRaffleId, randomNumber, {
           gasLimit: 500000,
         });
         let res = await tx.wait();
         console.log("res: ", res);
 
-        async function fetchPastLogs(
-          attempts: number,
-          delay: number
-        ): Promise<string | null> {
-          for (let i = 0; i < attempts; i++) {
-            if (i > 0) {
-              await new Promise((resolve) => setTimeout(resolve, delay));
-            }
-
-            const pastLogs = await provider.getLogs({
-              fromBlock: res.blockNumber,
-              toBlock: "latest",
-              topics: [raffleEndedTopic],
-            });
-
-            for (const log of pastLogs) {
-              const parsedLog = contract.interface.parseLog(log);
-              if (
-                BigNumber.from(parsedLog.args.raffleId).eq(contractRaffleId)
-              ) {
-                const raffleWinnerAddress = parsedLog.args.winner;
-                return raffleWinnerAddress;
-              }
-            }
-
-            console.log(
-              `Attempt ${i + 1} failed. Please be patient :). Retrying in ${
-                delay / 1000
-              } seconds...`
-            );
-          }
-
-          return null;
-        }
-
-        const raffleWinnerAddress = await fetchPastLogs(10, 30000); // Retry up to 6 times with a 30 second delay between attempts
+        const receipt = await provider.getTransactionReceipt(tx.hash);
+        const logs = receipt.logs.filter(
+          (log) =>
+            log.topics[0] === contract.interface.getEventTopic("RaffleEnded")
+        );
+        const parsedLogs = logs.map((log) => contract.interface.parseLog(log));
+        console.log("logs: ", logs);
+        console.log("parsedLogs: ", parsedLogs);
+        const raffleWinnerAddress = parsedLogs[0]?.args.winner;
 
         if (res?.err || !raffleWinnerAddress || tx?.err) {
           console.log("error, ", res);
@@ -377,12 +447,15 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                       <h3 className="text-md mb-4 font-mono font-bold text-light">
                         Raffle Pending...
                       </h3>
-                      <button
-                        className="relative mr-8 -ml-px inline-flex items-center  rounded bg-light px-4 py-2 text-sm font-medium text-white hover:bg-pink-200 focus:z-10 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 "
-                        onClick={() => handleWinnerPicked()}
-                      >
-                        <h3 className="text-xl font-bold">Pick Winner</h3>
-                      </button>
+                      {address ===
+                        "0x11E7Fa3Bc863bceD1F1eC85B6EdC9b91FdD581CF" && (
+                        <button
+                          className="relative mr-8 -ml-px inline-flex items-center  rounded bg-light px-4 py-2 text-sm font-medium text-white hover:bg-pink-200 focus:z-10 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 "
+                          onClick={() => handleWinnerPicked()}
+                        >
+                          <h3 className="text-xl font-bold">Pick Winner</h3>
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
