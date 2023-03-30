@@ -268,17 +268,18 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
           contractAbi,
           signer
         );
-        const verifiedNumberEntries =
-          contract.getNumberOfEntries(contractRaffleId);
+        const verifiedNumberEntries = await contract.getNumberOfEntries(
+          contractRaffleId
+        );
         console.log("verifiedNumberEntries: ", verifiedNumberEntries);
         // get a random number between 1 and the number of entries
         const randomNumber = Math.floor(
           Math.random() * verifiedNumberEntries + 1
         );
-        console.log("randomNumber: ", randomNumber);
+        console.log("randomNumber: ", Number(randomNumber));
 
         const tx = await contract.setWinner(contractRaffleId, randomNumber, {
-          gasLimit: 500000,
+          gasLimit: 1000000,
         });
         let res = await tx.wait();
         console.log("res: ", res);
