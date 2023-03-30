@@ -190,13 +190,13 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
 
         if (raffleStatus === 4) {
           tx = await contract.getRandomNumberEmergency(contractRaffleId, {
-            gasLimit: 500000,
+            gasLimit: 1000000,
           });
           res = await tx.wait();
           console.log("res: ", res);
         } else {
           tx = await contract.setWinner(contractRaffleId, {
-            gasLimit: 500000,
+            gasLimit: 1000000,
           });
           res = await tx.wait();
           console.log("res: ", res);
@@ -490,8 +490,8 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                         width={50}
                       />
                       <p className=" mt-6 text-sm text-secondary">
-                        Please be patient while we pick a winner! It's usually
-                        quick, but this may take up to 5 minutes.
+                        PLEASE DO NOT REFRESH while we pick a winner! It's
+                        usually quick, but this may take up to 5 minutes.
                       </p>
                     </div>
                   )}
@@ -505,8 +505,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                         width={50}
                       />
                       <p className=" mt-6 text-sm text-secondary">
-                        Network congestion can affect load times. Please be
-                        patient while we purchase your tickets!
+                        PLEASE DO NOT REFRESH while we purchase your tickets!
                       </p>
                     </div>
                   )}
