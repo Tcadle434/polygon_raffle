@@ -4,6 +4,14 @@ import CarouselComponent from "./CarouselComponent";
 
 const carouselData = [
   {
+    collectionName: "y00ts",
+    collectionDescription: "y00ts have arrived on polygon.",
+    collectionBannerUrl: "/y00ts_banner.png",
+    collectionLogoUrl: "/yoots_logo.jpeg",
+    marketplaceUrl: "https://magiceden.io/collections/polygon/y00ts",
+    marketplaceName: "MagicEden",
+  },
+  {
     collectionName: "HellCats",
     collectionDescription:
       "A collection of 2,500 HellCats that open the doors to The Clubhouse, an exclusive community that extends far beyond the digital world.",
@@ -21,15 +29,6 @@ const carouselData = [
     marketplaceUrl:
       "https://polygon.magiceden.io/collections/polygon/0x9d305a42a3975ee4c1c57555bed5919889dce63f",
     marketplaceName: "MagicEden",
-  },
-  {
-    collectionName: "Voxies",
-    collectionDescription:
-      "Voxies are cute, lovable and collectible 3d voxel buddies, that live and play on the Polygon blockchain.",
-    collectionBannerUrl: "/voxies_banner.jpeg",
-    collectionLogoUrl: "/voxies_logo.jpeg",
-    marketplaceUrl: "https://opensea.io/collection/voxies",
-    marketplaceName: "OpenSea",
   },
 ];
 
