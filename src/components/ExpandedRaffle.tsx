@@ -180,11 +180,27 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
         const raffleEndedTopic =
           contract.interface.getEventTopic("RaffleEnded");
 
-        const tx = await contract.setWinner(contractRaffleId, {
-          gasLimit: 500000,
-        });
-        let res = await tx.wait();
-        console.log("res: ", res);
+        console.log("before raffleStatus");
+
+        const raffleStatus = await contract.getRaffleStatus(contractRaffleId);
+        console.log("raffleStatus: ", raffleStatus);
+
+        let res: any;
+        let tx: any;
+
+        if (raffleStatus === 4) {
+          tx = await contract.getRandomNumberEmergency(contractRaffleId, {
+            gasLimit: 1000000,
+          });
+          res = await tx.wait();
+          console.log("res: ", res);
+        } else {
+          tx = await contract.setWinner(contractRaffleId, {
+            gasLimit: 1000000,
+          });
+          res = await tx.wait();
+          console.log("res: ", res);
+        }
 
         async function fetchPastLogs(
           attempts: number,
@@ -380,6 +396,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                       <button
                         className="relative mr-8 -ml-px inline-flex items-center  rounded bg-light px-4 py-2 text-sm font-medium text-white hover:bg-pink-200 focus:z-10 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 "
                         onClick={() => handleWinnerPicked()}
+                        disabled={winnerSelectLoading || !isConnected}
                       >
                         <h3 className="text-xl font-bold">Pick Winner</h3>
                       </button>
@@ -473,8 +490,8 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                         width={50}
                       />
                       <p className=" mt-6 text-sm text-secondary">
-                        Please be patient while we pick a winner! It's usually
-                        quick, but this may take up to 5 minutes.
+                        PLEASE DO NOT REFRESH while we pick a winner! It's
+                        usually quick, but this may take up to 5 minutes.
                       </p>
                     </div>
                   )}
@@ -488,8 +505,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                         width={50}
                       />
                       <p className=" mt-6 text-sm text-secondary">
-                        Network congestion can affect load times. Please be
-                        patient while we purchase your tickets!
+                        PLEASE DO NOT REFRESH while we purchase your tickets!
                       </p>
                     </div>
                   )}
