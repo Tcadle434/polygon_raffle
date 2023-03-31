@@ -116,7 +116,7 @@ const Home = () => {
           /> */}
           <div className="mt-8 flex flex-col items-center text-center">
             <h1 className="font-mono text-2xl tracking-wide text-white md:text-4xl">
-              Polygon's Premier NFT Raffle Platorm
+              Polygon's Premier NFT Raffle Platform
             </h1>
             <h4 className="mt-4 font-mono text-sm text-light md:text-lg">
               <span className="text-gray-200">Create Raffles</span> |{" "}
