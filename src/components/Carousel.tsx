@@ -4,6 +4,15 @@ import CarouselComponent from "./CarouselComponent";
 
 const carouselData = [
   {
+    collectionName: "Brozo",
+    collectionDescription:
+      "BROZO is a movement, aiming to create the biggest & best web3 native brands in the world through art and culture.",
+    collectionBannerUrl: "/brozo_banner.jpeg",
+    collectionLogoUrl: "/brozo_logo.png",
+    marketplaceUrl: "https://magiceden.io/collections/polygon/brozo",
+    marketplaceName: "MagicEden",
+  },
+  {
     collectionName: "y00ts",
     collectionDescription: "y00ts have arrived on polygon.",
     collectionBannerUrl: "/y00ts_banner.png",
@@ -18,16 +27,6 @@ const carouselData = [
     collectionBannerUrl: "/hellcats_banner.jpeg",
     collectionLogoUrl: "/hellcats_logo.jpeg",
     marketplaceUrl: "https://magiceden.io/collections/polygon/hellcats",
-    marketplaceName: "MagicEden",
-  },
-  {
-    collectionName: "The Sandbox",
-    collectionDescription:
-      "The Sandbox is a community-driven platform where creators can monetize voxel assets and gaming experiences on the blockchain.",
-    collectionBannerUrl: "/sandbox_banner.jpeg",
-    collectionLogoUrl: "/sandbox_logo.jpeg",
-    marketplaceUrl:
-      "https://polygon.magiceden.io/collections/polygon/0x9d305a42a3975ee4c1c57555bed5919889dce63f",
     marketplaceName: "MagicEden",
   },
 ];
