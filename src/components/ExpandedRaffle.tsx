@@ -590,13 +590,16 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                             <label className="text-md text-secondary line-clamp-1">
                               Tickets Remaining
                             </label>
-                            <p className="mb-3 font-normal text-gray-500">
-                              {totalEntries && (
-                                <div>
+
+                            <div className="mb-3 font-normal text-gray-500">
+                              {!totalEntries ? (
+                                <p>loading...</p>
+                              ) : (
+                                <p>
                                   {ticketSupply - totalEntries} / {ticketSupply}
-                                </div>
+                                </p>
                               )}
-                            </p>
+                            </div>
                           </div>
 
                           <div className="flex flex-col ">
