@@ -45,6 +45,11 @@ const raffleSchema = z.object({
 
 type RaffleProps = z.infer<typeof raffleSchema>;
 
+interface EntryData {
+  player: string;
+  currentEntriesLength: number;
+}
+
 const ExpandedRaffle: NextPage<RaffleProps> = ({
   ticketSupply,
   ticketPrice,
@@ -65,6 +70,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
   const [ticketNum, setTicketNum] = useState(1);
   const [buySuccess, setBuySuccess] = useState(0);
   const [winnerPickedSuccess, setWinnerPickedSuccess] = useState(0);
+  const [totalEntries, setTotalEntries] = useState(0);
   const [winnerSelectLoading, setWinnerSelectLoading] = useState(false);
   const [buyTicketsLoading, setBuyTicketsLoading] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
@@ -72,15 +78,11 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
   const [raffleErrorDetails, setRaffleErrorDetails] = useState<Error | null>(
     null
   );
+  const [entryDataList, setEntryDataList] = useState<EntryData[]>([]);
 
   const router = useRouter();
   const { address, isConnected } = useAccount();
   const balance = useBalance({ address: address });
-
-  const allParticipantsForRaffle =
-    api.participant.getParticipantsByRaffleId.useQuery(raffleID);
-  const totalTicketsSold =
-    api.participant.getTotalNumTicketsByRaffleId.useQuery(raffleID);
 
   const { mutateAsync: buyTickets } = api.participant.buyTickets.useMutation({
     onSuccess: () => {
@@ -318,6 +320,70 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
     }
   }, [nftContractAddress]);
 
+  /**
+   * useEffect to read the actual entries from the smart contract.
+   * We can then use this to display the actual number of entries
+   * in the raffle instead of reading from the database.
+   * This is to prevent any discrepancies between the database and
+   * the smart contract.
+   */
+  useEffect(() => {
+    try {
+      const provider = new ethers.providers.Web3Provider(
+        window.ethereum as ethers.providers.ExternalProvider
+      );
+
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(
+        CONTRACT_ADDRESS,
+        contractAbi,
+        signer
+      );
+
+      const entriesList = async () => {
+        const numEntries = await contract.getNumberOfEntries(contractRaffleId);
+        console.log("numEntries: ", numEntries.toNumber());
+
+        const playerEntriesMap: { [player: string]: number } = {};
+        let overallSum = 0;
+
+        for (let i = 0; i < numEntries.toNumber(); i++) {
+          const entry = await contract.entriesList(contractRaffleId, i);
+          console.log("entry: ", entry);
+          console.log("player ", entry.player);
+          console.log(
+            "currentEntriesLength: ",
+            entry.currentEntriesLength.toNumber()
+          );
+
+          if (playerEntriesMap[entry.player]) {
+            playerEntriesMap[entry.player] +=
+              entry.currentEntriesLength.toNumber();
+          } else {
+            playerEntriesMap[entry.player] =
+              entry.currentEntriesLength.toNumber();
+          }
+
+          overallSum += entry.currentEntriesLength.toNumber();
+        }
+
+        const tempEntryDataList: EntryData[] = Object.entries(
+          playerEntriesMap
+        ).map(([player, currentEntriesLength]) => ({
+          player,
+          currentEntriesLength,
+        }));
+
+        setEntryDataList(tempEntryDataList);
+        setTotalEntries(overallSum);
+      };
+
+      entriesList();
+    } catch (error: unknown) {
+      console.error(error);
+    }
+  }, []);
+
   return (
     <div>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
@@ -362,12 +428,8 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                         !isConnected ||
                         !enoughFunds ||
                         address === creatorWalletAddress ||
-                        ticketNum >
-                          ticketSupply -
-                            totalTicketsSold.data?._sum.numTickets! ||
-                        ticketSupply -
-                          totalTicketsSold.data?._sum.numTickets! <=
-                          0 ||
+                        ticketNum > ticketSupply - totalEntries ||
+                        ticketSupply - totalEntries <= 0 ||
                         endDate! < new Date()
                       }
                     >
@@ -529,14 +591,9 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                               Tickets Remaining
                             </label>
                             <p className="mb-3 font-normal text-gray-500">
-                              {totalTicketsSold.isLoading && (
-                                <div>Loading...</div>
-                              )}
-                              {totalTicketsSold.data && (
+                              {totalEntries && (
                                 <div>
-                                  {ticketSupply -
-                                    totalTicketsSold.data._sum.numTickets!}{" "}
-                                  / {ticketSupply}
+                                  {ticketSupply - totalEntries} / {ticketSupply}
                                 </div>
                               )}
                             </p>
@@ -579,11 +636,19 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                               Tickets Purchased
                             </label>
                           </div>
-                          {/* map through allParticipantsForRaffle and list out some data */}
-                          {allParticipantsForRaffle.isLoading && (
-                            <div>Loading...</div>
-                          )}
-                          {allParticipantsForRaffle.data &&
+
+                          {entryDataList &&
+                            entryDataList.map((entryData) => (
+                              <div className="mb-4 flex flex-row justify-between">
+                                <p className="mb-3 block truncate font-normal text-gray-500 sm:inline-block sm:overflow-visible ">
+                                  {entryData.player}
+                                </p>
+                                <p className="mb-3 font-normal text-gray-500">
+                                  {entryData.currentEntriesLength}
+                                </p>
+                              </div>
+                            ))}
+                          {/* {allParticipantsForRaffle.data &&
                             allParticipantsForRaffle.data!.map(
                               (participant) => (
                                 <div className="mb-4 flex flex-row justify-between">
@@ -595,7 +660,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                                   </p>
                                 </div>
                               )
-                            )}
+                            )} */}
                         </div>
                       </div>
                     </>
