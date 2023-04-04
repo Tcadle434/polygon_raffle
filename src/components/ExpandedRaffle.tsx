@@ -221,7 +221,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
       setTimeout(() => {
         setWinnerSelectLoading(false);
         router.reload();
-      }, 3000);
+      }, 30000);
     }
   };
 
@@ -260,8 +260,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
           const randomNumber = await contract.getRaffleRandomNumber(
             contractRaffleId
           );
-          console.log("random number available, let's send out the prize!");
-          console.log("random number: ", randomNumber);
+
           tx = await contract.transferNFTAndFunds(contractRaffleId, {
             gasLimit: 1000000,
           });
