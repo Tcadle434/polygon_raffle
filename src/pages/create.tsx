@@ -544,9 +544,9 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
                                 !ticketPrice ||
                                 !ticketSupply ||
                                 !raffleEndDate ||
-                                raffleEndDate < new Date()
-                                // raffleEndDate.getTime() - new Date().getTime() <
-                                //   86400000
+                                raffleEndDate < new Date() ||
+                                raffleEndDate.getTime() - new Date().getTime() <
+                                  86400000
                               }
                             >
                               Submit
