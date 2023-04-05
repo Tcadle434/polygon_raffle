@@ -556,9 +556,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                             onClick={() => handleGenerateRandomNumber()}
                             disabled={winnerSelectLoading || !isConnected}
                           >
-                            <h3 className="text-xl font-bold">
-                              Generate Random Number
-                            </h3>
+                            <h3 className="text-xl font-bold">Draw Ticket</h3>
                           </button>
                         )}
                       </div>
@@ -598,7 +596,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                             onClick={() => handleTransferWinnings()}
                             disabled={winnerSelectLoading || !isConnected}
                           >
-                            <h3 className="text-xl font-bold">Pick Winner</h3>
+                            <h3 className="text-xl font-bold">Reveal Winner</h3>
                           </button>
                         )}
                       </div>
