@@ -5,6 +5,7 @@ import Image from "next/image";
 
 import { useAccount, useBalance } from "wagmi";
 import { BigNumber, ethers } from "ethers";
+import { Network, Alchemy } from "alchemy-sdk";
 import z from "zod";
 import {
   CheckBadgeIcon,
@@ -22,6 +23,7 @@ import {
   CONTRACT_ADDRESS,
   BASE_EXPLORER_URL,
   BASE_ME_COLLECTION_URL,
+  API_KEY,
 } from "~/lib/constants";
 import { verified } from "~/lib/verified";
 
@@ -390,33 +392,37 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
    * the random number and is ready to transfer out the prizes
    */
   useEffect(() => {
-    try {
-      const provider = new ethers.providers.Web3Provider(
-        window.ethereum as ethers.providers.ExternalProvider
-      );
+    const checkRaffleStatus = async () => {
+      try {
+        const alchemy = new Alchemy({
+          apiKey: API_KEY,
+          network: Network.MATIC_MAINNET,
+        });
 
-      const signer = provider.getSigner();
-      const contract = new ethers.Contract(
-        CONTRACT_ADDRESS,
-        contractAbi,
-        signer
-      );
+        const provider = await alchemy.config.getProvider();
 
-      const hasRandomNumberGenerated = async () => {
+        const contract = new ethers.Contract(
+          CONTRACT_ADDRESS,
+          contractAbi,
+          provider
+        );
+
         const raffleStatus = await contract.getRaffleStatus(contractRaffleId);
         const isRandomNumberAvailable = await contract.getRandomNumberAvailable(
           contractRaffleId
         );
-        console.log("isRandomNumberAvailable: ", isRandomNumberAvailable);
+
         if (raffleStatus === 4 && isRandomNumberAvailable) {
           setIsRaffleRandomNumberGenerated(true);
         }
-      };
-      hasRandomNumberGenerated();
-    } catch (error) {
-      console.error(error);
-    }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    checkRaffleStatus();
   }, []);
+
   /**
    * useEffect to read the actual entries from the smart contract.
    * We can then use this to display the actual number of entries
@@ -425,19 +431,21 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
    * the smart contract.
    */
   useEffect(() => {
-    try {
-      const provider = new ethers.providers.Web3Provider(
-        window.ethereum as ethers.providers.ExternalProvider
-      );
+    const getEntries = async () => {
+      try {
+        const alchemy = new Alchemy({
+          apiKey: API_KEY,
+          network: Network.MATIC_MAINNET,
+        });
 
-      const signer = provider.getSigner();
-      const contract = new ethers.Contract(
-        CONTRACT_ADDRESS,
-        contractAbi,
-        signer
-      );
+        const provider = await alchemy.config.getProvider();
 
-      const entriesList = async () => {
+        const contract = new ethers.Contract(
+          CONTRACT_ADDRESS,
+          contractAbi,
+          provider
+        );
+
         const entriesLength = await contract.getEntriesSize(contractRaffleId);
 
         const playerEntriesMap: { [player: string]: number } = {};
@@ -466,12 +474,12 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
 
         setEntryDataList(tempEntryDataList);
         setTotalEntries(overallSum);
-      };
+      } catch (error: unknown) {
+        console.error(error);
+      }
+    };
 
-      entriesList();
-    } catch (error: unknown) {
-      console.error(error);
-    }
+    getEntries();
   }, []);
 
   return (
