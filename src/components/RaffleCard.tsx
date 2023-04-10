@@ -2,11 +2,15 @@ import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { api } from "~/utils/api";
 import CountdownTimer from "./CountdownTimer";
+import { Network, Alchemy } from "alchemy-sdk";
 import { verified } from "~/lib/verified";
 import {
   CheckBadgeIcon,
   ExclamationTriangleIcon,
 } from "@heroicons/react/20/solid";
+import contractAbi from "../contracts/raffle.json";
+import { CONTRACT_ADDRESS, API_KEY } from "~/lib/constants";
+import { ethers } from "ethers";
 
 interface CardProps {
   raffleId: string;
@@ -20,6 +24,7 @@ interface CardProps {
   totalTickets: number;
   newLimit: () => void;
   isLast: boolean;
+  contractRaffleId: string;
 }
 
 const RaffleCard = ({
@@ -34,9 +39,12 @@ const RaffleCard = ({
   totalTickets,
   newLimit,
   isLast,
+  contractRaffleId,
 }: CardProps) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
+  const [totalEntries, setTotalEntries] = useState<number>();
+
   const cardRef = useRef();
   const totalTicketsSold =
     api.participant.getTotalNumTicketsByRaffleId.useQuery(raffleId);
@@ -63,6 +71,56 @@ const RaffleCard = ({
       setIsVerified(true);
     }
   }, [nftContractAddress]);
+
+  /**
+   * useEffect to read the actual entries from the smart contract.
+   * We can then use this to display the actual number of entries
+   * in the raffle instead of reading from the database.
+   * This is to prevent any discrepancies between the database and
+   * the smart contract.
+   */
+  useEffect(() => {
+    const getEntries = async () => {
+      try {
+        const alchemy = new Alchemy({
+          apiKey: API_KEY,
+          network: Network.MATIC_MAINNET,
+        });
+
+        const provider = await alchemy.config.getProvider();
+
+        const contract = new ethers.Contract(
+          CONTRACT_ADDRESS,
+          contractAbi,
+          provider
+        );
+
+        const entriesLength = await contract.getEntriesSize(contractRaffleId);
+
+        const playerEntriesMap: { [player: string]: number } = {};
+        let overallSum = 0;
+
+        for (let i = 0; i < entriesLength.toNumber(); i++) {
+          const entry = await contract.entriesList(contractRaffleId, i);
+
+          if (playerEntriesMap[entry.player]) {
+            playerEntriesMap[entry.player] +=
+              entry.currentEntriesLength.toNumber();
+          } else {
+            playerEntriesMap[entry.player] =
+              entry.currentEntriesLength.toNumber();
+          }
+
+          overallSum += entry.currentEntriesLength.toNumber();
+        }
+        setTotalEntries(overallSum);
+      } catch (error: unknown) {
+        console.error(error);
+      }
+    };
+
+    getEntries();
+  }, []);
 
   return (
     <div className="max-w-sm rounded-lg border border-gray-700 bg-[#59368B] shadow transition duration-300 ease-in-out hover:scale-105 hover:transform">
@@ -116,10 +174,18 @@ const RaffleCard = ({
             </label>
             <div className="mb-3 block truncate font-normal text-white sm:inline-block sm:overflow-visible">
               {totalTicketsSold.isLoading && <p>Loading...</p>}
-              {totalTicketsSold.data && (
+              {/* {totalTicketsSold.data && (
                 <p>
                   {totalTickets - totalTicketsSold.data._sum.numTickets!} /{" "}
                   {totalTickets}
+                </p>
+              )} */}
+
+              {totalEntries === undefined ? (
+                <p>loading...</p>
+              ) : (
+                <p>
+                  {totalTickets - totalEntries} / {totalTickets}
                 </p>
               )}
             </div>

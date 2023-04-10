@@ -72,7 +72,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
   const [ticketNum, setTicketNum] = useState(1);
   const [buySuccess, setBuySuccess] = useState(0);
   const [winnerPickedSuccess, setWinnerPickedSuccess] = useState(0);
-  const [totalEntries, setTotalEntries] = useState(0);
+  const [totalEntries, setTotalEntries] = useState<number>();
   const [winnerSelectLoading, setWinnerSelectLoading] = useState(false);
   const [buyTicketsLoading, setBuyTicketsLoading] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
@@ -526,8 +526,9 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                         !isConnected ||
                         !enoughFunds ||
                         address === creatorWalletAddress ||
-                        ticketNum > ticketSupply - totalEntries ||
-                        ticketSupply - totalEntries <= 0 ||
+                        totalEntries === undefined ||
+                        ticketNum > ticketSupply - totalEntries! ||
+                        ticketSupply - totalEntries! <= 0 ||
                         endDate! < new Date()
                       }
                     >
@@ -737,7 +738,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                             </label>
 
                             <div className="mb-3 font-normal text-gray-500">
-                              {!totalEntries ? (
+                              {totalEntries === undefined ? (
                                 <p>loading...</p>
                               ) : (
                                 <p>
