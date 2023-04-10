@@ -137,6 +137,7 @@ const profile = () => {
                             totalTickets={raffle.raffle.ticketSupply}
                             isLast={false}
                             newLimit={() => {}}
+                            contractRaffleId={raffle.raffle.contractRaffleId}
                           />
                         </Link>
                       </li>
@@ -170,6 +171,7 @@ const profile = () => {
                           totalTickets={raffle.ticketSupply}
                           isLast={false}
                           newLimit={() => {}}
+                          contractRaffleId={raffle.contractRaffleId}
                         />
                       </Link>
                     </li>

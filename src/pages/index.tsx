@@ -274,6 +274,7 @@ const Home = () => {
                           totalTickets={raffle.ticketSupply}
                           isLast={index === allRaffles.data.length - 1}
                           newLimit={() => setPage(page + 1)}
+                          contractRaffleId={raffle.contractRaffleId}
                         />
                       </Link>
                     </li>
@@ -296,6 +297,7 @@ const Home = () => {
                           totalTickets={raffle.ticketSupply}
                           isLast={index === allRaffles.data.length - 1}
                           newLimit={() => setPage(page + 1)}
+                          contractRaffleId={raffle.contractRaffleId}
                         />
                       </Link>
                     </li>
@@ -329,6 +331,7 @@ const Home = () => {
                           totalTickets={raffle.ticketSupply}
                           isLast={index === allRaffles.data.length - 1}
                           newLimit={() => setPage(page + 1)}
+                          contractRaffleId={raffle.contractRaffleId}
                         />
                       </Link>
                     </li>
@@ -351,6 +354,7 @@ const Home = () => {
                           totalTickets={raffle.ticketSupply}
                           isLast={index === allRaffles.data.length - 1}
                           newLimit={() => setPage(page + 1)}
+                          contractRaffleId={raffle.contractRaffleId}
                         />
                       </Link>
                     </li>
@@ -384,6 +388,7 @@ const Home = () => {
                           totalTickets={raffle.ticketSupply}
                           isLast={index === allRaffles.data.length - 1}
                           newLimit={() => setPage(page + 1)}
+                          contractRaffleId={raffle.contractRaffleId}
                         />
                       </Link>
                     </li>
@@ -406,6 +411,7 @@ const Home = () => {
                           totalTickets={raffle.ticketSupply}
                           isLast={index === allRaffles.data.length - 1}
                           newLimit={() => setPage(page + 1)}
+                          contractRaffleId={raffle.contractRaffleId}
                         />
                       </Link>
                     </li>
