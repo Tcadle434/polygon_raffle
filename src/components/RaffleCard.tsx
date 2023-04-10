@@ -94,25 +94,7 @@ const RaffleCard = ({
           contractAbi,
           provider
         );
-
-        const entriesLength = await contract.getEntriesSize(contractRaffleId);
-
-        const playerEntriesMap: { [player: string]: number } = {};
-        let overallSum = 0;
-
-        for (let i = 0; i < entriesLength.toNumber(); i++) {
-          const entry = await contract.entriesList(contractRaffleId, i);
-
-          if (playerEntriesMap[entry.player]) {
-            playerEntriesMap[entry.player] +=
-              entry.currentEntriesLength.toNumber();
-          } else {
-            playerEntriesMap[entry.player] =
-              entry.currentEntriesLength.toNumber();
-          }
-
-          overallSum += entry.currentEntriesLength.toNumber();
-        }
+        const overallSum = await contract.getNumberOfEntries(contractRaffleId);
         setTotalEntries(overallSum);
       } catch (error: unknown) {
         console.error(error);
