@@ -72,6 +72,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
   const [ticketNum, setTicketNum] = useState(1);
   const [buySuccess, setBuySuccess] = useState(0);
   const [winnerPickedSuccess, setWinnerPickedSuccess] = useState(0);
+  const [userEntries, setUserEntries] = useState<number>(0);
   const [totalEntries, setTotalEntries] = useState<number>();
   const [winnerSelectLoading, setWinnerSelectLoading] = useState(false);
   const [buyTicketsLoading, setBuyTicketsLoading] = useState(false);
@@ -108,6 +109,13 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
         console.log("Failed to update with winner wallet address: ", err);
       },
     });
+
+  function shortenAddress(address: string, chars: number = 4): string {
+    if (!address) return "";
+    const start = address.slice(0, 2 + chars);
+    const end = address.slice(-chars);
+    return `${start}...${end}`;
+  }
 
   /**
    * Handler to purchase the tickets for the raffle. This function will
@@ -472,6 +480,11 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
           currentEntriesLength,
         }));
 
+        if (isConnected) {
+          const connectedWalletEntries = playerEntriesMap[address!] || 0;
+          setUserEntries(connectedWalletEntries);
+        }
+
         setEntryDataList(tempEntryDataList);
         setTotalEntries(overallSum);
       } catch (error: unknown) {
@@ -770,10 +783,38 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                             <label className="text-md text-secondary line-clamp-1">
                               Raffler Address
                             </label>
-                            <p className="mb-3 block truncate font-normal text-gray-500 sm:inline-block sm:overflow-visible ">
-                              {creatorWalletAddress}
-                            </p>
+                            <a
+                              href={`${BASE_EXPLORER_URL}/address/${creatorWalletAddress}`}
+                            >
+                              <p className="mb-3 block truncate font-normal text-gray-500 sm:inline-block sm:overflow-visible ">
+                                {shortenAddress(creatorWalletAddress)}
+                              </p>
+                            </a>
                           </div>
+                          {isConnected && (
+                            <div className="flex flex-col ">
+                              <label className="text-md text-secondary line-clamp-1">
+                                Tickets Owned
+                              </label>
+                              <p className="mb-3 block truncate font-normal text-gray-500 sm:inline-block sm:overflow-visible ">
+                                {userEntries}{" "}
+                                {totalEntries === 0 || undefined ? (
+                                  <span className="text-sm text-secondary">
+                                    (0% chance)
+                                  </span>
+                                ) : (
+                                  <span className="text-sm text-secondary">
+                                    (
+                                    {(
+                                      (userEntries / totalEntries!) *
+                                      100
+                                    ).toFixed(2)}
+                                    % chance)
+                                  </span>
+                                )}
+                              </p>
+                            </div>
+                          )}
                         </div>
                         <Divider labelText="Participants" />
                         <div className="mt-8">
