@@ -8,7 +8,6 @@ import { api } from "~/utils/api";
 import RaffleCard from "~/components/RaffleCard";
 import Navbar from "~/components/Navbar";
 import Footer from "~/components/Footer";
-import CarouselComponent from "~/components/CarouselComponent";
 import Carousel from "~/components/Carousel";
 import { verified } from "~/lib/verified";
 
@@ -106,14 +105,6 @@ const Home = () => {
       <main className="flex min-h-screen flex-col items-center bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-[#59368B] to-slate-900">
         <div className="w-full gap-12 px-4 pb-8 md:px-12 lg:px-24">
           <Carousel />
-          {/* <CarouselComponent
-            collectionName="The Sandbox"
-            collectionDescription="a sample description of this NFT project for the banner"
-            collectionBannerUrl="/sandbox_banner.jpeg"
-            collectionLogoUrl="/sandbox_logo.jpeg"
-            marketplaceUrl="https://polygon.magiceden.io/collections/polygon/0x9d305a42a3975ee4c1c57555bed5919889dce63f"
-            marketplaceName="MagicEden"
-          /> */}
           <div className="mt-8 flex flex-col items-center text-center">
             <h1 className="font-mono text-2xl tracking-wide text-white md:text-4xl">
               Polygon's Premier NFT Raffle Platform

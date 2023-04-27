@@ -215,33 +215,45 @@ export const raffleRouter = createTRPCRouter({
           wallet
         );
 
-        const gasPrice = await provider.getGasPrice();
-        const increasedGasPrice = gasPrice.mul(ethers.BigNumber.from(2)); // Increase the gas price by a factor of 2
-
-        const gasLimitEstimation = await provider.estimateGas({
-          to: CONTRACT_ADDRESS,
-          from: wallet.address,
-          data: contract.interface.encodeFunctionData("transferNFTAndFunds", [
-            contractRaffleId,
-          ]),
-        });
-
-        const gasLimit = gasLimitEstimation.add(ethers.BigNumber.from(10000)); // Add a buffer to the estimated gas limit
-
-        // Add the new gas price options to the transaction
-        const transferTx = await contract.transferNFTAndFunds(
-          contractRaffleId,
-          {
-            gasLimit: gasLimit,
-            gasPrice: increasedGasPrice,
-          }
+        const raffleStatus = await contract.getRaffleStatus(contractRaffleId);
+        const isRandomNumberAvailable = await contract.getRandomNumberAvailable(
+          contractRaffleId
         );
-        console.log("after transfer tx: ", transferTx);
-        let transferRes = await transferTx.wait();
-        console.log("res: ", transferRes);
-        return { transferTx, transferRes };
+
+        if (raffleStatus === 4 && isRandomNumberAvailable) {
+          console.log(
+            "time to send out winnings on the backend to contract Raffle ID: ",
+            contractRaffleId
+          );
+          const gasPrice = await provider.getGasPrice();
+          const increasedGasPrice = gasPrice.mul(ethers.BigNumber.from(2)); // Increase the gas price by a factor of 2
+
+          const gasLimitEstimation = await provider.estimateGas({
+            to: CONTRACT_ADDRESS,
+            from: wallet.address,
+            data: contract.interface.encodeFunctionData("transferNFTAndFunds", [
+              contractRaffleId,
+            ]),
+          });
+
+          const gasLimit = gasLimitEstimation.add(ethers.BigNumber.from(10000)); // Add a buffer to the estimated gas limit
+
+          // Add the new gas price options to the transaction
+          const transferTx = await contract.transferNFTAndFunds(
+            contractRaffleId,
+            {
+              gasLimit: gasLimit,
+              gasPrice: increasedGasPrice,
+            }
+          );
+          console.log("after transfer tx: ", transferTx);
+          let transferRes = await transferTx.wait();
+          console.log("res: ", transferRes);
+          return { transferTx, transferRes };
+        }
       } catch (error) {
-        console.error(error);
+        return {};
       }
+      return {};
     }),
 });

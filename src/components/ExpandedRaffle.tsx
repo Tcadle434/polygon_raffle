@@ -17,7 +17,6 @@ import CountdownTimer from "./CountdownTimer";
 import SuccessAlert from "./SuccessAlert";
 import ErrorAlert from "./ErrorAlert";
 import Divider from "./Divider";
-
 import contractAbi from "../contracts/raffle.json";
 import {
   CONTRACT_ADDRESS,
@@ -214,10 +213,10 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
             contract.interface.getEventTopic("SetWinnerTriggered")
         );
         const parsedLogs = logs.map((log) => contract.interface.parseLog(log));
-        console.log("logs: ", logs);
-        console.log("parsedLogs: ", parsedLogs);
+        // console.log("logs: ", logs);
+        // console.log("parsedLogs: ", parsedLogs);
         const setWinnerRaffleId = parsedLogs[0]?.args?.raffleId;
-        console.log("setWinnerRaffleId: ", setWinnerRaffleId);
+        // console.log("setWinnerRaffleId: ", setWinnerRaffleId);
         if (setWinnerRaffleId) {
           setIsRequestingRandomNumber(true);
         }
@@ -249,9 +248,8 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
    * updateRaffleWinnerPickedWithWinnerWalletAddress tRPC call.
    */
   const handleTransferWinnings = async () => {
-    // setWinnerSelectLoading(true);
+    setWinnerSelectLoading(true);
     try {
-      console.log("handleTransferWinnings");
       if (window.ethereum) {
         const provider = new ethers.providers.Web3Provider(
           window.ethereum as ethers.providers.ExternalProvider
@@ -268,9 +266,6 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
           contractRaffleId
         );
 
-        console.log("raffleStatus: ", raffleStatus);
-        console.log("isRandomNumberAvailable: ", isRandomNumberAvailable);
-
         const raffleEndedTopic =
           contract.interface.getEventTopic("RaffleEnded");
 
@@ -278,8 +273,6 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
         let tx: any;
 
         if (raffleStatus === 4 && isRandomNumberAvailable) {
-          console.log("raffle read to transfer winnings");
-
           transferResult.refetch().then(async ({ data }) => {
             if (data) {
               const { transferTx, transferRes } = data;
@@ -342,6 +335,7 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                 `See Transaction: ${BASE_EXPLORER_URL}/tx/${tx.hash}`
               );
               setShouldReload(true);
+              setWinnerSelectLoading(false);
             }
           });
         } else {
@@ -632,17 +626,6 @@ const ExpandedRaffle: NextPage<RaffleProps> = ({
                         <h3 className="text-md mb-4 font-mono font-bold text-light">
                           Preparing to reveal winner...
                         </h3>
-                        {/* {(address ===
-                          "0x11E7Fa3Bc863bceD1F1eC85B6EdC9b91FdD581CF" ||
-                          address === creatorWalletAddress) && (
-                          <button
-                            className="relative mr-8 -ml-px inline-flex items-center  rounded bg-light px-4 py-2 text-sm font-medium text-white hover:bg-pink-200 focus:z-10 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 "
-                            onClick={() => handleTransferWinnings()}
-                            disabled={winnerSelectLoading || !isConnected}
-                          >
-                            <h3 className="text-xl font-bold">Reveal Winner</h3>
-                          </button>
-                        )} */}
                       </div>
                     </div>
                   </div>
