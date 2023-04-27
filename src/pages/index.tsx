@@ -57,7 +57,8 @@ const Home = () => {
 
   const completedRaffles = filteredRaffles
     .filter((raffle) => raffle.endDate! < new Date() && raffle.winnerPicked)
-    .sort((a, b) => a.endDate!.getTime() - b.endDate!.getTime());
+    .sort((a, b) => a.endDate!.getTime() - b.endDate!.getTime())
+    .reverse();
 
   const activeRafflesVerified = filteredRaffles
     .filter(
@@ -92,7 +93,8 @@ const Home = () => {
             address.toLowerCase() === raffle.nftContractAddress.toLowerCase()
         )
     )
-    .sort((a, b) => a.endDate!.getTime() - b.endDate!.getTime());
+    .sort((a, b) => a.endDate!.getTime() - b.endDate!.getTime())
+    .reverse();
 
   return (
     <>
