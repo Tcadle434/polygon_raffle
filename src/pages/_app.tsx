@@ -1,82 +1,57 @@
 import { type AppType } from "next/app";
-import { useEffect, useState } from "react";
 import { api } from "~/utils/api";
-
-import { configureChains, createClient, WagmiConfig } from "wagmi";
-import { polygon } from "wagmi/chains";
-import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
-import { Web3Modal } from "@web3modal/react";
-import {
-  EthereumClient,
-  modalConnectors,
-  walletConnectProvider,
-} from "@web3modal/ethereum";
+import { DynamicContextProvider, SortWallets } from "@dynamic-labs/sdk-react";
+import { DynamicWagmiConnector } from "@dynamic-labs/wagmi-connector";
 import "~/styles/globals.css";
 
-if (!process.env.NEXT_PUBLIC_PROJECT_ID) {
-  throw new Error("You need to provide NEXT_PUBLIC_PROJECT_ID env variable");
-}
-const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
-const chains = [polygon];
-
-const { provider } = configureChains(chains, [
-  walletConnectProvider({ projectId }),
-]);
-
-// const { chains, provider } = configureChains(
-//   [polygon],
-//   [
-//     jsonRpcProvider({
-//       rpc: (chain) => ({
-//         http: `https://rpc.buildbear.io/Enthusiastic_Palpatine_a518d1ca`,
-//       }),
-//     }),
-//   ]
-// );
-
-const wagmiClient = createClient({
-  autoConnect: true,
-  connectors: modalConnectors({
-    version: "1",
-    appName: "web3Modal",
-    chains,
-    projectId,
-  }),
-  provider,
-});
-
-const ethereumClient = new EthereumClient(wagmiClient, chains);
+// Setting up list of evmNetworks
+const evmNetworks = [
+  {
+    blockExplorerUrls: ["https://polygonscan.com/"],
+    chainId: 137,
+    chainName: "Matic Mainnet",
+    iconUrls: ["https://app.dynamic.xyz/assets/networks/polygon.svg"],
+    nativeCurrency: {
+      decimals: 18,
+      name: "MATIC",
+      symbol: "MATIC",
+    },
+    networkId: 137,
+    rpcUrls: ["https://polygon-rpc.com"],
+    shortName: "MATIC",
+    vanityName: "Polygon",
+  },
+];
 
 const MyApp: AppType = ({ Component, pageProps }) => {
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    setReady(true);
-
-    // Reload page on chain or account change
-    if (window.ethereum) {
-      window.ethereum.on!("chainChanged", () => {
-        window.location.reload();
-      });
-      window.ethereum.on!("accountsChanged", () => {
-        window.location.reload();
-      });
-    }
-  }, []);
-
   return (
     <>
-      {ready ? (
-        <WagmiConfig client={wagmiClient}>
+      <DynamicContextProvider
+        settings={{
+          appLogoUrl: "/logo.png",
+          appName: "Raffi3",
+          environmentId: "8a32ec07-8b0d-4e31-b764-17bb0ca29ef2",
+          evmNetworks,
+          walletsFilter: SortWallets([
+            "phantomevm",
+            "metamask",
+            "walletconnect",
+            "coinbase",
+          ]),
+          defaultNumberOfWalletsToShow: 4,
+          newToWeb3WalletChainMap: {
+            primary_chain: "evm",
+            wallets: {
+              evm: "phantomevm",
+              solana: "phantom",
+            },
+          },
+        }}
+      >
+        <DynamicWagmiConnector>
           <Component {...pageProps} />
-        </WagmiConfig>
-      ) : null}
-
-      <Web3Modal
-        projectId={projectId}
-        ethereumClient={ethereumClient}
-        themeColor="teal"
-      />
+        </DynamicWagmiConnector>
+      </DynamicContextProvider>
     </>
   );
 };

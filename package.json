@@ -11,6 +11,8 @@
     "start": "next start"
   },
   "dependencies": {
+    "@dynamic-labs/sdk-react": "^0.16.10",
+    "@dynamic-labs/wagmi-connector": "^0.16.10",
     "@headlessui/react": "^1.7.12",
     "@heroicons/react": "^2.0.16",
     "@infura/sdk": "^2.1.5",
