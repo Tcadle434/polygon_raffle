@@ -2,9 +2,9 @@ import { Fragment } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/20/solid";
-import { Web3Button } from "@web3modal/react";
 import { useAccount } from "wagmi";
 import Link from "next/link";
+import { DynamicWidget } from "@dynamic-labs/sdk-react";
 
 function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(" ");
@@ -62,11 +62,7 @@ export default function Navbar() {
                 </div>
                 <div className="hidden md:ml-4 md:flex md:flex-shrink-0 md:items-center">
                   <div className="mx-2 flex-shrink-0">
-                    <Web3Button
-                      icon="show"
-                      label="Connect Wallet"
-                      balance="show"
-                    />
+                    <DynamicWidget />
                   </div>
 
                   {/* Profile dropdown */}
@@ -125,11 +121,7 @@ export default function Navbar() {
                 className="block items-center justify-center py-2 pl-3 pr-4 text-base font-medium text-indigo-700 sm:pl-5 sm:pr-6"
               >
                 <div className="mx-2 flex-shrink-0 items-center justify-center ">
-                  <Web3Button
-                    icon="show"
-                    label="Connect Wallet"
-                    balance="show"
-                  />
+                  <DynamicWidget />
                 </div>
               </Disclosure.Button>
               <Disclosure.Button
