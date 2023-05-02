@@ -2,6 +2,7 @@ import { type AppType } from "next/app";
 import { api } from "~/utils/api";
 import { DynamicContextProvider, SortWallets } from "@dynamic-labs/sdk-react";
 import { DynamicWagmiConnector } from "@dynamic-labs/wagmi-connector";
+import { env } from "~/env.mjs";
 import "~/styles/globals.css";
 
 // Setting up list of evmNetworks
@@ -30,7 +31,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
         settings={{
           appLogoUrl: "/logo.png",
           appName: "Raffi3",
-          environmentId: "8a32ec07-8b0d-4e31-b764-17bb0ca29ef2",
+          environmentId: process.env.NEXT_PUBLIC_ENV_ID!,
           evmNetworks,
           walletsFilter: SortWallets([
             "phantomevm",

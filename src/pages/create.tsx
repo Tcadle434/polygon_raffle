@@ -76,6 +76,7 @@ const create: React.FC<Props> = ({ formId, loaderId }) => {
   });
 
   async function getOwnerNfts(): Promise<OwnedNftsResponse> {
+    console.log(address);
     return alchemy.nft.getNftsForOwner(address!);
   }
 
